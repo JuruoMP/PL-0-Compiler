@@ -1,0 +1,536 @@
+(  1,   1)	CONSTTK     	
+(  1,   7)	IDENTTK     	
+(  1,  10)	EQUTK       	
+(  1,  12)	ITK         	10
+(  1,  15)	COMMATK     	
+(  1,  17)	IDENTTK     	
+(  1,  20)	EQUTK       	
+(  1,  22)	SUBTK       	
+(  1,  23)	ITK         	5
+(  1,  24)	COMMATK     	
+(  1,  26)	IDENTTK     	
+(  1,  29)	EQUTK       	
+(  1,  31)	ADDTK       	
+(  1,  32)	ITK         	1
+(  1,  33)	COMMATK     	
+(  1,  35)	IDENTTK     	
+(  1,  37)	EQUTK       	
+(  1,  39)	SQUOTETK    	z
+(  1,  42)	SEMICOLONTK 	
+(  3,   1)	VARTK       	
+(  3,   5)	IDENTTK     	
+(  3,   8)	COLONTK     	
+(  3,  10)	INTTK       	
+(  3,  17)	SEMICOLONTK 	
+(  4,   5)	IDENTTK     	
+(  4,   7)	COMMATK     	
+(  4,   9)	IDENTTK     	
+(  4,  12)	COLONTK     	
+(  4,  14)	CHARTK      	
+(  4,  18)	SEMICOLONTK 	
+(  5,   2)	IDENTTK     	
+(  5,   4)	COLONTK     	
+(  5,   6)	CHARTK      	
+(  5,  10)	SEMICOLONTK 	
+(  6,   2)	IDENTTK     	
+(  6,   6)	COLONTK     	
+(  6,   8)	ARRAYTK     	
+(  6,  13)	LSQRBRACTK  	
+(  6,  14)	ITK         	10
+(  6,  16)	RSQRBRACTK  	
+(  6,  18)	IDENTTK     	
+(  6,  21)	INTTK       	
+(  6,  28)	SEMICOLONTK 	
+(  7,   2)	IDENTTK     	
+(  7,   9)	COLONTK     	
+(  7,  11)	CHARTK      	
+(  7,  15)	SEMICOLONTK 	
+(  8,   2)	IDENTTK     	
+(  8,   9)	COLONTK     	
+(  8,  11)	INTTK       	
+(  8,  18)	SEMICOLONTK 	
+(  9,   2)	IDENTTK     	
+(  9,   9)	COLONTK     	
+(  9,  11)	INTTK       	
+(  9,  18)	SEMICOLONTK 	
+( 10,   2)	IDENTTK     	
+( 10,   9)	COLONTK     	
+( 10,  11)	INTTK       	
+( 10,  18)	SEMICOLONTK 	
+( 11,   2)	IDENTTK     	
+( 11,   6)	COMMATK     	
+( 11,   8)	IDENTTK     	
+( 11,  13)	COLONTK     	
+( 11,  15)	INTTK       	
+( 11,  22)	SEMICOLONTK 	
+( 12,   2)	IDENTTK     	
+( 12,   3)	COMMATK     	
+( 12,   5)	IDENTTK     	
+( 12,   7)	COLONTK     	
+( 12,   9)	INTTK       	
+( 12,  16)	SEMICOLONTK 	
+( 14,   1)	PROCTK      	
+( 14,  11)	IDENTTK     	
+( 14,  16)	SEMICOLONTK 	
+( 15,   2)	VARTK       	
+( 15,   6)	IDENTTK     	
+( 15,   8)	COLONTK     	
+( 15,  10)	ARRAYTK     	
+( 15,  15)	LSQRBRACTK  	
+( 15,  16)	ITK         	10
+( 15,  19)	RSQRBRACTK  	
+( 15,  21)	IDENTTK     	
+( 15,  24)	CHARTK      	
+( 15,  28)	SEMICOLONTK 	
+( 16,   3)	IDENTTK     	
+( 16,   5)	COLONTK     	
+( 16,   7)	INTTK       	
+( 16,  14)	SEMICOLONTK 	
+( 17,   3)	IDENTTK     	
+( 17,   7)	COLONTK     	
+( 17,   9)	INTTK       	
+( 17,  16)	SEMICOLONTK 	
+( 19,   2)	PROCTK      	
+( 19,  12)	IDENTTK     	
+( 19,  17)	LPARENTTK   	
+( 19,  18)	VARTK       	
+( 19,  22)	IDENTTK     	
+( 19,  23)	COMMATK     	
+( 19,  25)	IDENTTK     	
+( 19,  26)	COLONTK     	
+( 19,  27)	INTTK       	
+( 19,  34)	SEMICOLONTK 	
+( 19,  36)	VARTK       	
+( 19,  40)	IDENTTK     	
+( 19,  41)	COLONTK     	
+( 19,  42)	CHARTK      	
+( 19,  46)	RPARENTTK   	
+( 19,  47)	SEMICOLONTK 	
+( 20,   3)	PROCTK      	
+( 20,  13)	IDENTTK     	
+( 20,  18)	SEMICOLONTK 	
+( 21,   4)	VARTK       	
+( 21,   8)	IDENTTK     	
+( 21,  12)	COLONTK     	
+( 21,  14)	CHARTK      	
+( 21,  18)	SEMICOLONTK 	
+( 22,   4)	BEGINTK     	
+( 23,   5)	IDENTTK     	
+( 23,   9)	SETTK       	
+( 23,  12)	SQUOTETK    	A
+( 23,  15)	SEMICOLONTK 	
+( 24,   5)	WRITETK     	
+( 24,  10)	LPARENTTK   	
+( 24,  11)	DQUOTETK    	i = 
+( 24,  17)	COMMATK     	
+( 24,  19)	IDENTTK     	
+( 24,  20)	RPARENTTK   	
+( 24,  21)	SEMICOLONTK 	
+( 25,   5)	WRITETK     	
+( 25,  10)	LPARENTTK   	
+( 25,  11)	IDENTTK     	
+( 25,  14)	RPARENTTK   	
+( 25,  15)	SEMICOLONTK 	
+( 26,   4)	ENDTK       	
+( 27,   3)	BEGINTK     	
+( 28,   4)	IDENTTK     	
+( 28,   6)	SETTK       	
+( 28,   9)	IDENTTK     	
+( 28,  11)	ADDTK       	
+( 28,  13)	LPARENTTK   	
+( 28,  14)	SUBTK       	
+( 28,  15)	IDENTTK     	
+( 28,  16)	RPARENTTK   	
+( 28,  17)	SEMICOLONTK 	
+( 29,   4)	WRITETK     	
+( 29,   9)	LPARENTTK   	
+( 29,  10)	DQUOTETK    	char integer const var for if array of 
+( 29,  51)	COMMATK     	
+( 29,  53)	ITK         	1
+( 29,  56)	ADDTK       	
+( 29,  58)	ITK         	10
+( 29,  60)	RPARENTTK   	
+( 29,  61)	SEMICOLONTK 	
+( 30,   4)	WRITETK     	
+( 30,   9)	LPARENTTK   	
+( 30,  10)	IDENTTK     	
+( 30,  11)	RPARENTTK   	
+( 30,  12)	SEMICOLONTK 	
+( 31,   4)	IDENTTK     	
+( 31,   9)	SEMICOLONTK 	
+( 32,   3)	ENDTK       	
+( 32,   6)	SEMICOLONTK 	
+( 34,   2)	BEGINTK     	
+( 35,   3)	IDENTTK     	
+( 35,   4)	LSQRBRACTK  	
+( 35,   5)	ITK         	0
+( 35,   6)	RSQRBRACTK  	
+( 35,   8)	SETTK       	
+( 35,  11)	SUBTK       	
+( 35,  12)	LPARENTTK   	
+( 35,  13)	SUBTK       	
+( 35,  14)	ITK         	1
+( 35,  15)	RPARENTTK   	
+( 35,  16)	SEMICOLONTK 	
+( 36,   3)	IDENTTK     	
+( 36,   4)	LSQRBRACTK  	
+( 36,   5)	ITK         	1
+( 36,   6)	RSQRBRACTK  	
+( 36,   8)	SETTK       	
+( 36,  11)	ADDTK       	
+( 36,  12)	ITK         	10
+( 36,  15)	SUBTK       	
+( 36,  17)	ITK         	18
+( 36,  20)	MULTK       	
+( 36,  22)	ITK         	3
+( 36,  24)	DIVTK       	
+( 36,  26)	ITK         	6
+( 36,  27)	SEMICOLONTK 	
+( 37,   3)	IDENTTK     	
+( 37,   4)	LSQRBRACTK  	
+( 37,   5)	ITK         	2
+( 37,   6)	RSQRBRACTK  	
+( 37,   8)	SETTK       	
+( 37,  11)	ITK         	2
+( 37,  14)	SUBTK       	
+( 37,  15)	ITK         	0
+( 37,  18)	SUBTK       	
+( 37,  19)	ITK         	0
+( 37,  23)	SEMICOLONTK 	
+( 38,   3)	FORTK       	
+( 38,   7)	IDENTTK     	
+( 38,   9)	SETTK       	
+( 38,  12)	ITK         	6
+( 38,  14)	DIVTK       	
+( 38,  16)	ITK         	2
+( 38,  18)	TOTK        	
+( 38,  21)	ITK         	2
+( 38,  23)	ADDTK       	
+( 38,  25)	ITK         	4
+( 38,  27)	DOTK        	
+( 39,   4)	IDENTTK     	
+( 39,   5)	LSQRBRACTK  	
+( 39,   6)	IDENTTK     	
+( 39,   7)	RSQRBRACTK  	
+( 39,   9)	SETTK       	
+( 39,  12)	IDENTTK     	
+( 39,  13)	LSQRBRACTK  	
+( 39,  14)	IDENTTK     	
+( 39,  16)	SUBTK       	
+( 39,  18)	ITK         	1
+( 39,  19)	RSQRBRACTK  	
+( 39,  21)	ADDTK       	
+( 39,  23)	IDENTTK     	
+( 39,  24)	LSQRBRACTK  	
+( 39,  25)	IDENTTK     	
+( 39,  27)	SUBTK       	
+( 39,  29)	ITK         	2
+( 39,  30)	RSQRBRACTK  	
+( 39,  31)	SEMICOLONTK 	
+( 40,   3)	IFTK        	
+( 40,   6)	IDENTTK     	
+( 40,   8)	SMALLTK     	
+( 40,  10)	LPARENTTK   	
+( 40,  11)	ITK         	2
+( 40,  13)	MULTK       	
+( 40,  15)	ITK         	3
+( 40,  16)	RPARENTTK   	
+( 41,   3)	THENTK      	
+( 41,   8)	WRITETK     	
+( 41,  13)	LPARENTTK   	
+( 41,  14)	DQUOTETK    	Compile error
+( 41,  29)	RPARENTTK   	
+( 41,  30)	SEMICOLONTK 	
+( 42,   3)	IDENTTK     	
+( 42,   7)	SETTK       	
+( 42,  10)	IDENTTK     	
+( 42,  11)	LSQRBRACTK  	
+( 42,  12)	ITK         	2
+( 42,  13)	RSQRBRACTK  	
+( 42,  14)	SEMICOLONTK 	
+( 43,   3)	IDENTTK     	
+( 43,   8)	LPARENTTK   	
+( 43,   9)	IDENTTK     	
+( 43,  10)	LSQRBRACTK  	
+( 43,  11)	ITK         	2
+( 43,  12)	RSQRBRACTK  	
+( 43,  13)	COMMATK     	
+( 43,  15)	IDENTTK     	
+( 43,  16)	LSQRBRACTK  	
+( 43,  17)	ITK         	1
+( 43,  18)	RSQRBRACTK  	
+( 43,  20)	ADDTK       	
+( 43,  22)	ITK         	3
+( 43,  23)	COMMATK     	
+( 43,  25)	IDENTTK     	
+( 43,  26)	RPARENTTK   	
+( 43,  27)	SEMICOLONTK 	
+( 44,   3)	IFTK        	
+( 44,   6)	IDENTTK     	
+( 44,   7)	LSQRBRACTK  	
+( 44,   8)	ITK         	2
+( 44,   9)	RSQRBRACTK  	
+( 44,  11)	NEQUTK      	
+( 44,  14)	IDENTTK     	
+( 45,   3)	THENTK      	
+( 45,   8)	WRITETK     	
+( 45,  13)	LPARENTTK   	
+( 45,  14)	DQUOTETK    	Sub check passed
+( 45,  32)	RPARENTTK   	
+( 45,  33)	SEMICOLONTK 	
+( 46,   2)	ENDTK       	
+( 46,   5)	SEMICOLONTK 	
+( 48,   1)	PROCTK      	
+( 48,  11)	IDENTTK     	
+( 48,  16)	LPARENTTK   	
+( 48,  17)	VARTK       	
+( 48,  21)	IDENTTK     	
+( 48,  22)	COMMATK     	
+( 48,  24)	IDENTTK     	
+( 48,  25)	COLONTK     	
+( 48,  26)	INTTK       	
+( 48,  33)	SEMICOLONTK 	
+( 48,  35)	VARTK       	
+( 48,  39)	IDENTTK     	
+( 48,  40)	COLONTK     	
+( 48,  41)	CHARTK      	
+( 48,  45)	RPARENTTK   	
+( 48,  46)	SEMICOLONTK 	
+( 49,   1)	BEGINTK     	
+( 50,   2)	SEMICOLONTK 	
+( 51,   1)	ENDTK       	
+( 51,   4)	SEMICOLONTK 	
+( 53,   1)	PROCTK      	
+( 53,  11)	IDENTTK     	
+( 53,  16)	LPARENTTK   	
+( 53,  17)	IDENTTK     	
+( 53,  18)	COMMATK     	
+( 53,  20)	IDENTTK     	
+( 53,  21)	COLONTK     	
+( 53,  22)	INTTK       	
+( 53,  29)	SEMICOLONTK 	
+( 53,  31)	IDENTTK     	
+( 53,  32)	COLONTK     	
+( 53,  33)	CHARTK      	
+( 53,  37)	RPARENTTK   	
+( 54,   1)	BEGINTK     	
+( 55,   1)	ENDTK       	
+( 55,   4)	SEMICOLONTK 	
+( 57,   1)	FUNCTK      	
+( 57,  10)	IDENTTK     	
+( 57,  15)	LPARENTTK   	
+( 57,  16)	IDENTTK     	
+( 57,  17)	COLONTK     	
+( 57,  18)	INTTK       	
+( 57,  25)	RPARENTTK   	
+( 57,  26)	COLONTK     	
+( 57,  27)	INTTK       	
+( 57,  34)	SEMICOLONTK 	
+( 58,   1)	BEGINTK     	
+( 59,   2)	IFTK        	
+( 59,   5)	IDENTTK     	
+( 59,   7)	SMALLTK     	
+( 59,   9)	ITK         	0
+( 60,   2)	THENTK      	
+( 60,   7)	IDENTTK     	
+( 60,   9)	SETTK       	
+( 60,  12)	ITK         	0
+( 60,  13)	SEMICOLONTK 	
+( 61,   2)	IFTK        	
+( 61,   5)	IDENTTK     	
+( 61,   7)	EQUTK       	
+( 61,   9)	ITK         	0
+( 62,   2)	THENTK      	
+( 62,   7)	IDENTTK     	
+( 62,  13)	SETTK       	
+( 62,  16)	ITK         	1
+( 62,  17)	SEMICOLONTK 	
+( 63,   2)	ELSETK      	
+( 63,   7)	IDENTTK     	
+( 63,  13)	SETTK       	
+( 63,  16)	IDENTTK     	
+( 63,  21)	LPARENTTK   	
+( 63,  22)	IDENTTK     	
+( 63,  24)	SUBTK       	
+( 63,  26)	ITK         	1
+( 63,  27)	RPARENTTK   	
+( 63,  29)	MULTK       	
+( 63,  31)	IDENTTK     	
+( 63,  32)	SEMICOLONTK 	
+( 64,   2)	IDENTTK     	
+( 64,   7)	LPARENTTK   	
+( 64,   8)	IDENTTK     	
+( 64,  10)	COMMATK     	
+( 64,  12)	IDENTTK     	
+( 64,  18)	COMMATK     	
+( 64,  20)	IDENTTK     	
+( 64,  26)	RPARENTTK   	
+( 64,  27)	SEMICOLONTK 	
+( 65,   1)	ENDTK       	
+( 65,   4)	SEMICOLONTK 	
+( 67,   1)	FUNCTK      	
+( 67,  10)	IDENTTK     	
+( 67,  15)	LPARENTTK   	
+( 67,  16)	IDENTTK     	
+( 67,  17)	COLONTK     	
+( 67,  18)	INTTK       	
+( 67,  25)	RPARENTTK   	
+( 67,  26)	COLONTK     	
+( 67,  27)	INTTK       	
+( 67,  34)	SEMICOLONTK 	
+( 68,   1)	BEGINTK     	
+( 69,   2)	IDENTTK     	
+( 69,   7)	LPARENTTK   	
+( 69,   8)	IDENTTK     	
+( 69,  10)	COMMATK     	
+( 69,  12)	IDENTTK     	
+( 69,  18)	COMMATK     	
+( 69,  20)	IDENTTK     	
+( 69,  26)	RPARENTTK   	
+( 69,  27)	SEMICOLONTK 	
+( 70,   2)	IFTK        	
+( 70,   5)	IDENTTK     	
+( 70,   7)	SMALLEQUTK  	
+( 70,  10)	ITK         	1
+( 71,   2)	THENTK      	
+( 71,   7)	IDENTTK     	
+( 71,   9)	SETTK       	
+( 71,  12)	ITK         	1
+( 71,  13)	SEMICOLONTK 	
+( 72,   2)	IDENTTK     	
+( 72,   8)	SETTK       	
+( 72,  11)	ITK         	1
+( 72,  12)	SEMICOLONTK 	
+( 73,   2)	DOTK        	
+( 74,   2)	BEGINTK     	
+( 75,   3)	IDENTTK     	
+( 75,   9)	SETTK       	
+( 75,  12)	IDENTTK     	
+( 75,  18)	MULTK       	
+( 75,  20)	IDENTTK     	
+( 75,  21)	SEMICOLONTK 	
+( 76,   3)	IDENTTK     	
+( 76,   5)	SETTK       	
+( 76,   8)	IDENTTK     	
+( 76,  10)	SUBTK       	
+( 76,  12)	ITK         	1
+( 76,  13)	SEMICOLONTK 	
+( 77,   2)	ENDTK       	
+( 78,   2)	WHILETK     	
+( 78,   8)	IDENTTK     	
+( 78,  10)	LARGEEQUTK  	
+( 78,  13)	ITK         	1
+( 79,   1)	ENDTK       	
+( 79,   4)	SEMICOLONTK 	
+( 81,   1)	FUNCTK      	
+( 81,  10)	IDENTTK     	
+( 81,  15)	COLONTK     	
+( 81,  16)	INTTK       	
+( 81,  23)	SEMICOLONTK 	
+( 82,   1)	BEGINTK     	
+( 83,   2)	IDENTTK     	
+( 83,   8)	SETTK       	
+( 83,  11)	ITK         	7
+( 83,  12)	SEMICOLONTK 	
+( 84,   1)	ENDTK       	
+( 84,   4)	SEMICOLONTK 	
+( 86,   1)	BEGINTK     	
+( 87,   2)	IDENTTK     	
+( 87,   4)	SETTK       	
+( 87,   7)	SQUOTETK    	3
+( 87,  10)	SEMICOLONTK 	
+( 88,   2)	READTK      	
+( 88,   6)	LPARENTTK   	
+( 88,   7)	IDENTTK     	
+( 88,  13)	COMMATK     	
+( 88,  15)	IDENTTK     	
+( 88,  21)	RPARENTTK   	
+( 88,  22)	SEMICOLONTK 	
+( 89,   2)	IDENTTK     	
+( 89,   9)	SETTK       	
+( 89,  12)	IDENTTK     	
+( 89,  14)	MULTK       	
+( 89,  16)	ITK         	4
+( 89,  18)	DIVTK       	
+( 89,  20)	LPARENTTK   	
+( 89,  21)	IDENTTK     	
+( 89,  23)	MULTK       	
+( 89,  25)	ITK         	2
+( 89,  26)	RPARENTTK   	
+( 89,  28)	ADDTK       	
+( 89,  30)	IDENTTK     	
+( 89,  35)	LPARENTTK   	
+( 89,  36)	IDENTTK     	
+( 89,  42)	RPARENTTK   	
+( 89,  43)	SEMICOLONTK 	
+( 90,   2)	IFTK        	
+( 90,   5)	IDENTTK     	
+( 90,  12)	LARGETK     	
+( 90,  14)	ITK         	10
+( 91,   2)	THENTK      	
+( 91,   7)	WRITETK     	
+( 91,  12)	LPARENTTK   	
+( 91,  13)	DQUOTETK    	result > 10
+( 91,  26)	RPARENTTK   	
+( 91,  27)	SEMICOLONTK 	
+( 92,   2)	IDENTTK     	
+( 92,   9)	SETTK       	
+( 92,  12)	IDENTTK     	
+( 92,  17)	SEMICOLONTK 	
+( 93,   2)	IDENTTK     	
+( 93,   7)	SETTK       	
+( 93,  10)	IDENTTK     	
+( 93,  15)	LPARENTTK   	
+( 93,  16)	IDENTTK     	
+( 93,  21)	RPARENTTK   	
+( 93,  22)	SEMICOLONTK 	
+请按任意键继续. . . 
+( 94,   2)	IDENTTK     	
+( 94,   7)	SETTK       	
+( 94,  10)	IDENTTK     	
+( 94,  15)	LPARENTTK   	
+( 94,  16)	IDENTTK     	
+( 94,  23)	ADDTK       	
+( 94,  25)	ITK         	0
+( 94,  26)	RPARENTTK   	
+( 94,  27)	SEMICOLONTK 	
+( 95,   2)	IFTK        	
+( 95,   5)	IDENTTK     	
+( 95,  10)	NEQUTK      	
+( 95,  13)	IDENTTK     	
+( 96,   2)	THENTK      	
+( 96,   7)	WRITETK     	
+( 96,  12)	LPARENTTK   	
+( 96,  13)	DQUOTETK    	Compile error
+( 96,  28)	RPARENTTK   	
+( 96,  29)	SEMICOLONTK 	
+( 97,   2)	IDENTTK     	
+( 97,   7)	SEMICOLONTK 	
+( 98,   2)	FORTK       	
+( 98,   6)	IDENTTK     	
+( 98,   8)	SETTK       	
+( 98,  11)	ITK         	2
+( 98,  13)	TOTK        	
+( 98,  16)	IDENTTK     	
+( 98,  23)	DOTK        	
+( 99,   3)	FORTK       	
+( 99,   7)	IDENTTK     	
+( 99,   9)	SETTK       	
+( 99,  12)	IDENTTK     	
+( 99,  14)	DOWNTOTK    	
+( 99,  21)	ITK         	0
+( 99,  23)	ADDTK       	
+( 99,  25)	ITK         	0
+( 99,  27)	DOTK        	
+(100,   4)	IDENTTK     	
+(100,   7)	LSQRBRACTK  	
+(100,   8)	IDENTTK     	
+(100,  10)	ADDTK       	
+(100,  12)	IDENTTK     	
+(100,  13)	RSQRBRACTK  	
+(100,  15)	SETTK       	
+(100,  18)	IDENTTK     	
+(100,  20)	SUBTK       	
+(100,  22)	IDENTTK     	
+(100,  23)	SEMICOLONTK 	
+(101,   1)	ENDTK       	
