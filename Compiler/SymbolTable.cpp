@@ -1,4 +1,5 @@
 #include "SymbolTable.h"
+#include "Memory.h"
 #include <iostream>
 
 SymbolTable::SymbolTable()
