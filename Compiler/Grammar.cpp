@@ -5,6 +5,7 @@ int errcnt = 0;
 static WORD word, preread;
 int level = 0;
 SymbolTable symbol_table;
+extern Memory* memory;
 
 //#ifdef _DEBUG
 #define GrammarDebug
@@ -12,6 +13,7 @@ SymbolTable symbol_table;
 
 Grammar::Grammar()
 {
+	memory = memory->getInstance();
 	getSym();
 	program();
 }
@@ -685,13 +687,16 @@ void Grammar::setSentence()
 #ifdef GrammarDebug
 	std::cout << "In SetSentence" << std::endl;
 #endif
+	Identifier* ident = symbol_table.find(level, word.value.content);
+	Temp ttemp1, ttemp2;
 	if (word.token == IDENTTK)
 	{
+		
 		getSym();
 		if (word.token == LSQRBRACTK)
 		{
 			getSym();
-			expression();
+			expression(ttemp1);
 			if (word.token == RSQRBRACTK)
 			{
 				getSym();
@@ -714,10 +719,12 @@ void Grammar::setSentence()
 	{
 		error(GRAMMARERR);
 	}
-	expression();
+	expression(ttemp2);
+	Operation operation("SET", ident->name, ttemp1.toString(), ttemp2.toString());
+	operations.push_back(operation);
 }
 
-void Grammar::expression()
+void Grammar::expression(Temp &temp)
 {
 #ifdef GrammarDebug
 	std::cout << "In Expression" << std::endl;
@@ -729,28 +736,60 @@ void Grammar::expression()
 			value = -1;
 		getSym();
 	}
-	term();
+	term(temp);
 	while (word.token == ADDTK || word.token == SUBTK)
 	{
+		bool is_add;
+		if (word.token == ADDTK)
+			is_add = true;
+		else
+			is_add = false;
 		getSym();
-		term();
+		Temp ttemp;
+		term(ttemp);
+		if (is_add)
+		{
+			Operation operation("ADD", temp.toString(), temp.toString(), ttemp.toString());
+			operations.push_back(operation);
+		}
+		else
+		{
+			Operation operation("SUB", temp.toString(), temp.toString(), ttemp.toString());
+			operations.push_back(operation);
+		}
 	}
 }
 
-void Grammar::term()
+void Grammar::term(Temp &temp)
 {
 #ifdef GrammarDebug
 	std::cout << "In Term" << std::endl;
 #endif
-	factor();
+	factor(temp);
 	while (word.token == MULTK || word.token == DIVTK)
 	{
+		bool is_mul;
+		if (word.token == MULTK)
+			is_mul = true;
+		else
+			is_mul = false;
 		getSym();
-		factor();
+		Temp ttemp;
+		factor(ttemp);
+		if (is_mul)
+		{
+			Operation operation("MULT", temp.toString(), temp.toString(), ttemp.toString());
+			operations.push_back(operation);
+		}
+		else
+		{
+			Operation operation("DIV", temp.toString(), temp.toString(), ttemp.toString());
+			operations.push_back(operation);
+		}
 	}
 }
 
-void Grammar::factor()
+void Grammar::factor(Temp &temp)
 {
 #ifdef GrammarDebug
 	std::cout << "In Factor" << std::endl;
@@ -764,10 +803,12 @@ void Grammar::factor()
 		}
 		if (ident->type == CONST)
 		{
+			temp.fill(ident->name);
 			getSym();
 		}
 		else if (ident->type == INT || ident->type == CHAR)
 		{
+			temp.fill(ident->name);
 			getSym();
 		}
 		else if (ident->type == INTARRAY || ident->type == CHARARRAY)
@@ -781,7 +822,8 @@ void Grammar::factor()
 			{
 				error(EXPECTLSQRBRAC);
 			}
-			expression();
+			Temp ttemp;
+			expression(ttemp);
 			if (word.token == RSQRBRACTK)
 			{
 				getSym();
@@ -790,10 +832,12 @@ void Grammar::factor()
 			{
 				error(EXPECTRSQRBRAC);
 			}
+			Operation operation("LOAD", temp.toString(), ident->name, ttemp.toString());
+			operations.push_back(operation);
 		}
 		else if (ident->type == FUNCINT || ident->type == FUNCCHAR)
 		{
-			funcSentence();
+			funcSentence(temp);
 		}
 		else
 		{
@@ -807,7 +851,7 @@ void Grammar::factor()
 	else if (word.token == LPARENTTK)
 	{
 		getSym();
-		expression();
+		expression(temp);
 		if (word.token == RPARENTTK)
 		{
 			getSym();
@@ -823,7 +867,7 @@ void Grammar::factor()
 	}
 }
 
-void Grammar::funcSentence()
+void Grammar::funcSentence(Temp &temp)
 {
 #ifdef GrammarDebug
 	std::cout << "In FuncSentence" << std::endl;
@@ -836,6 +880,8 @@ void Grammar::funcSentence()
 		{
 			error(NOTAFUNCTION);
 		}
+		Operation operation("FCAL", temp.toString(), func->label->toString());
+		operations.push_back(operation);
 		getSym();
 		if (word.token == LPARENTTK)
 		{

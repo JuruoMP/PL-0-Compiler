@@ -20,6 +20,32 @@ enum TYPE
 	FUNCCHAR,
 };
 
+class Label
+{
+private:
+	static int label_cnt;
+public:
+	Label();
+	int index;
+	ADDR addr;
+	char* Label::toString();
+};
+int Label::label_cnt = 0;
+
+class Temp
+{
+public:
+	static int tmp_cnt;
+	char name[MAXLEN];
+public:
+	Temp();
+	Temp(char* nname);
+	void fill(char* nname);
+	int index;
+	char* toString();
+};
+int Temp::tmp_cnt = 0;
+
 class Identifier
 {
 public:
@@ -117,20 +143,26 @@ public:
 class Procedure : public Identifier
 {
 public:
-	ParaTable paraTable;
+	ParaTable* paraTable;
+	Label* label;
 	Procedure(char* name, int level, ParaTable paras) :
 		Identifier(name, PROC, level)
 	{
-		ParaTable p(paras);///////////////////////////////////////////////////////////////////////
-		this->paraTable = p;
+		this->label = new Label();
+		this->paraTable = new ParaTable(paras);
 	}
 	Procedure(const Procedure& proc)
 	{
+		this->label = new Label();
 		strcpy_s(this->name, MAXLEN - 1, proc.name);
 		this->type = proc.type;
 		this->level = proc.level;
-		ParaTable p(proc.paraTable);////////////////////////////////////////////////////////////////
-		this->paraTable = p;
+		this->paraTable = new ParaTable(proc.paraTable);
+	}
+	~Procedure()
+	{
+		delete(this->label);
+		delete(this->paraTable);
 	}
 	void print() {}
 };
@@ -138,21 +170,27 @@ public:
 class Function : public Identifier
 {
 public:
-	ParaTable paraTable;
+	ParaTable* paraTable;
+	Label* label;
 	Function(char* name, TYPE type, int level, ParaTable paras) :
 		Identifier(name, type, level)
 	{
-		ParaTable p(paras);//////////////////////////////////////////////////////////////////
-		this->paraTable = p;
+		this->label = new Label();
+		this->paraTable = new ParaTable(paras);
 	}
 	Function(Function& func) :
 		Identifier(func.name, type, func.level)
 	{
+		this->label = new Label();
 		strcpy_s(this->name, MAXLEN - 1, func.name);
 		this->type = func.type;
 		this->level = func.level;
-		ParaTable p(func.paraTable);/////////////////////////////////////////////////////////////////
-		this->paraTable = p;
+		this->paraTable = new ParaTable(func.paraTable);
+	}
+	~Function()
+	{
+		delete(this->label);
+		delete(this->paraTable);
 	}
 	void print() {}
 };
@@ -172,7 +210,7 @@ public:
 	SymbolTable();
 	bool pushLevel(int level);
 	int popLevel();
-	bool insert(int level, char* name, Identifier& ident);
+	ADDR insert(int level, char* name, Identifier& ident);
 	Identifier* find(int level, char* name);
 };
 

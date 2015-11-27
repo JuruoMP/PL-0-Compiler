@@ -1,8 +1,17 @@
 #include "Memory.h"
 
+Memory* memory;
 
 Memory::Memory()
 {
+	this->ptr = 0;
+}
+
+Memory* Memory::getInstance()
+{
+	if (this->memory == NULL)
+		this->memory = new Memory();
+	return this->memory;
 }
 
 ADDR Memory::allocMem(int length)
@@ -16,3 +25,4 @@ void Memory::freeMem(int length)
 {
 	ptr -= 4 * length;
 }
+

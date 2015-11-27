@@ -11,6 +11,21 @@ extern WORD word;
 extern std::vector<WORD> word_list;
 extern int errcnt;
 
+class Operation
+{
+public:
+	char s1[MAXLEN], s2[MAXLEN], t[MAXLEN];
+	char op[16];
+	Operation(char* oop, char* tt, char* ss1 = "", char* ss2 = "")
+	{
+		strcpy_s(s1, MAXLEN - 1, ss1);
+		strcpy_s(s2, MAXLEN - 1, ss2);
+		strcpy_s(t, MAXLEN - 1, tt);
+		strcpy_s(op, 15, oop);
+	}
+};
+std::vector<Operation> operations;
+
 class Grammar
 {
 public:
@@ -39,10 +54,10 @@ public:
 	void sentence();
 	void setSentence();
 	//void funcIdent();
-	void expression();
-	void term();
-	void factor();
-	void funcSentence();
+	void expression(Temp &temp);
+	void term(Temp &temp);
+	void factor(Temp &temp);
+	void funcSentence(Temp &temp);
 	void realParaTable();
 	void realPara();
 	//void addOp();

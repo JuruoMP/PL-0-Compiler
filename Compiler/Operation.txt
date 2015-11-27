@@ -1,0 +1,9 @@
+ADD		targetT		targetT		sourceT
+SUB		targetT		targetT		sourceT
+MULT	targetT		targetT		sourceT
+DIV		targetT		targetT		sourceT
+SET		identT		offsetT		valueT
+LOAD	targetT		varIdent	offsetT
+FCAL	targetT		funcIdent	-
+PCAL	funcIdent	-			-
+

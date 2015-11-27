@@ -2,6 +2,41 @@
 #include "Memory.h"
 #include <iostream>
 
+extern Memory* memory;
+
+Label::Label()
+{
+	this->index = label_cnt++;
+}
+
+char* Label::toString()
+{
+	char s[1024];
+	sprintf_s(s, 1023, "Label%d", this->index);
+}
+
+Temp::Temp()
+{
+	this->index = tmp_cnt++;
+	this->name[0] = '\0';
+}
+
+Temp::Temp(char* nname)
+{
+	strcpy_s(this->name, MAXLEN - 1, nname);
+}
+
+void Temp::fill(char* nname)
+{
+	strcpy_s(this->name, MAXLEN - 1, nname);
+}
+
+char* Temp::toString()
+{
+	char s[1024];
+	sprintf_s(s, 1023, "T%d", this->index);
+}
+
 SymbolTable::SymbolTable()
 {
 	SubTable ltable(0);
@@ -30,9 +65,10 @@ int SymbolTable::popLevel()
 	return level;
 }
 
-bool SymbolTable::insert(int level, char* name, Identifier& ident)
+ADDR SymbolTable::insert(int level, char* name, Identifier& ident)
 {
 	std::string str = name;
+	ADDR ptr = NULL;
 	if (tables.at(level).m_table.find(str) == tables.at(level).m_table.end())
 	{
 		if (ident.type == CONST)
@@ -40,6 +76,7 @@ bool SymbolTable::insert(int level, char* name, Identifier& ident)
 			Constance* cons = dynamic_cast<Constance*>(&ident);
 			Identifier* newcons = new Constance(*cons);
 			tables.at(level).m_table.insert(std::pair<std::string, Identifier*>(name, newcons));
+			ptr = memory->allocMem();
 		}
 		else if (ident.type == INT || ident.type == CHAR || 
 			ident.type == INTARRAY || ident.type == CHARARRAY ||
@@ -48,6 +85,7 @@ bool SymbolTable::insert(int level, char* name, Identifier& ident)
 			Variable* var = dynamic_cast<Variable*>(&ident);
 			Identifier* newvar = new Variable(*var);
 			tables.at(level).m_table.insert(std::pair<std::string, Identifier*>(name, newvar));
+			ptr = memory->allocMem(var->len);
 		}
 		else if (ident.type == PROC)
 		{
@@ -60,12 +98,13 @@ bool SymbolTable::insert(int level, char* name, Identifier& ident)
 			Function* func = dynamic_cast<Function*>(&ident);
 			Identifier* newfunc = new Function(*func);
 			tables.at(level).m_table.insert(std::pair<std::string, Identifier*>(name, newfunc));
+			ptr = memory->allocMem();
 		}
-		return true;
+		return ptr;
 	}
 	else
 	{
-		return false;
+		return NULL;
 	}
 }
 

@@ -8,6 +8,7 @@ int main()
 {
 	extern std::vector<WORD> word_list;
 	Symbol symbol("test.txt");
+	extern Memory* memory;
 	symbol.mgetsym();
 	for (int i = 0; i < word_list.size(); ++i)
 	{
