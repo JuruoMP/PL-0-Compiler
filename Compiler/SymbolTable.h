@@ -7,6 +7,14 @@
 #include "Symbol.h"
 #include "Memory.h"
 
+#define MAXIDENT 1024
+
+extern Memory memory;
+extern SubTable sub_table;
+extern DisplayTable display_table;
+extern ArrayTable array_table;
+extern ConstTable const_table;
+
 enum TYPE
 {
 	CONST,
@@ -23,19 +31,19 @@ enum TYPE
 class Label
 {
 private:
-	static int label_cnt;
+	static int label_index;
 public:
 	Label();
 	int index;
 	ADDR addr;
 	char* Label::toString();
 };
-int Label::label_cnt = 0;
+int Label::label_index = 0;
 
 class Temp
 {
 public:
-	static int tmp_cnt;
+	static int tmp_index;
 	char name[MAXLEN];
 public:
 	Temp();
@@ -44,40 +52,48 @@ public:
 	int index;
 	char* toString();
 };
-int Temp::tmp_cnt = 0;
+int Temp::tmp_index = 0;
+
 
 class Identifier
 {
+	static int ident_index;
 public:
 	char name[MAXLEN];
+	int index;
+	int lastindex;
 	TYPE type;
-	ADDR addr;
 	int level;
+	ADDR addr;
 	Identifier() {};
-	Identifier(char* name, TYPE type, int level)
+	Identifier(char* name, TYPE type, int level, int lastindex)
 	{
+		this->index = ident_index++;
 		strcpy_s(this->name, MAXLEN - 1, name);
 		this->type = type;
 		this->level = level;
+		this->lastindex = lastindex;
 	}
 	virtual void print() = 0;
 };
+int Identifier::ident_index = 1;
 
 class Constance : public Identifier
 {
 public:
-	int value;
-	Constance(char* name, int level, int value) 
-		: Identifier(name, CONST, level)
+	Constance(char* name, int level, int value, int lastindex) 
+		: Identifier(name, CONST, level, lastindex)
 	{
-		this->value = value;
+		this->addr = const_table.insert(value);
 	}
 	Constance(const Constance& cons) 
 	{
+		this->index = cons.index;
 		strcpy_s(this->name, MAXLEN - 1, cons.name);
 		this->type = cons.type;
 		this->level = cons.level;
-		this->value = cons.value;
+		this->lastindex = cons.lastindex;
+		this->addr = cons.addr;
 	}
 	void print() {}
 };
@@ -85,21 +101,41 @@ public:
 class Variable : public Identifier
 {
 public:
-	int len;
-	Variable() : Identifier() {}
-	Variable(char* name, TYPE type, int level) 
-		: Identifier(name, type, level) {}
-	Variable(char* name, TYPE type, int level, int length) 
-		: Identifier(name, type, level)
+	Variable() : Identifier()
 	{
-		this->len = length;
+		this->addr = memory.memAlloc();
 	}
-	Variable(Variable& var) 
+	Variable(char* name, TYPE type, int level, int lastindex) 
+		: Identifier(name, type, level, lastindex) {}
+	Variable(const Variable& var) 
 	{
+		this->index = var.index;
 		strcpy_s(this->name, MAXLEN - 1, var.name);
 		this->type = var.type;
 		this->level = var.level;
-		this->len = var.len;
+		this->lastindex = var.lastindex;
+		this->addr = var.addr;
+	}
+	void print() {}
+};
+
+class Array : public Identifier
+{
+public:
+	Array() : Identifier() {}
+	Array(char* name, TYPE type, int level, int length, int lastindex)
+		: Identifier(name, type, level, lastindex)
+	{
+		this->addr = array_table.insert(length);
+	}
+	Array(const Array& arr)
+	{
+		this->index = arr.index;
+		strcpy_s(this->name, MAXLEN - 1, arr.name);
+		this->type = arr.type;
+		this->level = arr.level;
+		this->lastindex = arr.lastindex;
+		this->addr = arr.addr;
 	}
 	void print() {}
 };
@@ -108,61 +144,46 @@ class Parameter : public Identifier
 {
 public:
 	bool real;
-	Parameter(char* name, int level, bool real) 
-		: Identifier(name, PARA, level)
+	Parameter(char* name, int level, int lastindex, bool real) 
+		: Identifier(name, PARA, level, lastindex)
 	{
 		this->real = real;
 	}
 	Parameter(const Parameter& para) 
 	{
+		this->index = para.index;
 		strcpy_s(this->name, MAXLEN - 1, para.name);
 		this->type = para.type;
 		this->level = para.level;
 		this->real = para.real;
+		this->lastindex = para.lastindex;
+		this->addr = para.addr;
 	}
 	void print() {}
-};
-
-class ParaTable
-{
-public:
-	std::vector<Parameter> paras;
-	ParaTable() {};
-	ParaTable(const ParaTable& paratable)
-	{
-		for (int i = 0; i < paratable.paras.size(); ++i)
-			this->paras.push_back(paratable.paras.at(i));
-	}
-	void add(const Parameter& para)
-	{
-		Parameter p(para);
-		this->paras.push_back(p);
-	}
 };
 
 class Procedure : public Identifier
 {
 public:
-	ParaTable* paraTable;
 	Label* label;
-	Procedure(char* name, int level, ParaTable paras) :
-		Identifier(name, PROC, level)
+	Procedure(char* name, int level, int lastindex) :
+		Identifier(name, PROC, level, lastindex)
 	{
 		this->label = new Label();
-		this->paraTable = new ParaTable(paras);
 	}
 	Procedure(const Procedure& proc)
 	{
+		this->index = proc.index;
 		this->label = new Label();
 		strcpy_s(this->name, MAXLEN - 1, proc.name);
 		this->type = proc.type;
 		this->level = proc.level;
-		this->paraTable = new ParaTable(proc.paraTable);
+		this->lastindex = proc.lastindex;
+		this->addr = proc.addr;
 	}
 	~Procedure()
 	{
 		delete(this->label);
-		delete(this->paraTable);
 	}
 	void print() {}
 };
@@ -170,48 +191,39 @@ public:
 class Function : public Identifier
 {
 public:
-	ParaTable* paraTable;
 	Label* label;
-	Function(char* name, TYPE type, int level, ParaTable paras) :
-		Identifier(name, type, level)
+	Function(char* name, TYPE type, int level, int lastindex) :
+		Identifier(name, type, level, lastindex)
 	{
 		this->label = new Label();
-		this->paraTable = new ParaTable(paras);
 	}
-	Function(Function& func) :
-		Identifier(func.name, type, func.level)
+	Function(const Function& func)
 	{
+		this->index = func.index;
 		this->label = new Label();
 		strcpy_s(this->name, MAXLEN - 1, func.name);
 		this->type = func.type;
 		this->level = func.level;
-		this->paraTable = new ParaTable(func.paraTable);
+		this->lastindex = func.lastindex;
+		this->addr = func.addr;
 	}
 	~Function()
 	{
 		delete(this->label);
-		delete(this->paraTable);
 	}
 	void print() {}
 };
 
 class SymbolTable
 {
-public:
-	class SubTable
-	{
-	public:
-		int m_level;
-		std::map<std::string, Identifier*> m_table;
-		SubTable(int level) { this->m_level = level; }
-	};
-	std::vector<SubTable> tables;
-
+private:
 	SymbolTable();
-	bool pushLevel(int level);
-	int popLevel();
-	ADDR insert(int level, char* name, Identifier& ident);
+public:
+	static int symboltable_index;
+	Identifier* idents[MAXIDENT];
+	int insert(Identifier& ident);
 	Identifier* find(int level, char* name);
-};
+}symbol_table;
+int SymbolTable::symboltable_index = 1;
 
 #endif

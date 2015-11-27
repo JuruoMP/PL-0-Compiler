@@ -6,7 +6,7 @@ extern Memory* memory;
 
 Label::Label()
 {
-	this->index = label_cnt++;
+	this->index = label_index++;
 }
 
 char* Label::toString()
@@ -17,7 +17,7 @@ char* Label::toString()
 
 Temp::Temp()
 {
-	this->index = tmp_cnt++;
+	this->index = tmp_index++;
 	this->name[0] = '\0';
 }
 
@@ -39,90 +39,76 @@ char* Temp::toString()
 
 SymbolTable::SymbolTable()
 {
-	SubTable ltable(0);
-	this->tables.push_back(ltable);
+	memset(this->idents, 0, sizeof(this->idents));
 }
 
-bool SymbolTable::pushLevel(int level)
+int SymbolTable::insert(Identifier& ident)
 {
-	SubTable ltable(level);
-	if (tables.back().m_level == level - 1)
+	bool found = false;
+	for (int i = symboltable_index - 1; i >= 1; --i)
 	{
-		tables.push_back(ltable);
-		return true;
+		if (!strcmp(idents[i]->name, ident.name))
+		{
+			found = true;
+			break;
+		}
+		if (idents[i]->index == 0)
+			break;
 	}
-	else
-	{
-		return false;
-	}
-}
-
-int SymbolTable::popLevel()
-{
-	//TODO:free memory
-	int level = tables.back().m_level;
-	tables.pop_back();
-	return level;
-}
-
-ADDR SymbolTable::insert(int level, char* name, Identifier& ident)
-{
-	std::string str = name;
-	ADDR ptr = NULL;
-	if (tables.at(level).m_table.find(str) == tables.at(level).m_table.end())
-	{
-		if (ident.type == CONST)
-		{
-			Constance* cons = dynamic_cast<Constance*>(&ident);
-			Identifier* newcons = new Constance(*cons);
-			tables.at(level).m_table.insert(std::pair<std::string, Identifier*>(name, newcons));
-			ptr = memory->allocMem();
-		}
-		else if (ident.type == INT || ident.type == CHAR || 
-			ident.type == INTARRAY || ident.type == CHARARRAY ||
-			ident.type == PARA)
-		{
-			Variable* var = dynamic_cast<Variable*>(&ident);
-			Identifier* newvar = new Variable(*var);
-			tables.at(level).m_table.insert(std::pair<std::string, Identifier*>(name, newvar));
-			ptr = memory->allocMem(var->len);
-		}
-		else if (ident.type == PROC)
-		{
-			Procedure* proc = dynamic_cast<Procedure*>(&ident);
-			Identifier* newproc = new Procedure(*proc);
-			tables.at(level).m_table.insert(std::pair<std::string, Identifier*>(name, newproc));
-		}
-		else if (ident.type == FUNCINT || ident.type == FUNCCHAR)
-		{
-			Function* func = dynamic_cast<Function*>(&ident);
-			Identifier* newfunc = new Function(*func);
-			tables.at(level).m_table.insert(std::pair<std::string, Identifier*>(name, newfunc));
-			ptr = memory->allocMem();
-		}
-		return ptr;
-	}
-	else
-	{
+	if (found)
 		return NULL;
+	if (ident.type == CONST)
+	{
+		Constance* cons = dynamic_cast<Constance*>(&ident);
+		Identifier* newcons = new Constance(*cons);
+		this->idents[symboltable_index++] = newcons;
+		return symboltable_index - 1;
 	}
+	else if (ident.type == INT || ident.type == CHAR ||
+		ident.type == INTARRAY || ident.type == CHARARRAY ||
+		ident.type == PARA)
+	{
+		Variable* var = dynamic_cast<Variable*>(&ident);
+		Identifier* newvar = new Variable(*var);
+		this->idents[symboltable_index++] = newvar;
+		return symboltable_index - 1;
+	}
+	else if (ident.type == PARA)
+	{
+		Parameter* pera = dynamic_cast<Parameter*>(&ident);
+		Identifier* newpara = new Parameter(*pera);
+		this->idents[symboltable_index++] = newpara;
+		return symboltable_index - 1;
+	}
+	else if (ident.type == PROC)
+	{
+		Procedure* proc = dynamic_cast<Procedure*>(&ident);
+		Identifier* newproc = new Procedure(*proc);
+		this->idents[symboltable_index++] = newproc;
+		return symboltable_index - 1;
+	}
+	else if (ident.type == FUNCINT || ident.type == FUNCCHAR)
+	{
+		Function* func = dynamic_cast<Function*>(&ident);
+		Identifier* newfunc = new Function(*func);
+		this->idents[symboltable_index++] = newfunc;
+		return symboltable_index - 1;
+	}
+	return symboltable_index - 1;
 }
 
 Identifier* SymbolTable::find(int level, char* name)
 {
-	//std::map<std::string, Identifier*>::iterator it;
-	std::string str = name;
-	while (level > 0)
+	int level = display_table.size;
+	while (level >= 1)
 	{
-		//std::map<std::string, Identifier*> table = tables.at(level).m_table;
-		//it = table.find(str);
-		if (tables.at(level).m_table.find(str) != tables.at(level).m_table.end())
+		int sub_index = display_table.index[level];
+		int index = sub_table.last[sub_index];
+		while (!strcmp(symbol_table.idents[index]->name, name))
 		{
-			std::map<std::string, Identifier*>::iterator it;
-			it = tables.at(level).m_table.find(str);
-			return tables.at(level).m_table.find(str)->second;
+			Identifier* ident = symbol_table.idents[index];
+			return ident;
 		}
-		level--;
 	}
 	return NULL;
 }

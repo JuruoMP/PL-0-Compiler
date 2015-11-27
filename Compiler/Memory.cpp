@@ -16,13 +16,12 @@ Memory* Memory::getInstance()
 
 ADDR Memory::allocMem(int length)
 {
-	ptr += 4 * length;
-	ADDR addr = USTACKTOP - ptr;
-	return addr;
+	ptr += length;
+	return ptr;
 }
 
 void Memory::freeMem(int length)
 {
-	ptr -= 4 * length;
+	ptr -= length;
 }
 
