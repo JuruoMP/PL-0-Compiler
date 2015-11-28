@@ -14,9 +14,8 @@ typedef int ADDR;
 
 class SubTable
 {
-private:
-	SubTable();
 public:
+	SubTable();
 	static int subtable_index;
 	int last[FPMAX], lastpar[FPMAX], psize[FPMAX], vsize[FPMAX];
 	int insert(int last, int lastpar, int psize, int vsize)
@@ -33,9 +32,8 @@ int SubTable::subtable_index = 1;
 
 class DisplayTable
 {
-private:
-	DisplayTable() { this->size = 1; };
 public:
+	DisplayTable() { this->size = 1; };
 	static int size;
 	int index[LEVELMAX];
 	void insert(int id)
@@ -47,9 +45,8 @@ int DisplayTable::size = 1;
 
 class ArrayTable
 {
-private:
-	ArrayTable();
 public:
+	ArrayTable();
 	static int arraytable_index;
 	int len[ARRAYMAX];
 	int insert(int len)
@@ -62,9 +59,8 @@ int ArrayTable::arraytable_index = 1;
 
 class ConstTable
 {
-private:
-	ConstTable();
 public:
+	ConstTable();
 	static int consttable_index;
 	int value[CONSTMAX];
 	int insert(int value)
@@ -82,9 +78,8 @@ int ConstTable::consttable_index = 1;
 
 class StringTable
 {
-private:
-	StringTable();
 public:
+	StringTable();
 	static int stringtable_index;
 	std::string strs[STRINGMAX];
 	int insert(std::string str)

@@ -40,12 +40,12 @@ SymbolTable::SymbolTable()
 	memset(this->idents, 0, sizeof(this->idents));
 }
 
-int SymbolTable::insert(Identifier& ident)
+int SymbolTable::insert(Identifier* ident)
 {
 	bool found = false;
 	for (int i = symboltable_index - 1; i >= 1; --i)
 	{
-		if (!strcmp(idents[i]->name, ident.name))
+		if (!strcmp(idents[i]->name, ident->name))
 		{
 			found = true;
 			break;
@@ -55,39 +55,39 @@ int SymbolTable::insert(Identifier& ident)
 	}
 	if (found)
 		return NULL;
-	if (ident.type == CONST)
+	if (ident->type == CONST)
 	{
-		Constance* cons = dynamic_cast<Constance*>(&ident);
+		Constance* cons = dynamic_cast<Constance*>(ident);
 		Identifier* newcons = new Constance(*cons);
 		this->idents[symboltable_index++] = newcons;
 		return symboltable_index - 1;
 	}
-	else if (ident.type == INT || ident.type == CHAR ||
-		ident.type == INTARRAY || ident.type == CHARARRAY ||
-		ident.type == PARA)
+	else if (ident->type == INT || ident->type == CHAR ||
+		ident->type == INTARRAY || ident->type == CHARARRAY ||
+		ident->type == PARA)
 	{
-		Variable* var = dynamic_cast<Variable*>(&ident);
+		Variable* var = dynamic_cast<Variable*>(ident);
 		Identifier* newvar = new Variable(*var);
 		this->idents[symboltable_index++] = newvar;
 		return symboltable_index - 1;
 	}
-	else if (ident.type == PARA)
+	else if (ident->type == PARA)
 	{
-		Parameter* pera = dynamic_cast<Parameter*>(&ident);
+		Parameter* pera = dynamic_cast<Parameter*>(ident);
 		Identifier* newpara = new Parameter(*pera);
 		this->idents[symboltable_index++] = newpara;
 		return symboltable_index - 1;
 	}
-	else if (ident.type == PROC)
+	else if (ident->type == PROC)
 	{
-		Procedure* proc = dynamic_cast<Procedure*>(&ident);
+		Procedure* proc = dynamic_cast<Procedure*>(ident);
 		Identifier* newproc = new Procedure(*proc);
 		this->idents[symboltable_index++] = newproc;
 		return symboltable_index - 1;
 	}
-	else if (ident.type == FUNCINT || ident.type == FUNCCHAR)
+	else if (ident->type == FUNCINT || ident->type == FUNCCHAR)
 	{
-		Function* func = dynamic_cast<Function*>(&ident);
+		Function* func = dynamic_cast<Function*>(ident);
 		Identifier* newfunc = new Function(*func);
 		this->idents[symboltable_index++] = newfunc;
 		return symboltable_index - 1;

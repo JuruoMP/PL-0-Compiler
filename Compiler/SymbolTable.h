@@ -55,7 +55,7 @@ public:
 int Temp::tmp_index = 0;
 
 
-class Identifier
+virtual class Identifier
 {
 	static int ident_index;
 public:
@@ -85,6 +85,7 @@ public:
 		: Identifier(name, CONST, level, lastindex)
 	{
 		this->addr = const_table.insert(value);
+		symbol_table.insert(this);
 	}
 	Constance(const Constance& cons) 
 	{
@@ -101,13 +102,13 @@ public:
 class Variable : public Identifier
 {
 public:
-	Variable() : Identifier()
+	Variable(char* name, TYPE type, int level, int lastindex) 
+		: Identifier(name, type, level, lastindex)
 	{
 		Memory* memory = memory->getInstance();
 		this->addr = memory->allocMem();
+		symbol_table.insert(this);
 	}
-	Variable(char* name, TYPE type, int level, int lastindex) 
-		: Identifier(name, type, level, lastindex) {}
 	Variable(const Variable& var) 
 	{
 		this->index = var.index;
@@ -131,6 +132,7 @@ public:
 		this->ref = array_table.insert(length);
 		Memory* memory = memory->getInstance();
 		this->addr = memory->allocMem(length);
+		symbol_table.insert(this);
 	}
 	Array(const Array& arr)
 	{
@@ -156,7 +158,11 @@ public:
 		if (real)
 			this->addr = addr;
 		else
-			this->addr = 
+		{
+			Memory* memory = memory->getInstance();
+			this->addr = memory->allocMem();
+		}
+		symbol_table.insert(this);
 	}
 	Parameter(const Parameter& para) 
 	{
@@ -183,6 +189,7 @@ public:
 		this->label = new Label();
 		this->ref = sub_table.insert(lastpar, last, psize, vsize);
 		this->addr = codeindex;
+		symbol_table.insert(this);
 	}
 	Procedure(const Procedure& proc)
 	{
@@ -214,6 +221,7 @@ public:
 		this->label = new Label();
 		this->ref = sub_table.insert(lastpar, last, psize, vsize);
 		this->addr = codeindex;
+		symbol_table.insert(this);
 	}
 	Function(const Function& func)
 	{
@@ -235,12 +243,11 @@ public:
 
 class SymbolTable
 {
-private:
-	SymbolTable();
 public:
+	SymbolTable();
 	static int symboltable_index;
 	Identifier* idents[MAXIDENT];
-	int insert(Identifier& ident);
+	int insert(Identifier* ident);
 	Identifier* find(int level, char* name);
 }symbol_table;
 int SymbolTable::symboltable_index = 1;
