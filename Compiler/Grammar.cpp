@@ -4,8 +4,8 @@
 int errcnt = 0;
 static WORD word, preread;
 int level = 0;
-SymbolTable symbol_table;
-extern Memory* memory;
+extern SymbolTable symbol_table;
+int lastindex = 0;//???????
 
 //#ifdef _DEBUG
 #define GrammarDebug
@@ -58,11 +58,11 @@ void Grammar::program()
 
 void Grammar::semiProgram()
 {
+	//ÐÞ¸ÄdisplayÇø
 #ifdef GrammarDebug
 	std::cout << "In SemiProgram" << std::endl;
 #endif
 	level++;
-	symbol_table.pushLevel(level);
 	if (word.token == CONSTTK)
 	{
 		constIllu();
@@ -84,7 +84,6 @@ void Grammar::semiProgram()
 	}
 	complexSentence();
 	level--;
-	symbol_table.popLevel();
 }
 
 void Grammar::constIllu()
@@ -356,8 +355,15 @@ void Grammar::procIllu()
 #ifdef GrammarDebug
 	std::cout << "In ProcIllu" << std::endl;
 #endif
-	procHead();
-	semiProgram();
+	int tlastindex = lastindex;
+	int last, lastpar, psize, vsize;
+	pushMem();
+	lastpar = procHead();
+	last = semiProgram();
+	psize = lastpar - tlastindex;
+	vsize = lastindex - tlastindex;
+	Procedure proc()
+	sub_table.insert(last, lastpar, psize, vsize);
 	if (word.token == SEMICOLONTK)
 	{
 		getSym();
@@ -368,8 +374,13 @@ void Grammar::procIllu()
 	}
 	while (word.token == PROCTK)
 	{
-		procHead();
-		semiProgram();
+		tlastindex = lastindex;
+		pushMem();
+		lastpar = procHead();
+		last = semiProgram();
+		psize = lastpar - tlastindex;
+		vsize = lastindex - tlastindex;
+		sub_table.insert(last, lastpar, psize, vsize);
 		if (word.token == SEMICOLONTK)
 		{
 			getSym();
@@ -434,7 +445,6 @@ void Grammar::procHead()
 	{
 		error(EXPECTIDENT);
 	}
-	ParaTable para_table;
 	int cntvar;
 	if (word.token == LPARENTTK)
 	{
@@ -515,7 +525,7 @@ void Grammar::funcHead()
 	}
 }
 
-int Grammar::paraTable(ParaTable& para_table)
+int Grammar::paraTable()
 {
 #ifdef GrammarDebug
 	std::cout << "In ParaTable" << std::endl;
@@ -550,7 +560,7 @@ int Grammar::paraTable(ParaTable& para_table)
 	return cnt;
 }
 
-int Grammar::paraSegement(ParaTable& para_table)
+int Grammar::paraSegement()
 {
 #ifdef GrammarDebug
 	std::cout << "In ParaSegement" << std::endl;

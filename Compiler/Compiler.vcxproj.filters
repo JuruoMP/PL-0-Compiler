@@ -47,6 +47,9 @@
     <Text Include="Operation.txt">
       <Filter>资源文件</Filter>
     </Text>
+    <Text Include="SymbolTable.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Grammar.h">

@@ -88,6 +88,7 @@
     <Text Include="Grammar.txt" />
     <Text Include="Operation.txt" />
     <Text Include="Symbol.txt" />
+    <Text Include="SymbolTable.txt" />
     <Text Include="test.txt" />
     <Text Include="文法.txt" />
   </ItemGroup>

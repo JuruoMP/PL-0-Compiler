@@ -1,7 +1,5 @@
 #include "Memory.h"
 
-Memory* memory;
-
 Memory::Memory()
 {
 	this->ptr = 0;

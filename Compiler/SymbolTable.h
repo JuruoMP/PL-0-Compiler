@@ -9,11 +9,11 @@
 
 #define MAXIDENT 1024
 
-extern Memory memory;
 extern SubTable sub_table;
 extern DisplayTable display_table;
 extern ArrayTable array_table;
 extern ConstTable const_table;
+extern StringTable string_table;
 
 enum TYPE
 {
@@ -59,8 +59,8 @@ class Identifier
 {
 	static int ident_index;
 public:
-	char name[MAXLEN];
 	int index;
+	char name[MAXLEN];
 	int lastindex;
 	TYPE type;
 	int level;
@@ -103,7 +103,8 @@ class Variable : public Identifier
 public:
 	Variable() : Identifier()
 	{
-		this->addr = memory.memAlloc();
+		Memory* memory = memory->getInstance();
+		this->addr = memory->allocMem();
 	}
 	Variable(char* name, TYPE type, int level, int lastindex) 
 		: Identifier(name, type, level, lastindex) {}
@@ -122,11 +123,14 @@ public:
 class Array : public Identifier
 {
 public:
+	int ref;
 	Array() : Identifier() {}
 	Array(char* name, TYPE type, int level, int length, int lastindex)
 		: Identifier(name, type, level, lastindex)
 	{
-		this->addr = array_table.insert(length);
+		this->ref = array_table.insert(length);
+		Memory* memory = memory->getInstance();
+		this->addr = memory->allocMem(length);
 	}
 	Array(const Array& arr)
 	{
@@ -136,6 +140,7 @@ public:
 		this->level = arr.level;
 		this->lastindex = arr.lastindex;
 		this->addr = arr.addr;
+		this->ref = arr.ref;
 	}
 	void print() {}
 };
@@ -144,10 +149,14 @@ class Parameter : public Identifier
 {
 public:
 	bool real;
-	Parameter(char* name, int level, int lastindex, bool real) 
+	Parameter(char* name, int level, int lastindex, bool real, int addr = NULL) 
 		: Identifier(name, PARA, level, lastindex)
 	{
 		this->real = real;
+		if (real)
+			this->addr = addr;
+		else
+			this->addr = 
 	}
 	Parameter(const Parameter& para) 
 	{
@@ -166,10 +175,14 @@ class Procedure : public Identifier
 {
 public:
 	Label* label;
-	Procedure(char* name, int level, int lastindex) :
+	int ref;
+	Procedure(char* name, int level, int lastindex, 
+		int lastpar, int last, int psize, int vsize, int codeindex) :
 		Identifier(name, PROC, level, lastindex)
 	{
 		this->label = new Label();
+		this->ref = sub_table.insert(lastpar, last, psize, vsize);
+		this->addr = codeindex;
 	}
 	Procedure(const Procedure& proc)
 	{
@@ -180,6 +193,7 @@ public:
 		this->level = proc.level;
 		this->lastindex = proc.lastindex;
 		this->addr = proc.addr;
+		this->ref = proc.ref;
 	}
 	~Procedure()
 	{
@@ -192,10 +206,14 @@ class Function : public Identifier
 {
 public:
 	Label* label;
-	Function(char* name, TYPE type, int level, int lastindex) :
+	int ref;
+	Function(char* name, TYPE type, int level, int lastindex, 
+		int lastpar, int last, int psize, int vsize, int codeindex) :
 		Identifier(name, type, level, lastindex)
 	{
 		this->label = new Label();
+		this->ref = sub_table.insert(lastpar, last, psize, vsize);
+		this->addr = codeindex;
 	}
 	Function(const Function& func)
 	{
@@ -206,6 +224,7 @@ public:
 		this->level = func.level;
 		this->lastindex = func.lastindex;
 		this->addr = func.addr;
+		this->ref = func.ref;
 	}
 	~Function()
 	{

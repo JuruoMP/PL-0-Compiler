@@ -2,8 +2,6 @@
 #include "Memory.h"
 #include <iostream>
 
-extern Memory* memory;
-
 Label::Label()
 {
 	this->index = label_index++;
