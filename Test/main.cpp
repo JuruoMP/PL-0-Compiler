@@ -4,18 +4,22 @@ using namespace std;
 class Test
 {
 public:
+	static int s;
 	int a;
+	Test() {};
 	Test(int n)
 	{
 		a = n;
 	}
-};
+}a, b;
+int Test::s = 1;
 
 int main()
 {
-	Test a(1);
-	cout << a.a << endl;
-	Test a(2);
-	cout << a.a << endl;
+	a.s++;
+	cout << a.s << endl;
+	b.s++;
+	cout << b.s << endl;
+	system("pause");
 	return 0;
 }

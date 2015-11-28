@@ -44,7 +44,7 @@ public:
 	void factor(Temp &temp);
 	void funcSentence(Temp &temp);
 	void realParaTable();
-	void realPara();
+	void realPara(Temp &temp);
 	//void addOp();
 	//void multOp();
 	void condition();
@@ -92,7 +92,8 @@ enum ERROR
 	EXPECTREAD,
 	EXPECTEMPTY,
 	REDEFINATION,
-	NOTAFUNCTION,
+	NOTAPROC,
+	NOTAFUNC,
 	IDENTNOTDEFINED,
 
 };

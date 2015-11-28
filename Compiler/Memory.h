@@ -1,8 +1,8 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+#include <cassert>
 #include "Symbol.h"
-#include "SymbolTable.h"
 
 #define FPMAX 128
 #define ARRAYMAX 1024
@@ -15,7 +15,7 @@ typedef int ADDR;
 class SubTable
 {
 public:
-	SubTable();
+	SubTable() {};
 	static int subtable_index;
 	int last[FPMAX], lastpar[FPMAX], psize[FPMAX], vsize[FPMAX];
 	int insert(int last, int lastpar, int psize, int vsize)
@@ -27,8 +27,8 @@ public:
 		subtable_index++;
 		return subtable_index - 1;
 	}
-}sub_table;
-int SubTable::subtable_index = 1;
+};// sub_table;
+//int SubTable::subtable_index = 1;
 
 class DisplayTable
 {
@@ -36,17 +36,21 @@ public:
 	DisplayTable() { this->size = 1; };
 	static int size;
 	int index[LEVELMAX];
-	void insert(int id)
+	void push(int id)
 	{
 		this->index[size++] = id;
 	}
-}display_table;
-int DisplayTable::size = 1;
+	void pop()
+	{
+		size--;
+	}
+};// display_table;
+//int DisplayTable::size = 1;
 
 class ArrayTable
 {
 public:
-	ArrayTable();
+	ArrayTable() {};
 	static int arraytable_index;
 	int len[ARRAYMAX];
 	int insert(int len)
@@ -54,13 +58,13 @@ public:
 		this->len[arraytable_index++] = len;
 		return arraytable_index - 1;
 	}
-}array_table;
-int ArrayTable::arraytable_index = 1;
+};// array_table;
+//int ArrayTable::arraytable_index = 1;
 
 class ConstTable
 {
 public:
-	ConstTable();
+	ConstTable() {};
 	static int consttable_index;
 	int value[CONSTMAX];
 	int insert(int value)
@@ -73,13 +77,13 @@ public:
 		this->value[consttable_index++] = value;
 		return consttable_index - 1;
 	}
-}const_table;
-int ConstTable::consttable_index = 1;
+};// const_table;
+//int ConstTable::consttable_index = 1;
 
 class StringTable
 {
 public:
-	StringTable();
+	StringTable() {};
 	static int stringtable_index;
 	std::string strs[STRINGMAX];
 	int insert(std::string str)
@@ -87,21 +91,21 @@ public:
 		strs[stringtable_index++] = str;
 		return stringtable_index - 1;
 	}
-}string_table;
-int StringTable::stringtable_index = 1;
+};// string_table;
+//int StringTable::stringtable_index = 1;
 
 
 //Singleton class Memory
 class Memory
 {
 private:
-	const static ADDR USTACKTOP = 0xffff0000;
-	static ADDR ptr;
+	const static int USTACKTOP = 0xffff0000;
+	static int ptr;
 	static Memory* memory;
 	Memory();
 public:
 	Memory* getInstance();
-	ADDR allocMem(int length = 1);
+	int allocMem(int length = 1);
 	void freeMem(int length);
 };
 
@@ -128,7 +132,14 @@ public:
 		strcpy_s(this->op.src2, OPLEN - 1, src2);
 		return code_index - 1;
 	}
-}code;
-int Code::code_index = 1;
+};// code;
+//int Code::code_index = 1;
+
+extern SubTable sub_table;
+extern DisplayTable display_table;
+extern ArrayTable array_table;
+extern ConstTable const_table;
+extern StringTable string_table;
+extern Code code;
 
 #endif

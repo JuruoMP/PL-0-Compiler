@@ -1,9 +1,29 @@
-ADD		targetT		targetT		sourceT
-SUB		targetT		targetT		sourceT
-MULT	targetT		targetT		sourceT
-DIV		targetT		targetT		sourceT
-SET		identT		offsetT		valueT
-LOAD	targetT		varIdent	offsetT
-FCAL	targetT		funcIdent	-
-PCAL	funcIdent	-			-
+ADD			targetT		targetT		sourceT
+SUB			targetT		targetT		sourceT
+MULT		targetT		targetT		sourceT
+DIV			targetT		targetT		sourceT
+SET			identT		offsetT		valueT
+SET			ident		srcT
+LOAD		targetT		varIdent	offsetT
+SET			target		offsetT		valueT
+FCAL		targetT		funcIdent	ret_label
+PCAL		procIdent	ret_label	-
+
+INC			name
+DEC			name
+
+SMALL		FLAG		t1			t2
+SMALLEQU	FLAG		t1			t2
+LARGE		FLAG		t1			t2
+LARGEEQU	FLAG		t1			t2
+EQU			FLAG		t1			t2
+NEQU		FLAG		t1			t2
+
+JEQ			label		src1		src2
+SETLABEL	label		-			-
+
+WRITE		temp
+READ
+
+
 

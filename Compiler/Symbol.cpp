@@ -1,4 +1,4 @@
-#include "symbol.h"
+#include "Symbol.h"
 #include <cstring>
 #include <cstdio>
 #include <iostream>

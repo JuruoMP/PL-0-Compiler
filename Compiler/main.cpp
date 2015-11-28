@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Symbol.h"
+#include "Memory.h"
 #include "Grammar.h"
 
 using namespace std;

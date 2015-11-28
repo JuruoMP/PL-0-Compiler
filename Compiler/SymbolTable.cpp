@@ -1,16 +1,17 @@
-#include "SymbolTable.h"
-#include "Memory.h"
 #include <iostream>
+#include "SymbolTable.h"
+
+SymbolTable symbol_table;
 
 Label::Label()
 {
 	this->index = label_index++;
 }
 
-char* Label::toString()
+char* Label::toString(char* s)
 {
-	char s[1024];
 	sprintf_s(s, 1023, "Label%d", this->index);
+	return s;
 }
 
 Temp::Temp()
@@ -29,10 +30,10 @@ void Temp::fill(char* nname)
 	strcpy_s(this->name, MAXLEN - 1, nname);
 }
 
-char* Temp::toString()
+char* Temp::toString(char* s)
 {
-	char s[1024];
 	sprintf_s(s, 1023, "T%d", this->index);
+	return s;
 }
 
 SymbolTable::SymbolTable()
@@ -97,16 +98,161 @@ int SymbolTable::insert(Identifier* ident)
 
 Identifier* SymbolTable::find(int level, char* name)
 {
-	int level = display_table.size;
-	while (level >= 1)
+	int display_level = display_table.size;
+	while (display_level >= 1)
 	{
-		int sub_index = display_table.index[level];
+		int sub_index = display_table.index[display_level];
 		int index = sub_table.last[sub_index];
 		while (!strcmp(symbol_table.idents[index]->name, name))
 		{
 			Identifier* ident = symbol_table.idents[index];
 			return ident;
+			index--;
+			if (index < 1)
+				break;
 		}
+		display_level--;
 	}
 	return NULL;
 }
+
+Identifier::Identifier(char* name, TYPE type, int level, int lastindex)
+{
+	this->index = ident_index++;
+	strcpy_s(this->name, MAXLEN - 1, name);
+	this->type = type;
+	this->level = level;
+	this->lastindex = lastindex;
+}
+
+Constance::Constance(char* name, int level, int value, int lastindex) 
+: Identifier(name, CONST, level, lastindex)
+{
+	this->addr = const_table.insert(value);
+	symbol_table.insert(this);
+}
+
+Constance::Constance(const Constance& cons)
+{
+	this->index = cons.index;
+	strcpy_s(this->name, MAXLEN - 1, cons.name);
+	this->type = cons.type;
+	this->level = cons.level;
+	this->lastindex = cons.lastindex;
+	this->addr = cons.addr;
+}
+
+Variable::Variable(char* name, TYPE type, int level, int lastindex)
+: Identifier(name, type, level, lastindex)
+{
+	Memory* memory = NULL;
+	memory = memory->getInstance();
+	this->addr = memory->allocMem();
+	symbol_table.insert(this);
+}
+
+Variable::Variable(const Variable& var)
+{
+	this->index = var.index;
+	strcpy_s(this->name, MAXLEN - 1, var.name);
+	this->type = var.type;
+	this->level = var.level;
+	this->lastindex = var.lastindex;
+	this->addr = var.addr;
+}
+
+Array::Array(char* name, TYPE type, int level, int length, int lastindex)
+: Identifier(name, type, level, lastindex)
+{
+	this->ref = array_table.insert(length);
+	Memory* memory = NULL;
+	memory = memory->getInstance();
+	this->addr = memory->allocMem(length);
+	symbol_table.insert(this);
+}
+
+Array::Array(const Array& arr)
+{
+	this->index = arr.index;
+	strcpy_s(this->name, MAXLEN - 1, arr.name);
+	this->type = arr.type;
+	this->level = arr.level;
+	this->lastindex = arr.lastindex;
+	this->addr = arr.addr;
+	this->ref = arr.ref;
+}
+
+Parameter::Parameter(char* name, int level, int lastindex, bool real, int addr)
+: Identifier(name, PARA, level, lastindex)
+{
+	this->real = real;
+	if (real)
+		this->addr = addr;
+	else
+	{
+		Memory* memory = NULL;
+		memory = memory->getInstance();
+		this->addr = memory->allocMem();
+	}
+	symbol_table.insert(this);
+}
+
+Parameter::Parameter(const Parameter& para)
+{
+	this->index = para.index;
+	strcpy_s(this->name, MAXLEN - 1, para.name);
+	this->type = para.type;
+	this->level = para.level;
+	this->real = para.real;
+	this->lastindex = para.lastindex;
+	this->addr = para.addr;
+}
+
+Procedure::Procedure(char* name, int level, int lastindex,
+	int lastpar, int last, int psize, int vsize, int codeindex) :
+	Identifier(name, PROC, level, lastindex)
+{
+	this->label = new Label();
+	this->ref = sub_table.insert(lastpar, last, psize, vsize);
+	this->addr = codeindex;
+	symbol_table.insert(this);
+}
+
+Procedure::Procedure(const Procedure& proc)
+{
+	this->index = proc.index;
+	this->label = new Label();
+	strcpy_s(this->name, MAXLEN - 1, proc.name);
+	this->type = proc.type;
+	this->level = proc.level;
+	this->lastindex = proc.lastindex;
+	this->addr = proc.addr;
+	this->ref = proc.ref;
+}
+
+Function::Function(char* name, TYPE type, int level, int lastindex,
+	int lastpar, int last, int psize, int vsize, int codeindex) :
+	Identifier(name, type, level, lastindex)
+{
+	this->label = new Label();
+	this->ref = sub_table.insert(lastpar, last, psize, vsize);
+	this->addr = codeindex;
+	symbol_table.insert(this);
+}
+
+Function::Function(const Function& func)
+{
+	this->index = func.index;
+	this->label = new Label();
+	strcpy_s(this->name, MAXLEN - 1, func.name);
+	this->type = func.type;
+	this->level = func.level;
+	this->lastindex = func.lastindex;
+	this->addr = func.addr;
+	this->ref = func.ref;
+}
+
+int Identifier::ident_index = 1;
+int SymbolTable::symboltable_index = 1;
+int Label::label_index = 0;
+int Temp::tmp_index = 0;
