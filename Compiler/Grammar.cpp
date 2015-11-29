@@ -6,6 +6,8 @@ static WORD word, preread;
 int level = 0;
 extern SymbolTable symbol_table;
 int lastindex = 0;//???????
+int lastpar = 0;
+int cntpf = 0;
 
 #define CODEINDEXNULL 0
 
@@ -25,6 +27,7 @@ bool Grammar::getSym()
 	if (position < word_list.size())
 	{
 		word = word_list.at(position);
+		word.print();
 		if (position < word_list.size() - 1)
 			preread = word_list.at(position + 1);
 		position++;
@@ -59,28 +62,23 @@ void Grammar::program()
 
 int Grammar::semiProgram()
 {
-	bool defined = false;
-	int tlastindex = lastindex;
-#ifdef GrammarDebug
+#ifdef GrammarDebugsub_table.insert
 	std::cout << "In SemiProgram" << std::endl;
 #endif
-	level++;
-	int cnt_const, cnt_var;
+	int ret = lastindex;
+	int cnt_const = 0, cnt_var = 0;
 	if (word.token == CONSTTK)
 	{
 		cnt_const = constIllu();
-		if (cnt_const)
-			defined = true;
 	}
 	if (word.token == VARTK)
 	{
 		cnt_var = varIllu();
-		if (cnt_var)
-			defined = true;
 	}
+	sub_table.insert(lastindex, 0, 0, 0);
 	while (word.token == PROCTK || word.token == FUNCTK)
 	{
-		defined = true;
+		display_table.push(++cntpf);
 		if (word.token == PROCTK)
 		{
 			procIllu();
@@ -89,13 +87,12 @@ int Grammar::semiProgram()
 		{
 			funcIllu();
 		}
+		cntpf--;
+		display_table.pop();
 	}
-	if (defined)
-		display_table.push(tlastindex + 1);
-	int ret = lastindex;
 	complexSentence();
 	level--;
-	display_table.pop();
+	ret += cnt_const + cnt_var;
 	return ret;
 }
 
@@ -163,6 +160,8 @@ void Grammar::constDec()
 	}
 	Constance cons(name, level, value, lastindex + 1);
 	lastindex = cons.index;
+	//统一查找，始终保持display_table多一项
+	display_table.index[display_table.size] = cntpf + 1;
 }
 
 int Grammar::constVal()
@@ -230,6 +229,8 @@ int Grammar::varIllu()
 			error(EXPECTSEMICOLON);
 		}
 	} while (word.token != PROCTK && word.token != FUNCTK && word.token != BEGINTK);
+	//统一查找，始终保持display_table多一项
+	display_table.index[display_table.size] = cntpf + 1;
 	return cnt;
 }
 
@@ -370,19 +371,19 @@ void Grammar::procIllu()
 #ifdef GrammarDebug
 	std::cout << "In ProcIllu" << std::endl;
 #endif
+	Procedure* pproc = NULL;
 	int tlastindex = lastindex;
 	lastindex = 0;
-	int last, lastpar, psize, vsize;
+	int last, psize, vsize;
 	Memory* memory = NULL;
 	memory = memory->getInstance();
 	//memory.pushInfo();
 	char name[MAXLEN];
-	lastpar = procHead(name);
-	last = semiProgram();
+	procHead(pproc);
 	psize = lastpar - tlastindex;
-	vsize = lastindex - tlastindex;
-	Procedure proc1(name, level, tlastindex,
-		lastpar, last, psize, vsize, CODEINDEXNULL);
+	last = semiProgram();
+	vsize = last - tlastindex;
+	//pproc->setValue(last, lastpar, psize, vsize);
 	if (word.token == SEMICOLONTK)
 	{
 		getSym();
@@ -396,12 +397,11 @@ void Grammar::procIllu()
 		tlastindex = lastindex;
 		lastindex = 0;
 		//memory->pushInfo();
-		lastpar = procHead(name);
-		last = semiProgram();
+		procHead(pproc);
 		psize = lastpar - tlastindex;
-		vsize = lastindex - tlastindex;
-		Procedure proc2(name, level, tlastindex,
-			lastpar, last, psize, vsize, CODEINDEXNULL);
+		int last = semiProgram();
+		vsize = last - tlastindex;
+		//pproc->setValue(last, lastpar, psize, vsize);
 		if (word.token == SEMICOLONTK)
 		{
 			getSym();
@@ -418,20 +418,20 @@ void Grammar::funcIllu()
 #ifdef GrammarDebug
 	std::cout << "In FuncIllu" << std::endl;
 #endif
+	Function* pfunc = NULL;
 	int tlastindex = lastindex;
 	lastindex = 0;
-	int last, lastpar, psize, vsize;
+	int last, psize, vsize;
 	Memory* memory = NULL;
 	memory = memory->getInstance();
 	//memory.pushInfo();
 	char name[MAXLEN];
 	TYPE type;
-	lastpar = funcHead(name, type);
-	last = semiProgram();
+	funcHead(pfunc);
 	psize = lastpar - tlastindex;
-	vsize = lastindex - tlastindex;
-	Function fun1(name, type, level, tlastindex,
-		lastpar, last, psize, vsize, CODEINDEXNULL);
+	last = semiProgram();
+	vsize = last - tlastindex;
+	//pfunc->setValue(last, lastpar, psize, vsize);
 	if (word.token == SEMICOLONTK)
 	{
 		getSym();
@@ -445,12 +445,11 @@ void Grammar::funcIllu()
 		tlastindex = lastindex;
 		lastindex = 0;
 		//memory.pushInfo();
-		lastpar = funcHead(name, type);
-		last = semiProgram();
+		funcHead(pfunc);
 		psize = lastpar - tlastindex;
-		vsize = lastindex - tlastindex;
-		Function fun2(name, type, level, tlastindex,
-			lastpar, last, psize, vsize, CODEINDEXNULL);
+		last = semiProgram();
+		vsize = last - tlastindex;
+		//pfunc->setValue(last, lastpar, psize, vsize);
 		if (word.token == SEMICOLONTK)
 		{
 			getSym();
@@ -462,7 +461,7 @@ void Grammar::funcIllu()
 	}
 }
 
-int Grammar::procHead(char* name)
+void Grammar::procHead(Procedure* &pproc)
 {
 #ifdef GrammarDebug
 	std::cout << "In ProcHead" << std::endl;
@@ -477,17 +476,21 @@ int Grammar::procHead(char* name)
 	}
 	if (word.token == IDENTTK)
 	{
+		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
+		pproc = new Procedure(name, level, lastindex,
+			lastpar, lastindex, 0, 0, CODEINDEXNULL);
+		lastindex = pproc->index;
 		getSym();
 	}
 	else
 	{
 		error(EXPECTIDENT);
 	}
-	int lastpar;
+	level++;
 	if (word.token == LPARENTTK)
 	{
-		lastpar = paraTable();
+		paraTable();
 	}
 	if (word.token == SEMICOLONTK)
 	{
@@ -497,10 +500,9 @@ int Grammar::procHead(char* name)
 	{
 		error(EXPECTSEMICOLON);
 	}
-	return lastpar;
 }
 
-int Grammar::funcHead(char* name, TYPE &type)
+void Grammar::funcHead(Function* &pfunc)
 {
 #ifdef GrammarDebug
 	std::cout << "In FuncHead" << std::endl;
@@ -513,20 +515,25 @@ int Grammar::funcHead(char* name, TYPE &type)
 	{
 		error(EXPECTPROC);
 	}
+	TYPE type = NONE;
 	if (word.token == IDENTTK)
 	{
+		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
+		pfunc = new Function(name, type, level, 0,
+			0, lastindex, 0, 0, CODEINDEXNULL);
+		lastindex = pfunc->index;
 		getSym();
 	}
 	else
 	{
 		error(EXPECTIDENT);
 	}
-	int lastpar;
+	level++;
 	int cntvar = 0;
 	if (word.token == LPARENTTK)
 	{
-		lastpar = paraTable();
+		paraTable();
 	}
 	if (word.token == COLONTK)
 	{
@@ -558,15 +565,14 @@ int Grammar::funcHead(char* name, TYPE &type)
 	{
 		error(EXPECTSEMICOLON);
 	}
-	return lastpar;
+	pfunc->type = type;
 }
 
-int Grammar::paraTable()
+void Grammar::paraTable()
 {
 #ifdef GrammarDebug
 	std::cout << "In ParaTable" << std::endl;
 #endif
-	int lastpar = 0;
 	if (word.token == LPARENTTK)
 	{
 		getSym();
@@ -593,7 +599,8 @@ int Grammar::paraTable()
 	{
 		error(EXPECTRPARENT);
 	}
-	return lastpar;
+	//统一查找，始终保持display_table多一项
+	display_table.index[display_table.size] = cntpf + 1;
 }
 
 int Grammar::paraSegement()
@@ -1001,6 +1008,7 @@ void Grammar::condition()
 #endif
 	Temp temp1, temp2;
 	expression(temp1);
+	SymbolTK cmptoken = word.token;
 	if (word.token == SMALLTK || word.token == SMALLEQUTK ||
 		word.token == LARGETK || word.token == LARGEEQUTK ||
 		word.token == EQUTK || word.token == NEQUTK)
@@ -1015,7 +1023,7 @@ void Grammar::condition()
 	char str1[1024], str2[1024];
 	temp1.toString(str1);
 	temp2.toString(str2);
-	switch (word.token)
+	switch (cmptoken)
 	{
 	case SMALLTK:
 		code.insert("SMALL", "FLAG", str1, str2);

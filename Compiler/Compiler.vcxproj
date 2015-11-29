@@ -85,6 +85,7 @@
     <ClCompile Include="SymbolTable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="alltest.txt" />
     <Text Include="Grammar.txt" />
     <Text Include="Operation.txt" />
     <Text Include="Symbol.txt" />

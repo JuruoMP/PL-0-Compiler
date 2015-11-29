@@ -51,8 +51,11 @@ int SymbolTable::insert(Identifier* ident)
 			found = true;
 			break;
 		}
-		if (idents[i]->index == 0)
+		if (idents[i]->lastindex <= 0)
+		{
+			//assert(idents[i]->lastindex == -1);
 			break;
+		}
 	}
 	if (found)
 		return NULL;
@@ -63,13 +66,18 @@ int SymbolTable::insert(Identifier* ident)
 		this->idents[symboltable_index++] = newcons;
 		return symboltable_index - 1;
 	}
-	else if (ident->type == INT || ident->type == CHAR ||
-		ident->type == INTARRAY || ident->type == CHARARRAY ||
-		ident->type == PARA)
+	else if (ident->type == INT || ident->type == CHAR)
 	{
 		Variable* var = dynamic_cast<Variable*>(ident);
 		Identifier* newvar = new Variable(*var);
 		this->idents[symboltable_index++] = newvar;
+		return symboltable_index - 1;
+	}
+	else if (ident->type == INTARRAY || ident->type == CHARARRAY)
+	{
+		Array* arr = dynamic_cast<Array*>(ident);
+		Identifier* newarr = new Array(*arr);
+		this->idents[symboltable_index++] = newarr;
 		return symboltable_index - 1;
 	}
 	else if (ident->type == PARA)
@@ -93,7 +101,10 @@ int SymbolTable::insert(Identifier* ident)
 		this->idents[symboltable_index++] = newfunc;
 		return symboltable_index - 1;
 	}
-	return symboltable_index - 1;
+	else
+	{
+		assert(0 == 1);
+	}
 }
 
 Identifier* SymbolTable::find(int level, char* name)
@@ -101,15 +112,21 @@ Identifier* SymbolTable::find(int level, char* name)
 	int display_level = display_table.size;
 	while (display_level >= 1)
 	{
-		int sub_index = display_table.index[display_level];
-		int index = sub_table.last[sub_index];
-		while (!strcmp(symbol_table.idents[index]->name, name))
+		int sub_index = display_table.index[display_level - 1];
+		int index = sub_table.last[sub_index] + 1;
+		while (index <= sub_table.last[display_table.index[display_level]])
 		{
-			Identifier* ident = symbol_table.idents[index];
-			return ident;
-			index--;
-			if (index < 1)
+			if (symbol_table.idents[index]->lastindex < 1)
+			{
+				//assert(symbol_table.idents[index]->lastindex == -1);
 				break;
+			}
+			if (!strcmp(symbol_table.idents[index]->name, name))
+			{
+				Identifier* ident = symbol_table.idents[index];
+				return ident;
+			}
+			index++;
 		}
 		display_level--;
 	}
@@ -122,7 +139,7 @@ Identifier::Identifier(char* name, TYPE type, int level, int lastindex)
 	strcpy_s(this->name, MAXLEN - 1, name);
 	this->type = type;
 	this->level = level;
-	this->lastindex = lastindex;
+	this->lastindex = lastindex - 1;
 }
 
 Constance::Constance(char* name, int level, int value, int lastindex) 
@@ -213,8 +230,9 @@ Procedure::Procedure(char* name, int level, int lastindex,
 	Identifier(name, PROC, level, lastindex)
 {
 	this->label = new Label();
-	this->ref = sub_table.insert(lastpar, last, psize, vsize);
+	//this->ref = sub_table.insert(last, lastpar, psize, vsize);
 	this->addr = codeindex;
+	//this->lastindex = 0;
 	symbol_table.insert(this);
 }
 
@@ -230,13 +248,22 @@ Procedure::Procedure(const Procedure& proc)
 	this->ref = proc.ref;
 }
 
+void Procedure::setValue(int last, int lastpar, int psize, int vsize)
+{
+	sub_table.last[this->ref] = last;
+	sub_table.lastpar[this->ref] = lastpar;
+	sub_table.psize[this->ref] = psize;
+	sub_table.vsize[this->ref] = vsize;
+}
+
 Function::Function(char* name, TYPE type, int level, int lastindex,
 	int lastpar, int last, int psize, int vsize, int codeindex) :
 	Identifier(name, type, level, lastindex)
 {
 	this->label = new Label();
-	this->ref = sub_table.insert(lastpar, last, psize, vsize);
+	//this->ref = sub_table.insert(last, lastpar, psize, vsize);
 	this->addr = codeindex;
+	//this->lastindex = 0;
 	symbol_table.insert(this);
 }
 
@@ -250,6 +277,14 @@ Function::Function(const Function& func)
 	this->lastindex = func.lastindex;
 	this->addr = func.addr;
 	this->ref = func.ref;
+}
+
+void Function::setValue(int last, int lastpar, int psize, int vsize)
+{
+	sub_table.last[this->ref] = last;
+	sub_table.lastpar[this->ref] = lastpar;
+	sub_table.psize[this->ref] = psize;
+	sub_table.vsize[this->ref] = vsize;
 }
 
 int Identifier::ident_index = 1;

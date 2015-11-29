@@ -22,7 +22,7 @@ public:
 	{
 		this->last[subtable_index] = last;
 		this->lastpar[subtable_index] = lastpar;
-		this->psize[subtable_index] = psize;
+		this->psize[subtable_index] = psize >= 0 ? psize : 0;
 		this->vsize[subtable_index] = vsize;
 		subtable_index++;
 		return subtable_index - 1;
@@ -111,7 +111,7 @@ public:
 
 class Code
 {
-#define OPLEN 16
+#define OPLEN 256
 public:
 	class Op
 	{

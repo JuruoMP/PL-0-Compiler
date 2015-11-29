@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <iostream>
 
+#define SYMBOLCHECK
+
 static FILE* fp;
 static SymbolTK symbolTK;
 static POSITION pos;

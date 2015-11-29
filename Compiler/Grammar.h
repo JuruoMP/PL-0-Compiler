@@ -32,9 +32,9 @@ public:
 	//void basicType();
 	void procIllu();
 	void funcIllu();
-	int procHead(char* name);
-	int funcHead(char* name, TYPE &type);
-	int paraTable();
+	void procHead(Procedure* &pproc);
+	void funcHead(Function* &pfunc);
+	void paraTable();
 	int paraSegement();
 	void sentence();
 	void setSentence();

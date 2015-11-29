@@ -14,6 +14,7 @@ extern DisplayTable display_table;
 extern ArrayTable array_table;
 extern ConstTable const_table;
 extern StringTable string_table;
+extern int lastindex;
 
 enum TYPE
 {
@@ -26,6 +27,7 @@ enum TYPE
 	PROC,
 	FUNCINT,
 	FUNCCHAR,
+	NONE
 };
 
 class Identifier
@@ -127,6 +129,7 @@ public:
 		delete(this->label);
 	}
 	void print() {}
+	void setValue(int last, int lastpar, int psize, int vsize);
 };
 
 class Function : public Identifier
@@ -142,6 +145,7 @@ public:
 		delete(this->label);
 	}
 	void print() {}
+	void setValue(int last, int lastpar, int psize, int vsize);
 };
 
 extern SymbolTable symbol_table;
