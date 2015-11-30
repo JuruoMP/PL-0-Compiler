@@ -112,21 +112,23 @@ Identifier* SymbolTable::find(int level, char* name)
 	int display_level = display_table.size;
 	while (display_level >= 1)
 	{
-		int sub_index = display_table.index[display_level - 1];
-		int index = sub_table.last[sub_index] + 1;
-		while (index <= sub_table.last[display_table.index[display_level]])
+		int sub_index = display_table.index[display_level];
+		int index = sub_table.last[sub_index];
+		while (index > sub_table.last[display_table.index[display_level - 1]])
 		{
+			/*
 			if (symbol_table.idents[index]->lastindex < 1)
 			{
 				//assert(symbol_table.idents[index]->lastindex == -1);
 				break;
 			}
+			*/
 			if (!strcmp(symbol_table.idents[index]->name, name))
 			{
 				Identifier* ident = symbol_table.idents[index];
 				return ident;
 			}
-			index++;
+			index--;
 		}
 		display_level--;
 	}

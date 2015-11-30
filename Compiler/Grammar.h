@@ -17,6 +17,7 @@ public:
 	Grammar();
 	~Grammar() {};
 	bool getSym();
+	TYPE readType();
 	void program();
 	int semiProgram();
 	int constIllu();

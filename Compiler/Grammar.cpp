@@ -21,6 +21,7 @@ Grammar::Grammar()
 	program();
 }
 
+int sym_position = 0;
 bool Grammar::getSym()
 {
 	static int position = 0;
@@ -28,9 +29,8 @@ bool Grammar::getSym()
 	{
 		word = word_list.at(position);
 		word.print();
-		if (position < word_list.size() - 1)
-			preread = word_list.at(position + 1);
 		position++;
+		sym_position = position;
 		return true;
 	}
 	else
@@ -38,6 +38,21 @@ bool Grammar::getSym()
 		return false;
 	}
 }
+
+TYPE Grammar::readType()
+{
+	while (sym_position < word_list.size())
+	{
+		sym_position++;
+		if (word_list.at(sym_position).token == RPARENTTK)
+			break;
+	}
+	if (word_list.at(sym_position + 1).token == INTTK)
+		return FUNCINT;
+	else
+		return FUNCCHAR;
+}
+
 
 void Grammar::program()
 {
@@ -76,9 +91,11 @@ int Grammar::semiProgram()
 		cnt_var = varIllu();
 	}
 	sub_table.insert(lastindex, 0, 0, 0);
+	int display_cnt = 0;
 	while (word.token == PROCTK || word.token == FUNCTK)
 	{
 		display_table.push(++cntpf);
+		display_cnt++;
 		if (word.token == PROCTK)
 		{
 			procIllu();
@@ -88,9 +105,11 @@ int Grammar::semiProgram()
 			funcIllu();
 		}
 		cntpf--;
-		display_table.pop();
+		//display_table.pop();
 	}
 	complexSentence();
+	for (int ii = 0; ii < display_cnt; ++ii)
+		display_table.pop();
 	level--;
 	ret += cnt_const + cnt_var;
 	return ret;
@@ -515,7 +534,7 @@ void Grammar::funcHead(Function* &pfunc)
 	{
 		error(EXPECTPROC);
 	}
-	TYPE type = NONE;
+	TYPE type = readType();
 	if (word.token == IDENTTK)
 	{
 		char name[MAXLEN];
@@ -546,11 +565,13 @@ void Grammar::funcHead(Function* &pfunc)
 	if (word.token == INTTK)
 	{
 		type = FUNCINT;
+		//pfunc->type = type;
 		getSym();
 	}
 	else if (word.token == CHARTK)
 	{
 		type = FUNCCHAR;
+		//pfunc->type = type;
 		getSym();
 	}
 	else
@@ -1076,12 +1097,12 @@ void Grammar::conditionSentence()
 	{
 		error(EXPECTTHEN);
 	}
+	sentence();//B
 	if (word.token == ELSETK)
 	{
 		label2.toString(str2);
 		code.insert("J", str2);
 	}
-	sentence();//B
 	label1.toString(str1);
 	code.insert("SETLABEL", str1);
 	if (word.token == ELSETK)
