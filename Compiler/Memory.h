@@ -12,74 +12,6 @@
 
 typedef int ADDR;
 
-class SubTable
-{
-public:
-	SubTable() {};
-	static int subtable_index;
-	int last[FPMAX], lastpar[FPMAX], psize[FPMAX], vsize[FPMAX];
-	int insert(int last, int lastpar, int psize, int vsize)
-	{
-		this->last[subtable_index] = last;
-		this->lastpar[subtable_index] = lastpar;
-		this->psize[subtable_index] = psize >= 0 ? psize : 0;
-		this->vsize[subtable_index] = vsize;
-		subtable_index++;
-		return subtable_index - 1;
-	}
-};// sub_table;
-//int SubTable::subtable_index = 1;
-
-class DisplayTable
-{
-public:
-	DisplayTable() { this->size = 1; };
-	static int size;
-	int index[LEVELMAX];
-	void push(int id)
-	{
-		this->index[size++] = id;
-	}
-	void pop()
-	{
-		size--;
-	}
-};// display_table;
-//int DisplayTable::size = 1;
-
-class ArrayTable
-{
-public:
-	ArrayTable() {};
-	static int arraytable_index;
-	int len[ARRAYMAX];
-	int insert(int len)
-	{
-		this->len[arraytable_index++] = len;
-		return arraytable_index - 1;
-	}
-};// array_table;
-//int ArrayTable::arraytable_index = 1;
-
-class ConstTable
-{
-public:
-	ConstTable() {};
-	static int consttable_index;
-	int value[CONSTMAX];
-	int insert(int value)
-	{
-		for (int i = 1; i < consttable_index; ++i)
-		{
-			if (this->value[i] == value)
-				return i;
-		}
-		this->value[consttable_index++] = value;
-		return consttable_index - 1;
-	}
-};// const_table;
-//int ConstTable::consttable_index = 1;
-
 class StringTable
 {
 public:
@@ -135,10 +67,6 @@ public:
 };// code;
 //int Code::code_index = 1;
 
-extern SubTable sub_table;
-extern DisplayTable display_table;
-extern ArrayTable array_table;
-extern ConstTable const_table;
 extern StringTable string_table;
 extern Code code;
 

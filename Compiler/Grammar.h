@@ -2,6 +2,7 @@
 #define GRAMMAR_H
 
 #include <vector>
+#include <stack>
 #include "Symbol.h"
 #include "SymbolTable.h"
 
@@ -10,6 +11,8 @@
 extern WORD word;
 extern std::vector<WORD> word_list;
 extern int errcnt;
+extern SymbolTable* symbol_table;
+extern std::stack<int> node_stack;
 
 class Grammar
 {
@@ -19,24 +22,24 @@ public:
 	bool getSym();
 	TYPE readType();
 	void program();
-	int semiProgram();
-	int constIllu();
+	void semiProgram();
+	void constIllu();
 	void constDec();
 	int constVal();
 	//void charVal();
 	//void stringVal();
 	//void intVal();
 	//void ident();
-	int varIllu();
-	int varDec();
+	void varIllu();
+	void varDec();
 	enum TYPE type(int& length);
 	//void basicType();
 	void procIllu();
 	void funcIllu();
-	void procHead(Procedure* &pproc);
-	void funcHead(Function* &pfunc);
+	void procHead();
+	void funcHead();
 	void paraTable();
-	int paraSegement();
+	void paraSegement();
 	void sentence();
 	void setSentence();
 	//void funcIdent();

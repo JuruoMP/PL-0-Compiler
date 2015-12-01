@@ -1,18 +1,10 @@
 #include <iostream>
+#include <stack>
 #include "SymbolTable.h"
 
-SymbolTable symbol_table;
-
-Label::Label()
-{
-	this->index = label_index++;
-}
-
-char* Label::toString(char* s)
-{
-	sprintf_s(s, 1023, "Label%d", this->index);
-	return s;
-}
+SymbolTable* SymbolTable::symboltable;
+SymbolTable* symbol_table;
+std::stack<int> node_stack;
 
 Temp::Temp()
 {
@@ -36,260 +28,212 @@ char* Temp::toString(char* s)
 	return s;
 }
 
-SymbolTable::SymbolTable()
+int SymbolTable::nodecnt = 0;
+
+SymbolTable* SymbolTable::getInstance()
 {
-	memset(this->idents, 0, sizeof(this->idents));
+	if (symboltable == NULL)
+		symboltable = new SymbolTable();
+	return symboltable;
 }
 
-int SymbolTable::insert(Identifier* ident)
+int SymbolTable::addNode(int father, bool is_proc)
 {
-	bool found = false;
-	for (int i = symboltable_index - 1; i >= 1; --i)
+	nodecnt++;
+	if (nodecnt >= MAXCNT)
+		return -1;
+	nodes[nodecnt] = new Node();
+	nodes[nodecnt]->father_index = father;
+	nodes[nodecnt]->is_proc = is_proc;
+	return nodecnt;
+}
+
+void SymbolTable::into(int id)
+{
+	node_stack.push(id);
+	this->index = id;
+}
+
+void SymbolTable::back()
+{
+	//this->index = this->nodes[this->index]->father_index;
+	node_stack.pop();
+	this->index = node_stack.top();
+}
+
+bool SymbolTable::insertIdent(Identifier* ident)
+{
+	std::vector<Identifier*>::iterator it = nodes[index]->idents.begin();
+	for (it ; it != nodes[index]->idents.end(); ++it)
 	{
-		if (!strcmp(idents[i]->name, ident->name))
-		{
-			found = true;
+		if (*it == ident)
 			break;
-		}
-		if (idents[i]->lastindex <= 0)
-		{
-			//assert(idents[i]->lastindex == -1);
-			break;
-		}
 	}
-	if (found)
-		return NULL;
+	if (it != nodes[index]->idents.end())
+		return false;
 	if (ident->type == CONST)
 	{
 		Constance* cons = dynamic_cast<Constance*>(ident);
 		Identifier* newcons = new Constance(*cons);
-		this->idents[symboltable_index++] = newcons;
-		return symboltable_index - 1;
+		nodes[index]->idents.push_back(newcons);
+		nodes[index]->last_const = nodes[index]->offset_cnt;
+		nodes[index]->offset_cnt += 1;
 	}
 	else if (ident->type == INT || ident->type == CHAR)
 	{
 		Variable* var = dynamic_cast<Variable*>(ident);
 		Identifier* newvar = new Variable(*var);
-		this->idents[symboltable_index++] = newvar;
-		return symboltable_index - 1;
+		nodes[index]->idents.push_back(newvar);
+		nodes[index]->last_var = nodes[index]->offset_cnt;
+		nodes[index]->offset_cnt += 1;
 	}
 	else if (ident->type == INTARRAY || ident->type == CHARARRAY)
 	{
 		Array* arr = dynamic_cast<Array*>(ident);
 		Identifier* newarr = new Array(*arr);
-		this->idents[symboltable_index++] = newarr;
-		return symboltable_index - 1;
+		nodes[index]->idents.push_back(newarr);
+		nodes[index]->last_var = nodes[index]->offset_cnt;
+		nodes[index]->offset_cnt += arr->len;
 	}
 	else if (ident->type == PARA)
 	{
-		Parameter* pera = dynamic_cast<Parameter*>(ident);
-		Identifier* newpara = new Parameter(*pera);
-		this->idents[symboltable_index++] = newpara;
-		return symboltable_index - 1;
+		Parameter* para = dynamic_cast<Parameter*>(ident);
+		Identifier* newpara = new Parameter(*para);
+		nodes[index]->idents.push_back(newpara);
+		nodes[index]->last_para = nodes[index]->offset_cnt;
+		if (para->real)
+			nodes[index]->offset_cnt += 1;
 	}
 	else if (ident->type == PROC)
 	{
 		Procedure* proc = dynamic_cast<Procedure*>(ident);
 		Identifier* newproc = new Procedure(*proc);
-		this->idents[symboltable_index++] = newproc;
-		return symboltable_index - 1;
+		nodes[index]->idents.push_back(newproc);
+		nodes[index]->last_callable = nodes[index]->offset_cnt;
 	}
 	else if (ident->type == FUNCINT || ident->type == FUNCCHAR)
 	{
 		Function* func = dynamic_cast<Function*>(ident);
 		Identifier* newfunc = new Function(*func);
-		this->idents[symboltable_index++] = newfunc;
-		return symboltable_index - 1;
+		nodes[index]->idents.push_back(newfunc);
+		nodes[index]->last_callable = nodes[index]->offset_cnt;
 	}
 	else
 	{
 		assert(0 == 1);
 	}
+	return true;
 }
 
-Identifier* SymbolTable::find(int level, char* name)
+Identifier* SymbolTable::findIdent(char* name)
 {
-	int display_level = display_table.size;
-	while (display_level >= 1)
+	int tindex = this->index;
+	std::vector<Identifier*>::iterator it;
+	while (tindex != 0)
 	{
-		int sub_index = display_table.index[display_level];
-		int index = sub_table.last[sub_index];
-		while (index > sub_table.last[display_table.index[display_level - 1]])
+		for (it = nodes[tindex]->idents.begin(); it != nodes[tindex]->idents.end(); ++it)
 		{
-			/*
-			if (symbol_table.idents[index]->lastindex < 1)
-			{
-				//assert(symbol_table.idents[index]->lastindex == -1);
-				break;
-			}
-			*/
-			if (!strcmp(symbol_table.idents[index]->name, name))
-			{
-				Identifier* ident = symbol_table.idents[index];
+			Identifier* ident = *it;
+			if (!strcmp(ident->name, name))
 				return ident;
-			}
-			index--;
 		}
-		display_level--;
+		tindex = nodes[tindex]->father_index;
 	}
 	return NULL;
 }
 
-Identifier::Identifier(char* name, TYPE type, int level, int lastindex)
+Identifier::Identifier(char* name, TYPE type)
 {
-	this->index = ident_index++;
 	strcpy_s(this->name, MAXLEN - 1, name);
+	this->offset = symbol_table->nodes[symbol_table->index]->offset_cnt;
 	this->type = type;
-	this->level = level;
-	this->lastindex = lastindex - 1;
 }
 
-Constance::Constance(char* name, int level, int value, int lastindex) 
-: Identifier(name, CONST, level, lastindex)
+Constance::Constance(char* name, int value) 
+: Identifier(name, CONST)
 {
-	this->addr = const_table.insert(value);
-	symbol_table.insert(this);
+	this->value = value;
+	bool status = symbol_table->insertIdent(this);
 }
 
 Constance::Constance(const Constance& cons)
 {
-	this->index = cons.index;
 	strcpy_s(this->name, MAXLEN - 1, cons.name);
 	this->type = cons.type;
-	this->level = cons.level;
-	this->lastindex = cons.lastindex;
-	this->addr = cons.addr;
+	this->offset = cons.offset;
+	this->value = cons.value;
 }
 
-Variable::Variable(char* name, TYPE type, int level, int lastindex)
-: Identifier(name, type, level, lastindex)
+Variable::Variable(char* name, TYPE type)
+: Identifier(name, type)
 {
-	Memory* memory = NULL;
-	memory = memory->getInstance();
-	this->addr = memory->allocMem();
-	symbol_table.insert(this);
+	bool status = symbol_table->insertIdent(this);
 }
 
 Variable::Variable(const Variable& var)
 {
-	this->index = var.index;
 	strcpy_s(this->name, MAXLEN - 1, var.name);
 	this->type = var.type;
-	this->level = var.level;
-	this->lastindex = var.lastindex;
-	this->addr = var.addr;
+	this->offset = var.offset;
 }
 
-Array::Array(char* name, TYPE type, int level, int length, int lastindex)
-: Identifier(name, type, level, lastindex)
+Array::Array(char* name, TYPE type, int length)
+: Identifier(name, type)
 {
-	this->ref = array_table.insert(length);
-	Memory* memory = NULL;
-	memory = memory->getInstance();
-	this->addr = memory->allocMem(length);
-	symbol_table.insert(this);
+	symbol_table->insertIdent(this);
 }
 
 Array::Array(const Array& arr)
 {
-	this->index = arr.index;
 	strcpy_s(this->name, MAXLEN - 1, arr.name);
 	this->type = arr.type;
-	this->level = arr.level;
-	this->lastindex = arr.lastindex;
-	this->addr = arr.addr;
-	this->ref = arr.ref;
+	this->offset = arr.offset;
+	this->len = arr.len;
 }
 
-Parameter::Parameter(char* name, int level, int lastindex, bool real, int addr)
-: Identifier(name, PARA, level, lastindex)
+Parameter::Parameter(char* name, bool real)
+: Identifier(name, PARA)
 {
 	this->real = real;
-	if (real)
-		this->addr = addr;
-	else
-	{
-		Memory* memory = NULL;
-		memory = memory->getInstance();
-		this->addr = memory->allocMem();
-	}
-	symbol_table.insert(this);
+	symbol_table->insertIdent(this);
 }
 
 Parameter::Parameter(const Parameter& para)
 {
-	this->index = para.index;
 	strcpy_s(this->name, MAXLEN - 1, para.name);
 	this->type = para.type;
-	this->level = para.level;
 	this->real = para.real;
-	this->lastindex = para.lastindex;
-	this->addr = para.addr;
+	this->offset = para.offset;
 }
 
-Procedure::Procedure(char* name, int level, int lastindex,
-	int lastpar, int last, int psize, int vsize, int codeindex) :
-	Identifier(name, PROC, level, lastindex)
+Procedure::Procedure(char* name, int nodeid) :
+	Identifier(name, PROC)
 {
-	this->label = new Label();
-	//this->ref = sub_table.insert(last, lastpar, psize, vsize);
-	this->addr = codeindex;
-	//this->lastindex = 0;
-	symbol_table.insert(this);
+	this->nodeid = nodeid;
+	symbol_table->insertIdent(this);
 }
 
 Procedure::Procedure(const Procedure& proc)
 {
-	this->index = proc.index;
-	this->label = new Label();
 	strcpy_s(this->name, MAXLEN - 1, proc.name);
 	this->type = proc.type;
-	this->level = proc.level;
-	this->lastindex = proc.lastindex;
 	this->addr = proc.addr;
-	this->ref = proc.ref;
+	this->nodeid = proc.nodeid;
 }
 
-void Procedure::setValue(int last, int lastpar, int psize, int vsize)
+Function::Function(char* name, TYPE type, int nodeid) :
+	Identifier(name, type)
 {
-	sub_table.last[this->ref] = last;
-	sub_table.lastpar[this->ref] = lastpar;
-	sub_table.psize[this->ref] = psize;
-	sub_table.vsize[this->ref] = vsize;
-}
-
-Function::Function(char* name, TYPE type, int level, int lastindex,
-	int lastpar, int last, int psize, int vsize, int codeindex) :
-	Identifier(name, type, level, lastindex)
-{
-	this->label = new Label();
-	//this->ref = sub_table.insert(last, lastpar, psize, vsize);
-	this->addr = codeindex;
-	//this->lastindex = 0;
-	symbol_table.insert(this);
+	this->nodeid = nodeid;
+	symbol_table->insertIdent(this);
 }
 
 Function::Function(const Function& func)
 {
-	this->index = func.index;
-	this->label = new Label();
 	strcpy_s(this->name, MAXLEN - 1, func.name);
 	this->type = func.type;
-	this->level = func.level;
-	this->lastindex = func.lastindex;
 	this->addr = func.addr;
-	this->ref = func.ref;
+	this->nodeid = func.nodeid;
 }
 
-void Function::setValue(int last, int lastpar, int psize, int vsize)
-{
-	sub_table.last[this->ref] = last;
-	sub_table.lastpar[this->ref] = lastpar;
-	sub_table.psize[this->ref] = psize;
-	sub_table.vsize[this->ref] = vsize;
-}
-
-int Identifier::ident_index = 1;
-int SymbolTable::symboltable_index = 1;
-int Label::label_index = 0;
 int Temp::tmp_index = 0;

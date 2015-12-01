@@ -1,18 +1,17 @@
 #include "Grammar.h"
 #include <iostream>
+#include <stack>
 
 int errcnt = 0;
 static WORD word, preread;
-int level = 0;
-extern SymbolTable symbol_table;
-int lastindex = 0;//???????
-int lastpar = 0;
-int cntpf = 0;
+
+extern SymbolTable* symbol_table;
+extern std::stack<int> node_stack;
 
 #define CODEINDEXNULL 0
 
 //#ifdef _DEBUG
-#define GrammarDebug
+#define GrammarDebug 
 //#endif
 
 Grammar::Grammar()
@@ -21,10 +20,10 @@ Grammar::Grammar()
 	program();
 }
 
+static int position = 0;
 int sym_position = 0;
 bool Grammar::getSym()
 {
-	static int position = 0;
 	if (position < word_list.size())
 	{
 		word = word_list.at(position);
@@ -41,13 +40,14 @@ bool Grammar::getSym()
 
 TYPE Grammar::readType()
 {
+	sym_position = position;
 	while (sym_position < word_list.size())
 	{
 		sym_position++;
 		if (word_list.at(sym_position).token == RPARENTTK)
 			break;
 	}
-	if (word_list.at(sym_position + 1).token == INTTK)
+	if (word_list.at(sym_position + 2).token == INTTK)
 		return FUNCINT;
 	else
 		return FUNCCHAR;
@@ -75,52 +75,33 @@ void Grammar::program()
 	return;
 }
 
-int Grammar::semiProgram()
+void Grammar::semiProgram()
 {
 #ifdef GrammarDebugsub_table.insert
 	std::cout << "In SemiProgram" << std::endl;
 #endif
-	int ret = lastindex;
-	int cnt_const = 0, cnt_var = 0;
 	if (word.token == CONSTTK)
-	{
-		cnt_const = constIllu();
-	}
+		constIllu();
 	if (word.token == VARTK)
-	{
-		cnt_var = varIllu();
-	}
-	sub_table.insert(lastindex, 0, 0, 0);
+		varIllu();
 	int display_cnt = 0;
 	while (word.token == PROCTK || word.token == FUNCTK)
 	{
-		display_table.push(++cntpf);
 		display_cnt++;
 		if (word.token == PROCTK)
-		{
 			procIllu();
-		}
 		else
-		{
 			funcIllu();
-		}
-		cntpf--;
-		//display_table.pop();
 	}
 	complexSentence();
-	for (int ii = 0; ii < display_cnt; ++ii)
-		display_table.pop();
-	level--;
-	ret += cnt_const + cnt_var;
-	return ret;
+	symbol_table->back();
 }
 
-int Grammar::constIllu()
+void Grammar::constIllu()
 {
 #ifdef GrammarDebug
 	std::cout << "In ConstIllu" << std::endl;
 #endif
-	int cnt = 0;
 	if (word.token == CONSTTK)
 	{
 		getSym();
@@ -136,7 +117,6 @@ int Grammar::constIllu()
 			getSym();
 		}
 		constDec();
-		cnt++;
 	} while (word.token == COMMATK);
 	if (word.token == SEMICOLONTK)
 	{
@@ -146,7 +126,6 @@ int Grammar::constIllu()
 	{
 		error(EXPECTSEMICOLON);
 	}
-	return cnt;
 }
 
 void Grammar::constDec()
@@ -177,10 +156,7 @@ void Grammar::constDec()
 		valid = false;
 		error(EXPECTEQU);
 	}
-	Constance cons(name, level, value, lastindex + 1);
-	lastindex = cons.index;
-	//统一查找，始终保持display_table多一项
-	display_table.index[display_table.size] = cntpf + 1;
+	Constance cons(name, value);
 }
 
 int Grammar::constVal()
@@ -222,12 +198,11 @@ int Grammar::constVal()
 	return value;
 }
 
-int Grammar::varIllu()
+void Grammar::varIllu()
 {
 #ifdef GrammarDebug
 	std::cout << "In VarIllu" << std::endl;
 #endif
-	int cnt = 0;
 	if (word.token == VARTK)
 	{
 		getSym();
@@ -238,7 +213,7 @@ int Grammar::varIllu()
 	}
 	do
 	{
-		cnt += varDec();
+		varDec();
 		if (word.token == SEMICOLONTK)
 		{
 			getSym();
@@ -248,12 +223,9 @@ int Grammar::varIllu()
 			error(EXPECTSEMICOLON);
 		}
 	} while (word.token != PROCTK && word.token != FUNCTK && word.token != BEGINTK);
-	//统一查找，始终保持display_table多一项
-	display_table.index[display_table.size] = cntpf + 1;
-	return cnt;
 }
 
-int Grammar::varDec()
+void Grammar::varDec()
 {
 #ifdef GrammarDebug
 	std::cout << "In VarDec" << std::endl;
@@ -300,21 +272,18 @@ int Grammar::varDec()
 		case INT:
 		case CHAR:
 		{
-					 Variable var(name[i], type, level, lastindex + 1);
-					 lastindex = var.index;
+					 Variable var(name[i], type);
 					 break;
 		}
 		case INTARRAY:
 		case CHARARRAY:
 		{
-						  Array arr(name[i], type, level, len, lastindex + 1);
-						  lastindex = arr.index;
+						  Array arr(name[i], type, len);
 						  break;
 		}
 			
 		}
 	}
-	return cnt;
 }
 
 enum TYPE Grammar::type(int& length)
@@ -390,19 +359,9 @@ void Grammar::procIllu()
 #ifdef GrammarDebug
 	std::cout << "In ProcIllu" << std::endl;
 #endif
-	Procedure* pproc = NULL;
-	int tlastindex = lastindex;
-	lastindex = 0;
-	int last, psize, vsize;
-	Memory* memory = NULL;
-	memory = memory->getInstance();
-	//memory.pushInfo();
 	char name[MAXLEN];
-	procHead(pproc);
-	psize = lastpar - tlastindex;
-	last = semiProgram();
-	vsize = last - tlastindex;
-	//pproc->setValue(last, lastpar, psize, vsize);
+	procHead();
+	semiProgram();
 	if (word.token == SEMICOLONTK)
 	{
 		getSym();
@@ -413,14 +372,8 @@ void Grammar::procIllu()
 	}
 	while (word.token == PROCTK)
 	{
-		tlastindex = lastindex;
-		lastindex = 0;
-		//memory->pushInfo();
-		procHead(pproc);
-		psize = lastpar - tlastindex;
-		int last = semiProgram();
-		vsize = last - tlastindex;
-		//pproc->setValue(last, lastpar, psize, vsize);
+		procHead();
+		semiProgram();
 		if (word.token == SEMICOLONTK)
 		{
 			getSym();
@@ -437,20 +390,10 @@ void Grammar::funcIllu()
 #ifdef GrammarDebug
 	std::cout << "In FuncIllu" << std::endl;
 #endif
-	Function* pfunc = NULL;
-	int tlastindex = lastindex;
-	lastindex = 0;
-	int last, psize, vsize;
-	Memory* memory = NULL;
-	memory = memory->getInstance();
-	//memory.pushInfo();
 	char name[MAXLEN];
 	TYPE type;
-	funcHead(pfunc);
-	psize = lastpar - tlastindex;
-	last = semiProgram();
-	vsize = last - tlastindex;
-	//pfunc->setValue(last, lastpar, psize, vsize);
+	funcHead();
+	semiProgram();
 	if (word.token == SEMICOLONTK)
 	{
 		getSym();
@@ -461,14 +404,9 @@ void Grammar::funcIllu()
 	}
 	while (word.token == FUNCTK)
 	{
-		tlastindex = lastindex;
-		lastindex = 0;
 		//memory.pushInfo();
-		funcHead(pfunc);
-		psize = lastpar - tlastindex;
-		last = semiProgram();
-		vsize = last - tlastindex;
-		//pfunc->setValue(last, lastpar, psize, vsize);
+		funcHead();
+		semiProgram();
 		if (word.token == SEMICOLONTK)
 		{
 			getSym();
@@ -480,7 +418,7 @@ void Grammar::funcIllu()
 	}
 }
 
-void Grammar::procHead(Procedure* &pproc)
+void Grammar::procHead()
 {
 #ifdef GrammarDebug
 	std::cout << "In ProcHead" << std::endl;
@@ -497,16 +435,15 @@ void Grammar::procHead(Procedure* &pproc)
 	{
 		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
-		pproc = new Procedure(name, level, lastindex,
-			lastpar, lastindex, 0, 0, CODEINDEXNULL);
-		lastindex = pproc->index;
+		int nodeid = symbol_table->addNode(node_stack.top(), true);
+		new Procedure(name, nodeid);
+		symbol_table->into(nodeid);
 		getSym();
 	}
 	else
 	{
 		error(EXPECTIDENT);
 	}
-	level++;
 	if (word.token == LPARENTTK)
 	{
 		paraTable();
@@ -521,7 +458,7 @@ void Grammar::procHead(Procedure* &pproc)
 	}
 }
 
-void Grammar::funcHead(Function* &pfunc)
+void Grammar::funcHead()
 {
 #ifdef GrammarDebug
 	std::cout << "In FuncHead" << std::endl;
@@ -539,16 +476,15 @@ void Grammar::funcHead(Function* &pfunc)
 	{
 		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
-		pfunc = new Function(name, type, level, 0,
-			0, lastindex, 0, 0, CODEINDEXNULL);
-		lastindex = pfunc->index;
+		int nodeid = symbol_table->addNode(node_stack.top() , true);
+		new Function(name, type, nodeid);
+		symbol_table->into(nodeid);
 		getSym();
 	}
 	else
 	{
 		error(EXPECTIDENT);
 	}
-	level++;
 	int cntvar = 0;
 	if (word.token == LPARENTTK)
 	{
@@ -565,13 +501,11 @@ void Grammar::funcHead(Function* &pfunc)
 	if (word.token == INTTK)
 	{
 		type = FUNCINT;
-		//pfunc->type = type;
 		getSym();
 	}
 	else if (word.token == CHARTK)
 	{
 		type = FUNCCHAR;
-		//pfunc->type = type;
 		getSym();
 	}
 	else
@@ -586,7 +520,6 @@ void Grammar::funcHead(Function* &pfunc)
 	{
 		error(EXPECTSEMICOLON);
 	}
-	pfunc->type = type;
 }
 
 void Grammar::paraTable()
@@ -597,20 +530,20 @@ void Grammar::paraTable()
 	if (word.token == LPARENTTK)
 	{
 		getSym();
+		paraSegement();
 	}
 	else
 	{
 		error(EXPECTLPARENT);
 	}
-	lastpar = paraSegement();
 	while (word.token == SEMICOLONTK)
 	{
 		getSym();
+		paraSegement();
 		if (word.token == RPARENTTK)
 		{
 			break;
 		}
-		lastpar = paraSegement();
 	}
 	if (word.token == RPARENTTK)
 	{
@@ -620,11 +553,9 @@ void Grammar::paraTable()
 	{
 		error(EXPECTRPARENT);
 	}
-	//统一查找，始终保持display_table多一项
-	display_table.index[display_table.size] = cntpf + 1;
 }
 
-int Grammar::paraSegement()
+void Grammar::paraSegement()
 {
 #ifdef GrammarDebug
 	std::cout << "In ParaSegement" << std::endl;
@@ -639,7 +570,8 @@ int Grammar::paraSegement()
 	char name[MAXCNT][MAXLEN];
 	if (word.token == IDENTTK)
 	{
-		strcpy_s(name[cnt++], MAXLEN - 1, word.value.content);
+		strcpy_s(name[cnt], MAXLEN - 1, word.value.content);
+		cnt++;
 		getSym();
 	}
 	else
@@ -684,10 +616,8 @@ int Grammar::paraSegement()
 	}
 	for (int i = 0; i < cnt; ++i)
 	{
-		Parameter para(name[i], level + 1, lastindex + 1, real);
-		lastindex = para.index;
+		Parameter para(name[i], real);
 	}
-	return lastindex;
 }
 
 void Grammar::sentence()
@@ -725,14 +655,15 @@ void Grammar::sentence()
 	}
 	else if (word.token == IDENTTK)
 	{
-		Identifier* ident = symbol_table.find(level, word.value.content);
+		Identifier* ident = symbol_table->findIdent(word.value.content);
 		if (ident == NULL)
 		{
 			error(IDENTNOTDEFINED);
 		}
 		else if (ident->type == INT || ident->type == CHAR || 
 			ident->type == INTARRAY || ident->type == CHARARRAY ||
-			ident->type == FUNCINT || ident->type == FUNCCHAR)
+			ident->type == FUNCINT || ident->type == FUNCCHAR ||
+			ident->type == PARA)
 		{
 			setSentence();
 		}
@@ -760,7 +691,7 @@ void Grammar::setSentence()
 	std::cout << "In SetSentence" << std::endl;
 #endif
 	bool is_array = false;
-	Identifier* ident = symbol_table.find(level, word.value.content);
+	Identifier* ident = symbol_table->findIdent(word.value.content);
 	Temp temp1, temp2;
 	char name[MAXLEN];
 	if (word.token == IDENTTK)
@@ -871,7 +802,7 @@ void Grammar::factor(Temp &temp)
 #endif
 	if (word.token == IDENTTK)
 	{
-		Identifier* ident = symbol_table.find(level, word.value.content);
+		Identifier* ident = symbol_table->findIdent(word.value.content);
 		if (ident == NULL)
 		{
 			error(IDENTNOTDEFINED);
@@ -916,6 +847,11 @@ void Grammar::factor(Temp &temp)
 		{
 			funcSentence(temp);
 		}
+		else if (ident->type == PARA)
+		{
+			temp.fill(ident->name);
+			getSym();
+		}
 		else
 		{
 			error(GRAMMARERR);
@@ -951,7 +887,7 @@ void Grammar::funcSentence(Temp &temp)
 #endif
 	if (word.token == IDENTTK)
 	{
-		Identifier* ident = symbol_table.find(level, word.value.content);
+		Identifier* ident = symbol_table->findIdent(word.value.content);
 		Function* func = dynamic_cast<Function*>(ident);
 		if (func == NULL)
 		{
@@ -964,13 +900,8 @@ void Grammar::funcSentence(Temp &temp)
 			/*func->paraTable.paras.size() != 0*/
 			realParaTable();
 		}
-		Label label;
-		char str1[1024], str2[1024], str3[1024];
-		temp.toString(str1);
-		func->label->toString(str2);
-		label.toString(str3);
-		code.insert("FCAL", str1, str2, str3);
-		code.insert("SETLABEL", str3);
+		//code.insert("FCAL", str1, str2, str3);
+		//code.insert("SETLABEL", str3);
 	}
 	else
 	{
@@ -1076,7 +1007,6 @@ void Grammar::conditionSentence()
 #ifdef GrammarDebug
 	std::cout << "In ConditionSentence" << std::endl;
 #endif
-	Label label1, label2;
 	if (word.token == IFTK)
 	{
 		getSym();
@@ -1086,9 +1016,7 @@ void Grammar::conditionSentence()
 		error(EXPECTIF);
 	}
 	condition();//A
-	char str1[1024], str2[1024];
-	label1.toString(str1);
-	code.insert("JEQ", str1, "FLAG", "0");
+	//code.insert("JEQ", str1, "FLAG", "0");
 	if (word.token == THENTK)
 	{
 		getSym();
@@ -1100,17 +1028,14 @@ void Grammar::conditionSentence()
 	sentence();//B
 	if (word.token == ELSETK)
 	{
-		label2.toString(str2);
-		code.insert("J", str2);
+		//code.insert("J", str2);
 	}
-	label1.toString(str1);
-	code.insert("SETLABEL", str1);
+	//code.insert("SETLABEL", str1);
 	if (word.token == ELSETK)
 	{
 		getSym();
 		sentence();
-		label2.toString(str2);
-		code.insert("SETLABEL", str2);
+		//code.insert("SETLABEL", str2);
 	}
 }
 
@@ -1129,9 +1054,8 @@ void Grammar::whileSentence()
 	{
 		error(EXPECTDO);
 	}
-	Label label;
-	label.toString(str);
-	code.insert("SETLABEL", str);
+	//label.toString(str);
+	//code.insert("SETLABEL", str);
 	sentence();//A
 	if (word.token == WHILETK)
 	{
@@ -1142,7 +1066,7 @@ void Grammar::whileSentence()
 		error(EXPECTTHEN);
 	}
 	condition();//B
-	code.insert("JEQ", str, "FLAG", "1");
+	//code.insert("JEQ", str, "FLAG", "1");
 }
 
 /*Finish operation*/
@@ -1151,7 +1075,6 @@ void Grammar::forSentence()
 #ifdef GrammarDebug
 	std::cout << "In ForSentence" << std::endl;
 #endif
-	Label label1, label2;
 	if (word.token == FORTK)
 	{
 		getSym();
@@ -1181,8 +1104,8 @@ void Grammar::forSentence()
 	Temp temp1, temp2;
 	expression(temp1);
 	char str1[1024], str2[1024];
-	code.insert("SET", name, temp1.toString(str1));
-	code.insert("SETLABEL", label1.toString(str2));
+	//code.insert("SET", name, temp1.toString(str1));
+	//code.insert("SETLABEL", label1.toString(str2));
 	bool is_to = true;
 	if (word.token == TOTK || word.token == DOWNTOTK)
 	{
@@ -1199,16 +1122,16 @@ void Grammar::forSentence()
 	expression(temp2);//B
 	if (is_to)
 	{
-		code.insert("LARGE", "FLAG", name, temp2.toString(str2));
-		code.insert("JEQ", label2.toString(str2), "FLAG", "1");
-		code.insert("INC", name);
+		//code.insert("LARGE", "FLAG", name, temp2.toString(str2));
+		//code.insert("JEQ", label2.toString(str2), "FLAG", "1");
+		//code.insert("INC", name);
 
 	}
 	else
 	{
-		code.insert("LARGEEQU", "FLAG", name, temp2.toString(str2));
-		code.insert("JEQ", label2.toString(str2), "FLAG", "1");
-		code.insert("DEC", name);
+		//code.insert("LARGEEQU", "FLAG", name, temp2.toString(str2));
+		//code.insert("JEQ", label2.toString(str2), "FLAG", "1");
+		//code.insert("DEC", name);
 	}
 	if (word.token == DOTK)
 	{
@@ -1219,7 +1142,7 @@ void Grammar::forSentence()
 		error(EXPECTDO);
 	}
 	sentence();
-	code.insert("SETLABEL", label2.toString(str2));
+	//code.insert("SETLABEL", label2.toString(str2));
 }
 
 /*Finish operation*/
@@ -1231,7 +1154,7 @@ void Grammar::procSentence()
 	char str1[1024], str2[1024];
 	if (word.token == IDENTTK)
 	{
-		Identifier* ident = symbol_table.find(level, word.value.content);
+		Identifier* ident = symbol_table->findIdent(word.value.content);
 		Procedure* proc = dynamic_cast<Procedure*>(ident);
 		if (proc == NULL)
 		{
@@ -1243,9 +1166,8 @@ void Grammar::procSentence()
 			/*proc->paraTable.paras.size() = 0*/
 			realParaTable();
 		}
-		Label label;
-		code.insert("PCAL", proc->label->toString(str1), label.toString(str2));
-		code.insert("SETLABEL", label.toString(str1));
+		//code.insert("PCAL", proc->label->toString(str1), label.toString(str2));
+		//code.insert("SETLABEL", label.toString(str1));
 	}
 	else
 	{
@@ -1358,14 +1280,14 @@ void Grammar::writeSentence()
 	char str[1024];
 	if (word.token == DQUOTETK)
 	{
-		code.insert("WRITE", word.value.content);
+		//code.insert("WRITE", word.value.content);
 		getSym();
 		if (word.token == COMMATK)
 		{
 			getSym();
 			Temp temp;
 			expression(temp);
-			code.insert("WRITE", temp.toString(str));
+			//code.insert("WRITE", temp.toString(str));
 		}
 	}
 	else

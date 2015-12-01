@@ -4,17 +4,11 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <stack>
 #include "Symbol.h"
 #include "Memory.h"
 
-#define MAXIDENT 1024
-
-extern SubTable sub_table;
-extern DisplayTable display_table;
-extern ArrayTable array_table;
-extern ConstTable const_table;
-extern StringTable string_table;
-extern int lastindex;
+#define MAXCNT 1024
 
 enum TYPE
 {
@@ -33,40 +27,54 @@ enum TYPE
 class Identifier
 {
 public:
-	static int ident_index;
-	int index;
 	char name[MAXLEN];
-	int lastindex;
 	TYPE type;
-	int level;
-	ADDR addr;
+	ADDR offset;
 	Identifier() {};
-	Identifier(char* name, TYPE type, int level, int lastindex);
+	Identifier(char* name, TYPE type);
 	virtual void print() = 0;
 };
 //int Identifier::ident_index = 1;
 
 class SymbolTable
 {
+private:
+	static SymbolTable* symboltable;
+	SymbolTable() {}
 public:
-	SymbolTable();
-	static int symboltable_index;
-	Identifier* idents[MAXIDENT];
-	int insert(Identifier* ident);
-	Identifier* find(int level, char* name);
+	SymbolTable* getInstance();
+	static int nodecnt;
+	int index;
+	struct Node
+	{
+		bool is_proc;
+		int father_index;
+		int offset_cnt;
+		int last_para, last_const, last_var, last_callable;
+		std::vector<Identifier*> idents;
+		Node()
+		{
+			//TODO: add display offset
+			//memset(this, 0, sizeof(this));
+			this->is_proc = false;
+			this->father_index = 0;
+			this->offset_cnt = 0;
+			this->last_para = this->last_const = this->last_var = this->last_callable = 0;
+		}
+	};
+	Node* nodes[MAXCNT];
+	//create a new node
+	int addNode(int father, bool is_proc);
+	//go into nodes[id]
+	void SymbolTable::into(int id);
+	//go back to now's father node
+	void back();
+	//push ident on current node, return true if succeed, false otherwise
+	bool insertIdent(Identifier* ident);
+	//return offset from its first memory block
+	Identifier* findIdent(char* name);
 };//symbol_table;
 //int SymbolTable::symboltable_index = 1;
-
-class Label
-{
-public:
-	static int label_index;
-	Label();
-	int index;
-	int addr;
-	char* Label::toString(char* s);
-};
-//int Label::label_index = 0;
 
 class Temp
 {
@@ -83,8 +91,9 @@ public:
 
 class Constance : public Identifier
 {
+	int value;
 public:
-	Constance(char* name, int level, int value, int lastindex);
+	Constance(char* name, int value);
 	Constance(const Constance& cons);
 	void print() {}
 };
@@ -92,7 +101,7 @@ public:
 class Variable : public Identifier
 {
 public:
-	Variable(char* name, TYPE type, int level, int lastindex);
+	Variable(char* name, TYPE type);
 	Variable(const Variable& var);
 	void print() {}
 };
@@ -100,9 +109,9 @@ public:
 class Array : public Identifier
 {
 public:
-	int ref;
+	int len;
 	Array() : Identifier() {}
-	Array(char* name, TYPE type, int level, int length, int lastindex);
+	Array(char* name, TYPE type, int length);
 	Array(const Array& arr);
 	void print() {}
 };
@@ -110,8 +119,8 @@ public:
 class Parameter : public Identifier
 {
 public:
-	bool real;
-	Parameter(char* name, int level, int lastindex, bool real, int addr = NULL);
+	bool real;//true if pass by value, false if pass by address
+	Parameter(char* name, bool real);
 	Parameter(const Parameter& para);
 	void print() {}
 };
@@ -119,35 +128,24 @@ public:
 class Procedure : public Identifier
 {
 public:
-	Label* label;
-	int ref;
-	Procedure(char* name, int level, int lastindex,
-		int lastpar, int last, int psize, int vsize, int codeindex);
+	int nodeid;
+	ADDR addr;
+	Procedure(char* name, int nodeid);
 	Procedure(const Procedure& proc);
-	~Procedure()
-	{
-		delete(this->label);
-	}
 	void print() {}
-	void setValue(int last, int lastpar, int psize, int vsize);
 };
 
 class Function : public Identifier
 {
 public:
-	Label* label;
-	int ref;
-	Function(char* name, TYPE type, int level, int lastindex,
-		int lastpar, int last, int psize, int vsize, int codeindex);
+	int nodeid;
+	ADDR addr; 
+	Function(char* name, TYPE type, int nodeid);
 	Function(const Function& func);
-	~Function()
-	{
-		delete(this->label);
-	}
 	void print() {}
-	void setValue(int last, int lastpar, int psize, int vsize);
 };
 
-extern SymbolTable symbol_table;
+extern SymbolTable* symbol_table;
+extern std::stack<int> node_stack;
 
 #endif
