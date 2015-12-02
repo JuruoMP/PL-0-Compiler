@@ -4,22 +4,20 @@ using namespace std;
 class Test
 {
 public:
-	static int s;
+	Test() { this->a = 1; }
 	int a;
-	Test() {};
-	Test(int n)
-	{
-		a = n;
-	}
-}a, b;
-int Test::s = 1;
+};
+
+void func(Test **a)
+{
+	*a = new Test();
+}
 
 int main()
 {
-	a.s++;
-	cout << a.s << endl;
-	b.s++;
-	cout << b.s << endl;
+	Test *a = NULL;
+	func(&a);
+	cout << a->a << endl;
 	system("pause");
 	return 0;
 }

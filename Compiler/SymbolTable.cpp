@@ -8,19 +8,30 @@ std::stack<int> node_stack;
 
 int SymbolTable::nodecnt = 0;
 
+SymbolTable::SymbolTable()
+{
+	this->index = 0;
+	char* str = "main";
+	this->nodes[this->index] = new Node(str);
+	this->nodes[this->index]->is_proc = true;
+	this->nodes[this->index]->offset_cnt = 0;
+}
+
 SymbolTable* SymbolTable::getInstance()
 {
 	if (symboltable == NULL)
+	{
 		symboltable = new SymbolTable();
+	}
 	return symboltable;
 }
 
-int SymbolTable::addNode(int father, bool is_proc)
+int SymbolTable::addNode(char* name, int father, bool is_proc)
 {
 	nodecnt++;
 	if (nodecnt >= MAXCNT)
 		return -1;
-	nodes[nodecnt] = new Node();
+	nodes[nodecnt] = new Node(name);
 	nodes[nodecnt]->father_index = father;
 	nodes[nodecnt]->is_proc = is_proc;
 	return nodecnt;
@@ -29,6 +40,7 @@ int SymbolTable::addNode(int father, bool is_proc)
 void SymbolTable::into(int id)
 {
 	this->index = id;
+
 }
 
 void SymbolTable::back()

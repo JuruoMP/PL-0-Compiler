@@ -7,13 +7,14 @@
 #include "SymbolTable.h"
 #include "CodeTable.h"
 
-#define MAXCNT 32
-
 extern WORD word;
 extern std::vector<WORD> word_list;
 extern int errcnt;
 extern SymbolTable* symbol_table;
 extern std::stack<int> node_stack;
+extern CodeTable* code_table;
+extern Temp* zero;
+extern Temp* one;
 
 class Grammar
 {
@@ -44,15 +45,15 @@ public:
 	void sentence();
 	void setSentence();
 	//void funcIdent();
-	void expression(Temp &temp);
-	void term(Temp &temp);
-	void factor(Temp &temp);
-	void funcSentence(Temp &temp);
-	void realParaTable();
-	void realPara(Temp &temp);
+	void expression(Temp **temp);
+	void term(Temp **temp);
+	void factor(Temp **temp);
+	void funcSentence(Temp **temp);
+	void realParaTable(std::vector<Temp*> &args);
+	void realPara(Temp **para);
 	//void addOp();
 	//void multOp();
-	void condition();
+	void condition(Label *label, bool condition);
 	void cmpOp();
 	void conditionSentence();
 	void whileSentence();

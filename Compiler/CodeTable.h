@@ -1,11 +1,21 @@
 #ifndef CODETABLE_H
 #define CODETABLE_H
 
+#include <vector>
 #include "Symbol.h"
 #include "SymbolTable.h"
-#include <vector>
 
 #define MAXCNT 1024
+
+extern char token_name[][16];
+extern SymbolTable* symbol_table;
+
+enum TEMPTYPE
+{
+	VALUETP,
+	VARTP,
+	IDENTTP
+};
 
 enum KIND
 {
@@ -14,7 +24,9 @@ enum KIND
 	LABELKD,
 	ASSIGNKD,
 	CALLKD,
-	NOPKD
+	NOPKD,
+	READKD,
+	WRITEKD
 };
 
 class Label
@@ -31,7 +43,14 @@ class Temp
 	static int temp_cnt;
 public:
 	int id;
+	TEMPTYPE type;
+	int value;
+	Identifier* ident;
+	bool subscript;
+	Temp* offset;
 	Temp();
+	Temp(int value);
+	Temp(Identifier* ident, bool subscript, Temp* offset = NULL);
 	void print();
 };
 
@@ -41,7 +60,7 @@ public:
 	KIND kind;
 	char head[MAXLEN];
 	Code(KIND kind, char* type_name);
-	virtual void print();
+	virtual void print() = 0;
 };
 
 class ConditionCode : public Code
@@ -49,9 +68,8 @@ class ConditionCode : public Code
 public:
 	SymbolTK token;
 	Temp *num1, *num2;
-	Label *true_label, *false_label;
-	ConditionCode(SymbolTK token, const Temp& num1, const Temp& num2,
-		const Label& true_label, const Label& false_label);
+	Label *label;
+	ConditionCode(SymbolTK token, const Temp* num1, const Temp* num2, const Label* label);
 	void print();
 };
 
@@ -59,7 +77,7 @@ class GotoCode : public Code
 {
 public:
 	Label *label;
-	GotoCode(const Label& label);
+	GotoCode(const Label *label);
 	void print();
 };
 
@@ -67,7 +85,7 @@ class LabelCode : public Code
 {
 public:
 	Label* label;
-	LabelCode(const Label& label);
+	LabelCode(const Label *label);
 	void print();
 };
 
@@ -77,17 +95,17 @@ public:
 	Temp *target;
 	Temp *num1, *num2;
 	SymbolTK op;
-	AssignCode(SymbolTK op, const Temp& dst, const Temp& src1, const Temp& src2);
+	AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Temp* src2);
 	void print();
 };
 
 class CallCode : public Code
 {
 public:
-	char fn[MAXLEN];
-	ADDR retstore;
-	std::vector<char > args;
-	CallCode(char* name, ADDR retstore, const std::vector<Parameter> args);
+	Identifier* ident;
+	Identifier* target;
+	std::vector<Temp*> args;
+	CallCode(Identifier* ident, Identifier* target, std::vector<Temp*> args);
 	void print();
 };
 
@@ -95,6 +113,28 @@ class NopCode : public Code
 {
 public:
 	NopCode();
+	void print();
+};
+
+class ReadCode : public Code
+{
+public:
+	Identifier* ident;
+	ReadCode(Identifier* ident);
+	void print();
+};
+
+class WriteCode : public Code
+{
+public:
+	bool is_string;
+	union VALUE
+	{
+		char content[MAXLEN];
+		Temp* temp;
+	}value;
+	WriteCode(char* content);
+	WriteCode(Temp* temp);
 	void print();
 };
 
@@ -128,6 +168,10 @@ public:
 	//push code on current node, return true if succeed, false otherwise
 	bool insertCode(Code* code);
 };
+
+extern CodeTable* code_table;
+extern Temp* zero;
+extern Temp* one;
 
 #endif
 

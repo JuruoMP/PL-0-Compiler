@@ -14,6 +14,8 @@
 
 #define MAXLEN 256
 
+extern char token_name[][16];
+
 typedef struct Position
 {
 	int mlineno;

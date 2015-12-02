@@ -40,22 +40,23 @@ class SymbolTable
 {
 private:
 	static SymbolTable* symboltable;
-	SymbolTable() {}
+	SymbolTable();
 public:
 	SymbolTable* getInstance();
 	static int nodecnt;
 	int index;
 	struct Node
 	{
+		char name[MAXLEN];
 		bool is_proc;
 		int father_index;
 		int offset_cnt;
 		int last_para, last_const, last_var, last_callable;
 		std::vector<Identifier*> idents;
-		Node()
+		Node(char* name)
 		{
 			//TODO: add display offset
-			//memset(this, 0, sizeof(this));
+			strcpy_s(this->name, MAXLEN - 1, name);
 			this->is_proc = false;
 			this->father_index = 0;
 			this->offset_cnt = 0;
@@ -64,7 +65,7 @@ public:
 	};
 	Node* nodes[MAXCNT];
 	//create a new node
-	int addNode(int father, bool is_proc);
+	int addNode(char* name, int father, bool is_proc);
 	//go into nodes[id]
 	void into(int id);
 	//go back to now's father node

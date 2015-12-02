@@ -7,6 +7,9 @@ static WORD word, preread;
 
 extern SymbolTable* symbol_table;
 extern std::stack<int> node_stack;
+extern CodeTable* code_table;
+extern Temp* zero;
+extern Temp* one;
 
 #define CODEINDEXNULL 0
 
@@ -20,8 +23,8 @@ Grammar::Grammar()
 	program();
 }
 
-static int position = 0;
-int sym_position = 0;
+static unsigned int position = 0;
+unsigned int sym_position = 0;
 bool Grammar::getSym()
 {
 	if (position < word_list.size())
@@ -53,7 +56,6 @@ TYPE Grammar::readType()
 		return FUNCCHAR;
 }
 
-
 void Grammar::program()
 {
 #ifdef GrammarDebug
@@ -77,7 +79,7 @@ void Grammar::program()
 
 void Grammar::semiProgram()
 {
-#ifdef GrammarDebugsub_table.insert
+#ifdef GrammarDebug
 	std::cout << "In SemiProgram" << std::endl;
 #endif
 	if (word.token == CONSTTK)
@@ -96,6 +98,7 @@ void Grammar::semiProgram()
 	complexSentence();
 	node_stack.pop();
 	symbol_table->back();
+	code_table->back();
 }
 
 void Grammar::constIllu()
@@ -360,7 +363,6 @@ void Grammar::procIllu()
 #ifdef GrammarDebug
 	std::cout << "In ProcIllu" << std::endl;
 #endif
-	char name[MAXLEN];
 	procHead();
 	semiProgram();
 	if (word.token == SEMICOLONTK)
@@ -391,8 +393,6 @@ void Grammar::funcIllu()
 #ifdef GrammarDebug
 	std::cout << "In FuncIllu" << std::endl;
 #endif
-	char name[MAXLEN];
-	TYPE type;
 	funcHead();
 	semiProgram();
 	if (word.token == SEMICOLONTK)
@@ -436,10 +436,11 @@ void Grammar::procHead()
 	{
 		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
-		int nodeid = symbol_table->addNode(node_stack.top(), true);
+		int nodeid = symbol_table->addNode(name, node_stack.top(), true);
 		new Procedure(name, nodeid);
 		node_stack.push(nodeid);
 		symbol_table->into(nodeid);
+		code_table->into(nodeid);
 		getSym();
 	}
 	else
@@ -478,10 +479,11 @@ void Grammar::funcHead()
 	{
 		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
-		int nodeid = symbol_table->addNode(node_stack.top() , true);
+		int nodeid = symbol_table->addNode(name, node_stack.top() , false);
 		new Function(name, type, nodeid);
 		node_stack.push(nodeid);
 		symbol_table->into(nodeid);
+		code_table->into(nodeid);
 		getSym();
 	}
 	else
@@ -694,17 +696,15 @@ void Grammar::setSentence()
 #endif
 	bool is_array = false;
 	Identifier* ident = symbol_table->findIdent(word.value.content);
-	Temp temp1, temp2;
-	char name[MAXLEN];
+	Temp *subscript = NULL, *left = NULL, *right = NULL;
 	if (word.token == IDENTTK)
 	{
-		strcpy_s(name, MAXLEN - 1, word.value.content);
 		getSym();
 		if (word.token == LSQRBRACTK)
 		{
 			is_array = true;
 			getSym();
-			expression(temp1);
+			expression(&subscript);
 			if (word.token == RSQRBRACTK)
 			{
 				getSym();
@@ -713,7 +713,10 @@ void Grammar::setSentence()
 			{
 				error(EXPECTRSQRBRAC);
 			}
+			left = new Temp(ident, true, subscript);
 		}
+		else
+			left = new Temp(ident, false);
 	}
 	else
 	{
@@ -727,17 +730,11 @@ void Grammar::setSentence()
 	{
 		error(GRAMMARERR);
 	}
-	expression(temp2);
-	char str1[1024], str2[1024];
-	temp1.toString(str1);
-	temp2.toString(str2);
-	if (is_array)
-		code.insert("SET", name, str1, str2);
-	else
-		code.insert("SET", name, "0", str2);
+	expression(&right);
+	AssignCode code(SETTK, left, right, right);
 }
 
-void Grammar::expression(Temp &temp)
+void Grammar::expression(Temp **result)
 {
 #ifdef GrammarDebug
 	std::cout << "In Expression" << std::endl;
@@ -749,7 +746,9 @@ void Grammar::expression(Temp &temp)
 			value = -1;
 		getSym();
 	}
-	term(temp);
+	term(result);
+	if (value == -1)
+		AssignCode code(SUBTK, *result, zero, *result);
 	while (word.token == ADDTK || word.token == SUBTK)
 	{
 		bool is_add;
@@ -758,24 +757,21 @@ void Grammar::expression(Temp &temp)
 		else
 			is_add = false;
 		getSym();
-		Temp ttemp;
-		term(ttemp);
-		char str1[1024], str2[1024];
-		temp.toString(str1);
-		ttemp.toString(str2);
+		Temp* temp = NULL;
+		term(&temp);
 		if (is_add)
-			code.insert("ADD", str1, str1, str2);
+			AssignCode code(ADDTK, *result, *result, temp);
 		else
-			code.insert("SUB", str1, str1, str2);
+			AssignCode code(SUBTK, *result, *result, temp);
 	}
 }
 
-void Grammar::term(Temp &temp)
+void Grammar::term(Temp **result)
 {
 #ifdef GrammarDebug
 	std::cout << "In Term" << std::endl;
 #endif
-	factor(temp);
+	factor(result);
 	while (word.token == MULTK || word.token == DIVTK)
 	{
 		bool is_mul;
@@ -784,19 +780,16 @@ void Grammar::term(Temp &temp)
 		else
 			is_mul = false;
 		getSym();
-		Temp ttemp;
-		factor(ttemp);
-		char str1[1024], str2[1024];
-		temp.toString(str1);
-		ttemp.toString(str2);
+		Temp* temp = NULL;
+		factor(&temp);
 		if (is_mul)
-			code.insert("MULT", str1, str1, str2);
+			AssignCode code(MULTK, *result, *result, temp);
 		else
-			code.insert("DIV", str1, str1, str2);
+			AssignCode code(DIVTK, *result, *result, temp);
 	}
 }
 
-void Grammar::factor(Temp &temp)
+void Grammar::factor(Temp **result)
 {
 #ifdef GrammarDebug
 	std::cout << "In Factor" << std::endl;
@@ -810,12 +803,12 @@ void Grammar::factor(Temp &temp)
 		}
 		else if (ident->type == CONST)
 		{
-			temp.fill(ident->name);
+			*result = new Temp(ident, false);
 			getSym();
 		}
 		else if (ident->type == INT || ident->type == CHAR)
 		{
-			temp.fill(ident->name);
+			*result = new Temp(ident, false);
 			getSym();
 		}
 		else if (ident->type == INTARRAY || ident->type == CHARARRAY)
@@ -829,8 +822,8 @@ void Grammar::factor(Temp &temp)
 			{
 				error(EXPECTLSQRBRAC);
 			}
-			Temp ttemp;
-			expression(ttemp);
+			Temp* offset = NULL;
+			expression(&offset);
 			if (word.token == RSQRBRACTK)
 			{
 				getSym();
@@ -839,18 +832,15 @@ void Grammar::factor(Temp &temp)
 			{
 				error(EXPECTRSQRBRAC);
 			}
-			char str1[1024], str2[1024];
-			temp.toString(str1);
-			ttemp.toString(str2);
-			code.insert("LOAD", str1, ident->name, str2);
+			*result = new Temp(ident, true, offset);
 		}
 		else if (ident->type == FUNCINT || ident->type == FUNCCHAR)
 		{
-			funcSentence(temp);
+			funcSentence(result);
 		}
 		else if (ident->type == PARA)
 		{
-			temp.fill(ident->name);
+			*result = new Temp(ident, false);
 			getSym();
 		}
 		else
@@ -860,12 +850,13 @@ void Grammar::factor(Temp &temp)
 	}
 	else if (word.token == ITK)
 	{
+		*result = new Temp(word.value.num);
 		getSym();
 	}
 	else if (word.token == LPARENTTK)
 	{
 		getSym();
-		expression(temp);
+		expression(result);
 		if (word.token == RPARENTTK)
 		{
 			getSym();
@@ -881,7 +872,7 @@ void Grammar::factor(Temp &temp)
 	}
 }
 
-void Grammar::funcSentence(Temp &temp)
+void Grammar::funcSentence(Temp **temp)
 {
 #ifdef GrammarDebug
 	std::cout << "In FuncSentence" << std::endl;
@@ -894,15 +885,15 @@ void Grammar::funcSentence(Temp &temp)
 		{
 			error(NOTAFUNC);
 		}
-		
 		getSym();
+		std::vector<Temp*> args;
 		if (word.token == LPARENTTK)
 		{
 			/*func->paraTable.paras.size() != 0*/
-			realParaTable();
+			realParaTable(args);
 		}
-		//code.insert("FCAL", str1, str2, str3);
-		//code.insert("SETLABEL", str3);
+		Identifier* this_func = symbol_table->findIdent(symbol_table->nodes[node_stack.top()]->name);
+		CallCode code(ident, this_func, args);
 	}
 	else
 	{
@@ -910,25 +901,22 @@ void Grammar::funcSentence(Temp &temp)
 	}
 }
 
-void Grammar::realParaTable()
+void Grammar::realParaTable(std::vector<Temp*> &args)
 {
 #ifdef GrammarDebug
 	std::cout << "In RealParaTable" << std::endl;
 #endif
 	if (word.token == LPARENTTK)
 	{
-		Temp temp;
+		Temp* para = NULL;
 		getSym();
-		realPara(temp);
-		char str[1024];
-		temp.toString(str);
-		code.insert("PUSH", str);
+		realPara(&para);
+		args.push_back(para);
 		while (word.token == COMMATK)
 		{
 			getSym();
-			realPara(temp);
-			temp.toString(str);
-			code.insert("PUSH", str);
+			realPara(&para);
+			args.push_back(para);
 		}
 	}
 	else
@@ -945,7 +933,7 @@ void Grammar::realParaTable()
 	}
 }
 
-void Grammar::realPara(Temp &temp)
+void Grammar::realPara(Temp **temp)
 {
 #ifdef GrammarDebug
 	std::cout << "In RealPara" << std::endl;
@@ -953,13 +941,13 @@ void Grammar::realPara(Temp &temp)
 	expression(temp);
 }
 
-void Grammar::condition()
+void Grammar::condition(Label *label, bool condition)
 {
 #ifdef GrammarDebug
 	std::cout << "In Condition" << std::endl;
 #endif
-	Temp temp1, temp2;
-	expression(temp1);
+	Temp *left = NULL, *right = NULL;
+	expression(&left);
 	SymbolTK cmptoken = word.token;
 	if (word.token == SMALLTK || word.token == SMALLEQUTK ||
 		word.token == LARGETK || word.token == LARGEEQUTK ||
@@ -971,34 +959,35 @@ void Grammar::condition()
 	{
 		error(EXPECTCMPOP);
 	}
-	expression(temp2);
-	char str1[1024], str2[1024];
-	temp1.toString(str1);
-	temp2.toString(str2);
-	switch (cmptoken)
+	expression(&right);
+	if (condition == false)
 	{
-	case SMALLTK:
-		code.insert("SMALL", "FLAG", str1, str2);
-		break;
-	case SMALLEQUTK:
-		code.insert("SMALLSQU", "FLAG", str1, str2);
-		break;
-	case LARGETK:
-		code.insert("LARGE", "FLAG", str1, str2);
-		break;
-	case LARGEEQUTK:
-		code.insert("LARGEEQU", "FLAG", str1, str2);
-		break;
-	case EQUTK:
-		code.insert("EQU", "FLAG", str1, str2);
-		break;
-	case NEQUTK:
-		code.insert("NEQU", "FLAG", str1, str2);
-		break;
-	default:
-		assert(0 == 1);
-		break;
+		switch (cmptoken)
+		{
+		case SMALLTK:
+			cmptoken = LARGEEQUTK;
+			break;
+		case SMALLEQUTK:
+			cmptoken = LARGETK;
+			break;
+		case LARGETK:
+			cmptoken = SMALLEQUTK;
+			break;
+		case LARGEEQUTK:
+			cmptoken = SMALLTK;
+			break;
+		case EQUTK:
+			cmptoken = NEQUTK;
+			break;
+		case NEQUTK:
+			cmptoken = EQUTK;
+			break;
+		default:
+			assert(0 == 1);
+			break;
+		}
 	}
+	ConditionCode code(cmptoken, left, right, label);
 }
 
 void Grammar::conditionSentence()
@@ -1014,8 +1003,9 @@ void Grammar::conditionSentence()
 	{
 		error(EXPECTIF);
 	}
-	condition();//A
-	//code.insert("JEQ", str1, "FLAG", "0");
+	Label *false_label = new Label();
+	Label *out_label = new Label();
+	condition(false_label, false);
 	if (word.token == THENTK)
 	{
 		getSym();
@@ -1024,18 +1014,15 @@ void Grammar::conditionSentence()
 	{
 		error(EXPECTTHEN);
 	}
-	sentence();//B
-	if (word.token == ELSETK)
-	{
-		//code.insert("J", str2);
-	}
-	//code.insert("SETLABEL", str1);
+	sentence();
+	GotoCode goto_code(out_label);
+	LabelCode false_label_code(false_label);
 	if (word.token == ELSETK)
 	{
 		getSym();
 		sentence();
-		//code.insert("SETLABEL", str2);
 	}
+	LabelCode true_label_code(out_label);
 }
 
 void Grammar::whileSentence()
@@ -1043,7 +1030,6 @@ void Grammar::whileSentence()
 #ifdef GrammarDebug
 	std::cout << "In WhileSentence" << std::endl;
 #endif
-	char str[1024];
 	if (word.token == DOTK)
 	{
 		getSym();
@@ -1052,8 +1038,8 @@ void Grammar::whileSentence()
 	{
 		error(EXPECTDO);
 	}
-	//label.toString(str);
-	//code.insert("SETLABEL", str);
+	Label *label = new Label();
+	LabelCode label_code(label);
 	sentence();//A
 	if (word.token == WHILETK)
 	{
@@ -1063,8 +1049,7 @@ void Grammar::whileSentence()
 	{
 		error(EXPECTTHEN);
 	}
-	condition();//B
-	//code.insert("JEQ", str, "FLAG", "1");
+	condition(label, true);
 }
 
 void Grammar::forSentence()
@@ -1072,6 +1057,8 @@ void Grammar::forSentence()
 #ifdef GrammarDebug
 	std::cout << "In ForSentence" << std::endl;
 #endif
+	Label *label1 = new Label();
+	Label *label2 = new Label();
 	if (word.token == FORTK)
 	{
 		getSym();
@@ -1080,10 +1067,10 @@ void Grammar::forSentence()
 	{
 		error(EXPECTFOR);
 	}
-	char name[MAXLEN];
+	Identifier* ident;
 	if (word.token == IDENTTK)
 	{
-		strcpy_s(name, MAXLEN - 1, word.value.content);
+		ident = symbol_table->findIdent(word.value.content);
 		getSym();
 	}
 	else
@@ -1098,11 +1085,9 @@ void Grammar::forSentence()
 	{
 		error(EXPECTSET);
 	}
-	Temp temp1, temp2;
-	expression(temp1);
-	char str1[1024], str2[1024];
-	//code.insert("SET", name, temp1.toString(str1));
-	//code.insert("SETLABEL", label1.toString(str2));
+	Temp *loop = new Temp();
+	expression(&loop);
+	LabelCode label_code1(label1);
 	bool is_to = true;
 	if (word.token == TOTK || word.token == DOWNTOTK)
 	{
@@ -1116,20 +1101,8 @@ void Grammar::forSentence()
 	{
 		error(GRAMMARERR);
 	}
-	expression(temp2);//B
-	if (is_to)
-	{
-		//code.insert("LARGE", "FLAG", name, temp2.toString(str2));
-		//code.insert("JEQ", label2.toString(str2), "FLAG", "1");
-		//code.insert("INC", name);
-
-	}
-	else
-	{
-		//code.insert("LARGEEQU", "FLAG", name, temp2.toString(str2));
-		//code.insert("JEQ", label2.toString(str2), "FLAG", "1");
-		//code.insert("DEC", name);
-	}
+	Temp *end_value = NULL;
+	expression(&end_value);//B
 	if (word.token == DOTK)
 	{
 		getSym();
@@ -1139,7 +1112,19 @@ void Grammar::forSentence()
 		error(EXPECTDO);
 	}
 	sentence();
-	//code.insert("SETLABEL", label2.toString(str2));
+	if (is_to)
+	{
+		ConditionCode condition_code(SMALLTK, loop, end_value, label2);
+		AssignCode assign_code(ADDTK, loop, loop, one);
+		GotoCode goto_code(label1);
+	}
+	else
+	{
+		ConditionCode condition_code(LARGETK, loop, end_value, label2);
+		AssignCode assign_code(SUBTK, loop, loop, one);
+		GotoCode goto_code(label1);
+	}
+	LabelCode label_code2(label2);
 }
 
 void Grammar::procSentence()
@@ -1147,7 +1132,6 @@ void Grammar::procSentence()
 #ifdef GrammarDebug
 	std::cout << "In ProcSentence" << std::endl;
 #endif
-	char str1[1024], str2[1024];
 	if (word.token == IDENTTK)
 	{
 		Identifier* ident = symbol_table->findIdent(word.value.content);
@@ -1157,13 +1141,13 @@ void Grammar::procSentence()
 			error(NOTAPROC);
 		}
 		getSym();
+		std::vector<Temp*> args;
 		if (word.token == LPARENTTK)
 		{
 			/*proc->paraTable.paras.size() = 0*/
-			realParaTable();
+			realParaTable(args);
 		}
-		//code.insert("PCAL", proc->label->toString(str1), label.toString(str2));
-		//code.insert("SETLABEL", label.toString(str1));
+		CallCode code(ident, NULL, args);
 	}
 	else
 	{
@@ -1221,8 +1205,11 @@ void Grammar::readSentence()
 	{
 		error(EXPECTLPARENT);
 	}
+	Identifier* ident;
 	if (word.token == IDENTTK)
 	{
+		ident = symbol_table->findIdent(word.value.content);
+		ReadCode read_code(ident);
 		getSym();
 	}
 	else
@@ -1234,6 +1221,8 @@ void Grammar::readSentence()
 		getSym();
 		if (word.token == IDENTTK)
 		{
+			ident = symbol_table->findIdent(word.value.content);
+			ReadCode read_code(ident);
 			getSym();
 		}
 		else
@@ -1272,24 +1261,23 @@ void Grammar::writeSentence()
 	{
 		error(EXPECTLPARENT);
 	}
-	char str[1024];
 	if (word.token == DQUOTETK)
 	{
-		//code.insert("WRITE", word.value.content);
+		WriteCode write_code1(word.value.content);
 		getSym();
 		if (word.token == COMMATK)
 		{
 			getSym();
-			Temp temp;
-			expression(temp);
-			//code.insert("WRITE", temp.toString(str));
+			Temp *temp = NULL;
+			expression(&temp);
+			WriteCode write_code2(temp);
 		}
 	}
 	else
 	{
-		Temp temp;
-		expression(temp);
-		code.insert("WRITE", temp.toString(str));
+		Temp *temp = NULL;
+		expression(&temp);
+		WriteCode write_code(temp);
 	}
 	if (word.token == RPARENTTK)
 	{
