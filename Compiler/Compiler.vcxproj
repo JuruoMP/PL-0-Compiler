@@ -78,6 +78,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CodeTable.cpp" />
     <ClCompile Include="Grammar.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Memory.cpp" />
@@ -94,6 +95,7 @@
     <Text Include="文法.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CodeTable.h" />
     <ClInclude Include="Grammar.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Symbol.h" />

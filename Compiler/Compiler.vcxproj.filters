@@ -30,6 +30,9 @@
     <ClCompile Include="Memory.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CodeTable.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Symbol.txt">
@@ -65,6 +68,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CodeTable.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

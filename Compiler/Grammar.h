@@ -5,6 +5,7 @@
 #include <stack>
 #include "Symbol.h"
 #include "SymbolTable.h"
+#include "CodeTable.h"
 
 #define MAXCNT 32
 

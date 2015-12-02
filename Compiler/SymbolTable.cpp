@@ -6,28 +6,6 @@ SymbolTable* SymbolTable::symboltable;
 SymbolTable* symbol_table;
 std::stack<int> node_stack;
 
-Temp::Temp()
-{
-	this->index = tmp_index++;
-	this->name[0] = '\0';
-}
-
-Temp::Temp(char* nname)
-{
-	strcpy_s(this->name, MAXLEN - 1, nname);
-}
-
-void Temp::fill(char* nname)
-{
-	strcpy_s(this->name, MAXLEN - 1, nname);
-}
-
-char* Temp::toString(char* s)
-{
-	sprintf_s(s, 1023, "T%d", this->index);
-	return s;
-}
-
 int SymbolTable::nodecnt = 0;
 
 SymbolTable* SymbolTable::getInstance()
@@ -50,14 +28,13 @@ int SymbolTable::addNode(int father, bool is_proc)
 
 void SymbolTable::into(int id)
 {
-	node_stack.push(id);
 	this->index = id;
 }
 
 void SymbolTable::back()
 {
 	//this->index = this->nodes[this->index]->father_index;
-	node_stack.pop();
+	//node_stack.pop();
 	this->index = node_stack.top();
 }
 
@@ -139,6 +116,7 @@ Identifier* SymbolTable::findIdent(char* name)
 		}
 		tindex = nodes[tindex]->father_index;
 	}
+	assert(0 == 1);
 	return NULL;
 }
 
@@ -236,4 +214,3 @@ Function::Function(const Function& func)
 	this->nodeid = func.nodeid;
 }
 
-int Temp::tmp_index = 0;

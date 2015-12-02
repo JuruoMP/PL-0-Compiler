@@ -94,6 +94,7 @@ void Grammar::semiProgram()
 			funcIllu();
 	}
 	complexSentence();
+	node_stack.pop();
 	symbol_table->back();
 }
 
@@ -437,6 +438,7 @@ void Grammar::procHead()
 		strcpy_s(name, MAXLEN - 1, word.value.content);
 		int nodeid = symbol_table->addNode(node_stack.top(), true);
 		new Procedure(name, nodeid);
+		node_stack.push(nodeid);
 		symbol_table->into(nodeid);
 		getSym();
 	}
@@ -478,6 +480,7 @@ void Grammar::funcHead()
 		strcpy_s(name, MAXLEN - 1, word.value.content);
 		int nodeid = symbol_table->addNode(node_stack.top() , true);
 		new Function(name, type, nodeid);
+		node_stack.push(nodeid);
 		symbol_table->into(nodeid);
 		getSym();
 	}
@@ -684,7 +687,6 @@ void Grammar::sentence()
 	*/
 }
 
-/*Finish operation*/
 void Grammar::setSentence()
 {
 #ifdef GrammarDebug
@@ -735,7 +737,6 @@ void Grammar::setSentence()
 		code.insert("SET", name, "0", str2);
 }
 
-/*Finish operation*/
 void Grammar::expression(Temp &temp)
 {
 #ifdef GrammarDebug
@@ -952,7 +953,6 @@ void Grammar::realPara(Temp &temp)
 	expression(temp);
 }
 
-/*Finish operation*/
 void Grammar::condition()
 {
 #ifdef GrammarDebug
@@ -1001,7 +1001,6 @@ void Grammar::condition()
 	}
 }
 
-/*Finish operation*/
 void Grammar::conditionSentence()
 {
 #ifdef GrammarDebug
@@ -1039,7 +1038,6 @@ void Grammar::conditionSentence()
 	}
 }
 
-/*Finish operation*/
 void Grammar::whileSentence()
 {
 #ifdef GrammarDebug
@@ -1069,7 +1067,6 @@ void Grammar::whileSentence()
 	//code.insert("JEQ", str, "FLAG", "1");
 }
 
-/*Finish operation*/
 void Grammar::forSentence()
 {
 #ifdef GrammarDebug
@@ -1145,7 +1142,6 @@ void Grammar::forSentence()
 	//code.insert("SETLABEL", label2.toString(str2));
 }
 
-/*Finish operation*/
 void Grammar::procSentence()
 {
 #ifdef GrammarDebug
@@ -1255,7 +1251,6 @@ void Grammar::readSentence()
 	}
 }
 
-/*Finish operation*/
 void Grammar::writeSentence()
 {
 #ifdef GrammarDebug

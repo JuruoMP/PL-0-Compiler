@@ -1,7 +1,6 @@
 #include "Memory.h"
 
 StringTable string_table;
-Code code;
 
 Memory::Memory()
 {
@@ -27,6 +26,5 @@ void Memory::freeMem(int length)
 }
 
 int StringTable::stringtable_index = 1;
-int Code::code_index = 1;
 int Memory::ptr = 1;
 Memory* Memory::memory = NULL;

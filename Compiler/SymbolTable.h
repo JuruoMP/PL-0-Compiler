@@ -66,7 +66,7 @@ public:
 	//create a new node
 	int addNode(int father, bool is_proc);
 	//go into nodes[id]
-	void SymbolTable::into(int id);
+	void into(int id);
 	//go back to now's father node
 	void back();
 	//push ident on current node, return true if succeed, false otherwise
@@ -75,19 +75,6 @@ public:
 	Identifier* findIdent(char* name);
 };//symbol_table;
 //int SymbolTable::symboltable_index = 1;
-
-class Temp
-{
-public:
-	static int tmp_index;
-	char name[MAXLEN];
-	Temp();
-	Temp(char* nname);
-	void fill(char* nname);
-	int index;
-	char* toString(char* s);
-};
-//int Temp::tmp_index = 0;
 
 class Constance : public Identifier
 {
