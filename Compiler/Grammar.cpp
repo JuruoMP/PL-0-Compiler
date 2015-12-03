@@ -436,11 +436,13 @@ void Grammar::procHead()
 	{
 		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
-		int nodeid = symbol_table->addNode(name, node_stack.top(), true);
-		new Procedure(name, nodeid);
-		node_stack.push(nodeid);
-		symbol_table->into(nodeid);
-		code_table->into(nodeid);
+		int nodeid1 = symbol_table->addNode(name, node_stack.top(), true);
+		new Procedure(name, nodeid1);
+		int nodeid2 = code_table->addNode(node_stack.top());
+		assert(nodeid1 == nodeid2);
+		node_stack.push(nodeid1);
+		symbol_table->into(nodeid1);
+		code_table->into(nodeid2);
 		getSym();
 	}
 	else
@@ -479,11 +481,13 @@ void Grammar::funcHead()
 	{
 		char name[MAXLEN];
 		strcpy_s(name, MAXLEN - 1, word.value.content);
-		int nodeid = symbol_table->addNode(name, node_stack.top() , false);
-		new Function(name, type, nodeid);
-		node_stack.push(nodeid);
-		symbol_table->into(nodeid);
-		code_table->into(nodeid);
+		int nodeid1 = symbol_table->addNode(name, node_stack.top() , false);
+		new Function(name, type, nodeid1);
+		int nodeid2 = code_table->addNode(node_stack.top());
+		assert(nodeid1 == nodeid2);
+		node_stack.push(nodeid1);
+		symbol_table->into(nodeid1);
+		code_table->into(nodeid2);
 		getSym();
 	}
 	else
@@ -892,8 +896,9 @@ void Grammar::funcSentence(Temp **temp)
 			/*func->paraTable.paras.size() != 0*/
 			realParaTable(args);
 		}
-		Identifier* this_func = symbol_table->findIdent(symbol_table->nodes[node_stack.top()]->name);
-		CallCode code(ident, this_func, args);
+		*temp = new Temp();
+		//Identifier* this_func = symbol_table->findIdent(symbol_table->nodes[node_stack.top()]->name);//WRONG
+		CallCode code(ident, *temp, args);
 	}
 	else
 	{

@@ -21,9 +21,14 @@ void Init()
 	new Procedure("main", 0);
 	symbol_table->addNode("main", 0, true);
 	symbol_table->into(1);
+	code_table = code_table->getInstance();
+	//code_table->into(0);
+	code_table->addNode(0);
+	code_table->into(1);
 	zero = new Temp();
 	one = new Temp();
 	code_table = code_table->getInstance();
+	node_stack.push(0);
 	node_stack.push(1);
 }
 

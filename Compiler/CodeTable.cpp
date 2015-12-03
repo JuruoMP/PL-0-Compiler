@@ -129,7 +129,7 @@ void AssignCode::print()
 	this->num2->print(); printf("\n");
 }
 
-CallCode::CallCode(Identifier* ident, Identifier* target, std::vector<Temp*> args)
+CallCode::CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args)
 : Code(CALLKD, "Call")
 {
 	this->ident = ident;
@@ -142,7 +142,7 @@ void CallCode::print()
 {
 	printf("%s\t", this->head);
 	printf("%s\t", this->ident->name);
-	printf("%d\t", this->target->name);
+	this->target->print(); printf("\t");
 	printf("argv=%d\n", args.size());
 }
 
@@ -197,6 +197,11 @@ void ReadCode::print()
 }
 
 int CodeTable::nodecnt = 0;
+CodeTable::CodeTable()
+{
+	this->index = 0;
+	this->nodes[this->index] = new Node();
+}
 
 CodeTable* CodeTable::getInstance()
 {

@@ -103,9 +103,9 @@ class CallCode : public Code
 {
 public:
 	Identifier* ident;
-	Identifier* target;
+	Temp* target;
 	std::vector<Temp*> args;
-	CallCode(Identifier* ident, Identifier* target, std::vector<Temp*> args);
+	CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args);
 	void print();
 };
 
@@ -142,7 +142,7 @@ class CodeTable
 {
 private:
 	static CodeTable* codetable;
-	CodeTable() {}
+	CodeTable();
 public:
 	CodeTable* getInstance();
 	static int nodecnt;
