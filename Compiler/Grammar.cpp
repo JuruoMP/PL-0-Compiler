@@ -21,6 +21,8 @@ Grammar::Grammar()
 {
 	getSym();
 	program();
+	for (int i = 0; i < code_table->nodecnt; ++i)
+		code_table->nodes[i]->compile();
 }
 
 static unsigned int position = 0;
@@ -443,6 +445,7 @@ void Grammar::procHead()
 		node_stack.push(nodeid1);
 		symbol_table->into(nodeid1);
 		code_table->into(nodeid2);
+		FPCode fpcode(nodeid1, name);
 		getSym();
 	}
 	else
@@ -488,6 +491,7 @@ void Grammar::funcHead()
 		node_stack.push(nodeid1);
 		symbol_table->into(nodeid1);
 		code_table->into(nodeid2);
+		FPCode fpcode(nodeid1, name);
 		getSym();
 	}
 	else

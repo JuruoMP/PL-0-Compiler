@@ -7,6 +7,7 @@ extern char token_name[][16];
 extern SymbolTable* symbol_table;
 Temp* zero;
 Temp* one;
+extern Memory* memory;
 
 int Label::label_cnt = 0;
 Label::Label()
@@ -24,7 +25,7 @@ int Temp::temp_cnt = 0;
 Temp::Temp()
 {
 	this->id = temp_cnt;
-	this->type = VARTP;
+	this->type = TEMPTP;
 	temp_cnt++;
 }
 
@@ -51,9 +52,11 @@ Temp::Temp(Identifier* ident, bool subscript, Temp* offset)
 
 void Temp::print()
 {
-	if (this->type == IDENTTP)
+	if (this == NULL)
+		printf("NULL");
+	else if (this->type == IDENTTP)
 		printf("%s", this->ident->name);
-	else if (this->type == VARTP)
+	else if (this->type == TEMPTP)
 		printf("Temp%d", this->id);
 	else
 		printf("Temp%d=%d", this->id, this->value);
@@ -94,7 +97,23 @@ GotoCode::GotoCode(const Label *label)
 void GotoCode::print()
 {
 	printf("%s\t", this->head);
-	this->label->print();
+	this->label->print(); printf("\n");
+}
+
+FPCode::FPCode(int nodeid, char* name)
+: Code(FPKD, "FP:")
+{
+	this->nodeid = nodeid;
+	strcpy_s(this->name, MAXLEN - 1, name);
+	sprintf_s(this->str, MAXLEN - 1, "fp_%s_%d", this->name, this->nodeid);
+	code_table->insertCode(this);
+}
+
+void FPCode::print()
+{
+	printf("%s\t", this->head);
+	printf("%d\t", this->nodeid);
+	printf("%s\n", this->str);
 }
 
 LabelCode::LabelCode(const Label *label)
@@ -107,7 +126,7 @@ LabelCode::LabelCode(const Label *label)
 void LabelCode::print()
 {
 	printf("%s\t", this->head);
-	this->label->print();
+	this->label->print(); printf("\n");
 }
 
 AssignCode::AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Temp* src2)
@@ -232,6 +251,76 @@ void CodeTable::back()
 	this->index = node_stack.top();
 }
 
+CodeTable::Node::Node()
+{
+	this->father_index = 0;
+	this->code_cnt = 0;
+}
+
+void CodeTable::Node::compile()
+{
+	for (int i = 0; i < this->codes.size(); ++i)
+	{
+		Code* basecode = this->codes.at(i);
+		if (basecode->kind == CONDITIONKD)
+		{
+			ConditionCode* code = dynamic_cast<ConditionCode*>(basecode);
+			Asm* asmcode;
+			std::vector<std::string> args;
+
+			asmcode = new Asm(ASMCMP, args);
+			this->asms.push_back(asmcode);
+		}
+		else if (basecode->kind == GOTOKD)
+		{
+			GotoCode* code = dynamic_cast<GotoCode*>(basecode);
+		}
+		else if (basecode->kind == FPKD)
+		{
+			FPCode* code = dynamic_cast<FPCode*>(basecode);
+			Asm* asmcode = new Asm(code->str);
+			this->asms.push_back(asmcode);
+		}
+		else if (basecode->kind == LABELKD)
+		{
+			LabelCode* code = dynamic_cast<LabelCode*>(basecode);
+			char name[MAXLEN];
+			sprintf_s(name, MAXLEN - 1, "Label%d", code->label->id);
+			Asm* asmcode = new Asm(name);
+		}
+		else if (basecode->kind == ASSIGNKD)
+		{
+			AssignCode* code = dynamic_cast<AssignCode*>(basecode);
+		}
+		else if (basecode->kind == CALLKD)
+		{
+			CallCode* code = dynamic_cast<CallCode*>(basecode);
+			std::vector<std::string> args;
+			//逆向push参数
+			//call函数
+			//push ebp
+			//局部变量申请空间
+			//释放局部空间
+			//pop ebp
+			//ret n <- 参数占用的空间
+			code->
+			Asm* callcode = new Asm(ASMCALL, args);
+		}
+		else if (basecode->kind == READKD)
+		{
+			ReadCode* code = dynamic_cast<ReadCode*>(basecode);
+		}
+		else if (basecode->kind == WRITEKD)
+		{
+			WriteCode* code = dynamic_cast<WriteCode*>(basecode);
+		}
+		else
+		{
+			assert(basecode->kind == NOPKD);
+		}
+	}
+}
+
 bool CodeTable::insertCode(Code* code)
 {
 	if (code->kind == CONDITIONKD)
@@ -245,6 +334,13 @@ bool CodeTable::insertCode(Code* code)
 	{
 		GotoCode* other = dynamic_cast<GotoCode*>(code);
 		Code* other_code = new GotoCode(*other);
+		nodes[index]->codes.push_back(other_code);
+		nodes[index]->code_cnt += 1;
+	}
+	else if (code->kind == FPKD)
+	{
+		FPCode* other = dynamic_cast<FPCode*>(code);
+		Code* other_code = new FPCode(*other);
 		nodes[index]->codes.push_back(other_code);
 		nodes[index]->code_cnt += 1;
 	}

@@ -42,5 +42,6 @@ public:
 };
 
 extern StringTable string_table;
+extern Memory* memory;
 
 #endif

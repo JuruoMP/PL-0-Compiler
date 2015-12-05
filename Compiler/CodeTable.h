@@ -4,16 +4,19 @@
 #include <vector>
 #include "Symbol.h"
 #include "SymbolTable.h"
+#include "Memory.h"
+#include "Asm.h"
 
 #define MAXCNT 1024
 
 extern char token_name[][16];
 extern SymbolTable* symbol_table;
+extern Memory* memory;
 
 enum TEMPTYPE
 {
 	VALUETP,
-	VARTP,
+	TEMPTP,
 	IDENTTP
 };
 
@@ -21,6 +24,7 @@ enum KIND
 {
 	CONDITIONKD,
 	GOTOKD,
+	FPKD,
 	LABELKD,
 	ASSIGNKD,
 	CALLKD,
@@ -78,6 +82,16 @@ class GotoCode : public Code
 public:
 	Label *label;
 	GotoCode(const Label *label);
+	void print();
+};
+
+class FPCode : public Code
+{
+public:
+	int nodeid;
+	char name[MAXLEN]; //name
+	char str[MAXLEN]; //"fp_%s_%d", this->name, this->nodeid
+	FPCode(int nodeid, char* name);
 	void print();
 };
 
@@ -152,11 +166,9 @@ public:
 		int father_index;
 		int code_cnt;
 		std::vector<Code*> codes;
-		Node()
-		{
-			this->father_index = 0;
-			this->code_cnt = 0;
-		}
+		std::vector<Asm*> asms;
+		Node();
+		void compile();
 	};
 	Node* nodes[MAXCNT];
 	//create a new node

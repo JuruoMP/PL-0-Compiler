@@ -1,23 +1,13 @@
-#include <iostream>
-using namespace std;
 
-class Test
+int fact(int n)
 {
-public:
-	Test() { this->a = 1; }
-	int a;
-};
-
-void func(Test **a)
-{
-	*a = new Test();
+	int m, p;
+	return n;
 }
 
 int main()
 {
-	Test *a = NULL;
-	func(&a);
-	cout << a->a << endl;
-	system("pause");
+	int a = 0xaaaaaaaa;
+	a = fact(3);
 	return 0;
 }
