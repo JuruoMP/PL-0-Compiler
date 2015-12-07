@@ -13,6 +13,7 @@ extern std::stack<int> node_stack;
 extern CodeTable* code_table;
 extern Temp* zero;
 extern Temp* one;
+extern Memory* memory;
 
 void Init()
 {
@@ -23,8 +24,8 @@ void Init()
 	code_table = code_table->getInstance();
 	code_table->addNode(0);
 	code_table->into(1);
-	zero = new Temp();
-	one = new Temp();
+	//zero = new Temp();
+	//one = new Temp();
 	code_table = code_table->getInstance();
 	node_stack.push(0);
 	node_stack.push(1);

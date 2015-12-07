@@ -21,8 +21,8 @@ Grammar::Grammar()
 {
 	getSym();
 	program();
-	for (int i = 0; i < code_table->nodecnt; ++i)
-		code_table->nodes[i]->compile();
+	//for (int i = 0; i < code_table->nodecnt; ++i)
+		//code_table->nodes[i]->compile();
 }
 
 static unsigned int position = 0;
@@ -724,7 +724,7 @@ void Grammar::setSentence()
 			left = new Temp(ident, true, subscript);
 		}
 		else
-			left = new Temp(ident, false);
+			left = new Temp(ident, false, NULL);
 	}
 	else
 	{
@@ -811,12 +811,12 @@ void Grammar::factor(Temp **result)
 		}
 		else if (ident->type == CONST)
 		{
-			*result = new Temp(ident, false);
+			*result = new Temp(ident, false, NULL);
 			getSym();
 		}
 		else if (ident->type == INT || ident->type == CHAR)
 		{
-			*result = new Temp(ident, false);
+			*result = new Temp(ident, false, NULL);
 			getSym();
 		}
 		else if (ident->type == INTARRAY || ident->type == CHARARRAY)
@@ -848,7 +848,7 @@ void Grammar::factor(Temp **result)
 		}
 		else if (ident->type == PARA)
 		{
-			*result = new Temp(ident, false);
+			*result = new Temp(ident, false, NULL);
 			getSym();
 		}
 		else

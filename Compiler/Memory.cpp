@@ -1,17 +1,20 @@
 #include "Memory.h"
 
-StringTable string_table;
+Memory* memory;
+
+ADDR Memory::ptr;
+Memory* Memory::m_memory;
 
 Memory::Memory()
 {
-	this->ptr = 0;
+	ptr = 0;
 }
 
 Memory* Memory::getInstance()
 {
-	if (memory == NULL)
-		memory = new Memory();
-	return memory;
+	if (m_memory == NULL)
+		m_memory = new Memory();
+	return m_memory;
 }
 
 ADDR Memory::allocMem(int length)
@@ -25,6 +28,3 @@ void Memory::freeMem(int length)
 	ptr -= length;
 }
 
-int StringTable::stringtable_index = 1;
-int Memory::ptr = 1;
-Memory* Memory::memory = NULL;

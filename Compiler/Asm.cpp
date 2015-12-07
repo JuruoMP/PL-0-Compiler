@@ -1,5 +1,13 @@
 #include "Asm.h"
 
+char* opcode[32] = {
+	"MOV", "PUSH", "POP", "PUSHA", "POPA", "PUSHAD", "POPAD", "XCHG",
+	"LEA", "LDS", "LES", "LFS", "LGS", "LSS",
+	"LAHF", "SAHF", "PUSHF", "POPF", "PUSHD", "POPD",
+	"CALL", "RET",
+	"ADD", "SUB", "MUL", "DIV", "INC", "DEC", "NEC", "CMP"
+};
+
 Asm::Asm(char* label_name)
 {
 	this->is_label = true;
@@ -23,7 +31,7 @@ void Asm::print()
 	else
 	{
 		printf("%s\t", opcode[this->m_type]);
-		for (int i = 0; i < this->m_args.size(); ++i)
+		for (unsigned int i = 0; i < this->m_args.size(); ++i)
 			std::cout << this->m_args.at(i) << "\t";
 		std::cout << std::endl;
 	}

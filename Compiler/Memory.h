@@ -9,39 +9,35 @@
 #define CONSTMAX 1024
 #define LEVELMAX 128
 #define STRINGMAX 256
+#define STACKFRAMEMAX 128
 
 typedef int ADDR;
-
-class StringTable
-{
-public:
-	StringTable() {};
-	static int stringtable_index;
-	std::string strs[STRINGMAX];
-	int insert(std::string str)
-	{
-		strs[stringtable_index++] = str;
-		return stringtable_index - 1;
-	}
-};// string_table;
-//int StringTable::stringtable_index = 1;
-
+typedef int REGISTER;
 
 //Singleton class Memory
 class Memory
 {
 private:
 	const static int USTACKTOP = 0xffff0000;
-	static int ptr;
-	static Memory* memory;
+	static ADDR ptr;
+	static Memory* m_memory;
 	Memory();
 public:
+	REGISTER esp, ebp, esi;
 	Memory* getInstance();
 	int allocMem(int length = 1);
 	void freeMem(int length);
 };
 
-extern StringTable string_table;
+class StackFrame
+{
+public:
+	ADDR esp;
+	ADDR ebp;
+	ADDR display[STACKFRAMEMAX];
+	//ADDR constaddr, varaddr, procaddr, funcaddr;
+};
+
 extern Memory* memory;
 
 #endif

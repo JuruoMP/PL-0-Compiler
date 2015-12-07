@@ -33,6 +33,7 @@ enum ASMTYPE
 	ASMPOPD,
 
 	ASMCALL,
+	ASMRET,
 
 	ASMADD,
 	ASMSUB,
@@ -42,14 +43,10 @@ enum ASMTYPE
 	ASMDEC,
 	ASMNEC,
 	ASMCMP
+	
 };
 
-char* opcode[32] = {
-	"MOV", "PUSH", "POP", "PUSHA", "POPA", "PUSHAD", "POPAD", "XCHG",
-	"LEA", "LDS", "LES", "LFS", "LGS", "LSS",
-	"LAHF", "SAHF", "PUSHF", "POPF", "PUSHD", "POPD", "CALL"
-	"ADD", "SUB", "MUL", "DIV", "INC", "DEC", "NEC", "CMP"
-};
+extern char* opcode[32];
 
 enum REGISTER
 {

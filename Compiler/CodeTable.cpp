@@ -5,9 +5,10 @@
 CodeTable* code_table;
 extern char token_name[][16];
 extern SymbolTable* symbol_table;
-Temp* zero;
-Temp* one;
 extern Memory* memory;
+extern std::stack<int> node_stack;
+extern Temp* zero;
+extern Temp* one;
 
 int Label::label_cnt = 0;
 Label::Label()
@@ -19,47 +20,6 @@ Label::Label()
 void Label::print()
 {
 	printf("Label%d", this->id);
-}
-
-int Temp::temp_cnt = 0;
-Temp::Temp()
-{
-	this->id = temp_cnt;
-	this->type = TEMPTP;
-	temp_cnt++;
-}
-
-Temp::Temp(int value)
-{
-	this->id = temp_cnt;
-	this->type = VALUETP;
-	this->value = value;
-	temp_cnt++;
-}
-
-Temp::Temp(Identifier* ident, bool subscript, Temp* offset)
-{
-	if (zero == NULL)
-		zero = new Temp();
-	if (one == NULL)
-		one = new Temp();
-	this->type = IDENTTP;
-	this->ident = ident;
-	this->subscript = subscript;
-	if (subscript)
-		this->offset = new Temp(*offset);
-}
-
-void Temp::print()
-{
-	if (this == NULL)
-		printf("NULL");
-	else if (this->type == IDENTTP)
-		printf("%s", this->ident->name);
-	else if (this->type == TEMPTP)
-		printf("Temp%d", this->id);
-	else
-		printf("Temp%d=%d", this->id, this->value);
 }
 
 Code::Code(KIND kind, char* type_name)
@@ -235,6 +195,7 @@ int CodeTable::addNode(int father)
 	if (nodecnt >= MAXCNT)
 		return -1;
 	nodes[nodecnt] = new Node();
+	nodes[nodecnt]->index = nodecnt;
 	nodes[nodecnt]->father_index = father;
 	return nodecnt;
 }
@@ -259,20 +220,49 @@ CodeTable::Node::Node()
 
 void CodeTable::Node::compile()
 {
+	ADDR esp_offset = 0;
+	//推入display地址，计算display区数
+	Asm* asmcode;
+	std::vector<std::string> args;
+	//push	ebp
+	args.clear();
+	args.push_back("ebp");
+	asmcode = new Asm(ASMPUSH, args);
+	this->asms.push_back(asmcode);
+	//mov	ebp, esp
+	args.clear();
+	args.push_back("ebp"); args.push_back("esp");
+	asmcode = new Asm(ASMMOV, args);
+	this->asms.push_back(asmcode);
+	//push	ebx
+	args.clear();
+	args.push_back("ebx");
+	asmcode = new Asm(ASMPUSH, args);
+	//push	esi
+	args.clear();
+	args.push_back("esi");
+	asmcode = new Asm(ASMPUSH, args);
+	//push	edi
+	args.clear();
+	args.push_back("edi");
+	asmcode = new Asm(ASMPUSH, args);
+	//lea	edi, [ebp-??h]
 	for (int i = 0; i < this->codes.size(); ++i)
 	{
 		Code* basecode = this->codes.at(i);
 		if (basecode->kind == CONDITIONKD)
 		{
+			//
 			ConditionCode* code = dynamic_cast<ConditionCode*>(basecode);
 			Asm* asmcode;
-			std::vector<std::string> args;
+			
 
 			asmcode = new Asm(ASMCMP, args);
 			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == GOTOKD)
 		{
+			//
 			GotoCode* code = dynamic_cast<GotoCode*>(basecode);
 		}
 		else if (basecode->kind == FPKD)
@@ -291,9 +281,70 @@ void CodeTable::Node::compile()
 		else if (basecode->kind == ASSIGNKD)
 		{
 			AssignCode* code = dynamic_cast<AssignCode*>(basecode);
+			//find the variable/temp on stack, get its address = display[i]{esi+4*display_id} + offset
+			if (code->num1->type == VALUETP)
+			{
+				args.clear();
+				char value[MAXLEN];
+				sprintf_s(value, MAXLEN - 1, "%d", code->num1->value);
+				args.push_back(value);
+				asmcode = new Asm(ASMMOV, args);
+				this->asms.push_back(asmcode);
+			}
+			else if (code->num1->type == IDENTTP)
+			{
+				Identifier* ident = code->num1->ident;
+				int display_id = 0, node_id = this->index;
+				while (node_id != ident->this_node)
+				{
+					node_id = code_table->nodes[node_id]->father_index;
+					display_id++;
+				}
+				if (display_id == 0)
+				{
+				}
+				else
+				{
+					int display_offset = 4 * display_id;
+					int ident_offset = ident->getOffset();
+					//display_ebp = [esi + display_offset]
+					//real_addr = display_ebp - ident_offset
+				}
+				if (code->num1->has_subscript)
+				{
+					//if (code->num1->subscribe->base_addr == 0)
+
+				}
+				Identifier* ident = code->num1->ident;
+				ADDR base;
+				ADDR offset = ident->offset;
+				//char value[MAXLEN];
+				//sprintf_s(value, MAXLEN - 1, "[%d]", code->num1->value);
+				//args.push_back(value);
+				asmcode = new Asm(ASMMOV, args);
+				this->asms.push_back(asmcode);
+			}
+			else if (code->num1->type == TEMPTP)
+			{
+
+			}
+			if (code->target->type == VALUETP)
+			{
+				//error();
+			}
+			else if (code->target->type == IDENTTP)
+			{
+				Identifier* ident = code->target->ident;
+			}
+			else if (code->target->type == TEMPTP)
+			{
+			}
 		}
 		else if (basecode->kind == CALLKD)
 		{
+			//
+			//A->B 推入A的display区给B
+			//如果A比B等级高，再推入A作为B的display区
 			CallCode* code = dynamic_cast<CallCode*>(basecode);
 			std::vector<std::string> args;
 			//逆向push参数
@@ -303,15 +354,17 @@ void CodeTable::Node::compile()
 			//释放局部空间
 			//pop ebp
 			//ret n <- 参数占用的空间
-			code->
+			//code->
 			Asm* callcode = new Asm(ASMCALL, args);
 		}
 		else if (basecode->kind == READKD)
 		{
+			//
 			ReadCode* code = dynamic_cast<ReadCode*>(basecode);
 		}
 		else if (basecode->kind == WRITEKD)
 		{
+			//
 			WriteCode* code = dynamic_cast<WriteCode*>(basecode);
 		}
 		else
@@ -319,6 +372,34 @@ void CodeTable::Node::compile()
 			assert(basecode->kind == NOPKD);
 		}
 	}
+	//pop	edi  
+	args.clear();
+	args.push_back("edi");
+	asmcode = new Asm(ASMPOP, args);
+	this->asms.push_back(asmcode);
+	//pop	esi
+	args.clear();
+	args.push_back("esi");
+	asmcode = new Asm(ASMPOP, args);
+	this->asms.push_back(asmcode);
+	//pop	ebx
+	args.clear();
+	args.push_back("ebx");
+	asmcode = new Asm(ASMPOP, args);
+	this->asms.push_back(asmcode);
+	//mov	esp, ebp
+	args.clear();
+	args.push_back("ebp"); args.push_back("ebp");
+	asmcode = new Asm(ASMMOV, args);
+	this->asms.push_back(asmcode);
+	//pop	ebp
+	args.clear();
+	args.push_back("ebp");
+	asmcode = new Asm(ASMPOP, args);
+	this->asms.push_back(asmcode);
+	//ret
+	asmcode = new Asm(ASMRET, args);
+	this->asms.push_back(asmcode);
 }
 
 bool CodeTable::insertCode(Code* code)

@@ -1,13 +1,13 @@
 
-int fact(int n)
+int fact(int *n)
 {
-	int m, p;
-	return n;
+	int m = 1;
+	return m;
 }
 
 int main()
 {
 	int a = 0xaaaaaaaa;
-	a = fact(3);
+	a = fact(&a);
 	return 0;
 }

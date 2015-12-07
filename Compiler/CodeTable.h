@@ -12,13 +12,7 @@
 extern char token_name[][16];
 extern SymbolTable* symbol_table;
 extern Memory* memory;
-
-enum TEMPTYPE
-{
-	VALUETP,
-	TEMPTP,
-	IDENTTP
-};
+extern std::stack<int> node_stack;
 
 enum KIND
 {
@@ -39,22 +33,6 @@ class Label
 public:
 	int id;
 	Label();
-	void print();
-};
-
-class Temp
-{
-	static int temp_cnt;
-public:
-	int id;
-	TEMPTYPE type;
-	int value;
-	Identifier* ident;
-	bool subscript;
-	Temp* offset;
-	Temp();
-	Temp(int value);
-	Temp(Identifier* ident, bool subscript, Temp* offset = NULL);
 	void print();
 };
 
@@ -163,6 +141,7 @@ public:
 	int index;
 	struct Node
 	{
+		int index;
 		int father_index;
 		int code_cnt;
 		std::vector<Code*> codes;
