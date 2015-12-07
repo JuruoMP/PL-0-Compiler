@@ -262,8 +262,12 @@ void CodeTable::Node::compile()
 		}
 		else if (basecode->kind == GOTOKD)
 		{
-			//
 			GotoCode* code = dynamic_cast<GotoCode*>(basecode);
+			args.clear();
+			char name[MAXLEN];
+			sprintf_s(name, MAXLEN - 1, "Label%d", code->label->id);
+			args.push_back(name);
+			asmcode = new Asm(ASMJMP, args);
 		}
 		else if (basecode->kind == FPKD)
 		{
@@ -291,9 +295,13 @@ void CodeTable::Node::compile()
 				asmcode = new Asm(ASMMOV, args);
 				this->asms.push_back(asmcode);
 			}
-			else if (code->num1->type == IDENTTP)
+			else if (code->num1->type == IDENTTP || code->num1->type == TEMPTP)
 			{
-				Identifier* ident = code->num1->ident;
+				Identifier* ident;
+				if (code->num1->type == IDENTTP)
+					ident = code->num1->ident;
+				else
+					ident = symbol_table->findTemp(code->num1->id);
 				int display_id = 0, node_id = this->index;
 				while (node_id != ident->this_node)
 				{
@@ -302,6 +310,8 @@ void CodeTable::Node::compile()
 				}
 				if (display_id == 0)
 				{
+					int ident_offset = ident->getOffset();
+					args.clear();
 				}
 				else
 				{
@@ -309,24 +319,16 @@ void CodeTable::Node::compile()
 					int ident_offset = ident->getOffset();
 					//display_ebp = [esi + display_offset]
 					//real_addr = display_ebp - ident_offset
+					if (code->num1->has_subscript)//only IDENTTP
+					{
+						//
+					}
 				}
-				if (code->num1->has_subscript)
-				{
-					//if (code->num1->subscribe->base_addr == 0)
-
-				}
-				Identifier* ident = code->num1->ident;
-				ADDR base;
-				ADDR offset = ident->offset;
 				//char value[MAXLEN];
 				//sprintf_s(value, MAXLEN - 1, "[%d]", code->num1->value);
 				//args.push_back(value);
 				asmcode = new Asm(ASMMOV, args);
 				this->asms.push_back(asmcode);
-			}
-			else if (code->num1->type == TEMPTP)
-			{
-
 			}
 			if (code->target->type == VALUETP)
 			{
@@ -359,12 +361,12 @@ void CodeTable::Node::compile()
 		}
 		else if (basecode->kind == READKD)
 		{
-			//
+			//TODO : ADD CODE TO READ
 			ReadCode* code = dynamic_cast<ReadCode*>(basecode);
 		}
 		else if (basecode->kind == WRITEKD)
 		{
-			//
+			//TODO : ADD CODE TO WRITE
 			WriteCode* code = dynamic_cast<WriteCode*>(basecode);
 		}
 		else

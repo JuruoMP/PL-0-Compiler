@@ -4,7 +4,7 @@ char* opcode[32] = {
 	"MOV", "PUSH", "POP", "PUSHA", "POPA", "PUSHAD", "POPAD", "XCHG",
 	"LEA", "LDS", "LES", "LFS", "LGS", "LSS",
 	"LAHF", "SAHF", "PUSHF", "POPF", "PUSHD", "POPD",
-	"CALL", "RET",
+	"JMP", "CALL", "RET",
 	"ADD", "SUB", "MUL", "DIV", "INC", "DEC", "NEC", "CMP"
 };
 

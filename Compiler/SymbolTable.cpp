@@ -2,6 +2,8 @@
 #include <stack>
 #include "SymbolTable.h"
 
+#define UNITSIZE 4
+
 SymbolTable* SymbolTable::symboltable;
 SymbolTable* symbol_table;
 std::stack<int> node_stack;
@@ -185,12 +187,12 @@ bool SymbolTable::sameLevel(Node &a, Node &b)
 Identifier::Identifier(char* name, TYPE type)
 {
 	strcpy_s(this->name, MAXLEN - 1, name);
-	if (this->type != PROC)
-		this->offset = symbol_table->nodes[symbol_table->index]->offset_cnt;
-	else
-		this->offset = -(2 + symbol_table->nodes[symbol_table->index]->last_para++);
 	this->type = type;
 	this->this_node = symbol_table->index;
+	if (this->type == PARA)
+		this->offset = -(2*UNITSIZE + symbol_table->nodes[symbol_table->index]->last_para++);
+	else
+		this->offset = symbol_table->nodes[symbol_table->index]->offset_cnt;
 }
 
 ADDR Identifier::getOffset()
@@ -200,7 +202,7 @@ ADDR Identifier::getOffset()
 	else
 	{
 		int display_size = symbol_table->nodes[this->this_node]->display_size;
-		return this->offset + 4 * display_size;
+		return this->offset + UNITSIZE * display_size;
 	}
 }
 
@@ -306,6 +308,7 @@ Temp::Temp()
 	this->id = temp_cnt;
 	this->type = TEMP;
 	this->temp_type = TEMPTP;
+	this->has_subscript = false;
 	temp_cnt++;
 	symbol_table->insertIdent(this);
 }
@@ -317,6 +320,7 @@ Temp::Temp(int value)
 	this->type = TEMP;
 	this->temp_type = VALUETP;
 	this->value = value;
+	this->has_subscript = false;
 	temp_cnt++;
 }
 

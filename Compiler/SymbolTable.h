@@ -106,12 +106,12 @@ class Temp : public Identifier
 {
 	static int temp_cnt;
 public:
-	int id;
+	int id;//TEMPTP
 	TEMPTYPE temp_type;
-	int value;
-	Identifier* ident;
-	bool has_subscript;
-	Temp* subscribe;
+	int value;//VALUETP
+	Identifier* ident;//IDENTTP
+	bool has_subscript;//IDENTTP
+	Temp* subscribe;//IDENTTP
 	Temp();
 	Temp(int value);
 	Temp(Identifier* ident, bool has_subscript, Temp* subscribe);

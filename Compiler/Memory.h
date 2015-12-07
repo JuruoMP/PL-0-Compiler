@@ -12,7 +12,6 @@
 #define STACKFRAMEMAX 128
 
 typedef int ADDR;
-typedef int REGISTER;
 
 //Singleton class Memory
 class Memory
@@ -23,7 +22,6 @@ private:
 	static Memory* m_memory;
 	Memory();
 public:
-	REGISTER esp, ebp, esi;
 	Memory* getInstance();
 	int allocMem(int length = 1);
 	void freeMem(int length);
