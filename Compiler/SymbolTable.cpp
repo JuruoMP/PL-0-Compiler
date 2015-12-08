@@ -2,8 +2,6 @@
 #include <stack>
 #include "SymbolTable.h"
 
-#define UNITSIZE 4
-
 SymbolTable* SymbolTable::symboltable;
 SymbolTable* symbol_table;
 std::stack<int> node_stack;
@@ -190,26 +188,24 @@ Identifier::Identifier(char* name, TYPE type)
 	this->type = type;
 	this->this_node = symbol_table->index;
 	if (this->type == PARA)
-		this->offset = -(2*UNITSIZE + symbol_table->nodes[symbol_table->index]->last_para++);
+		this->offset = symbol_table->nodes[symbol_table->index]->last_para++;
 	else
-		this->offset = symbol_table->nodes[symbol_table->index]->offset_cnt;
+		this->offset = -symbol_table->nodes[symbol_table->index]->offset_cnt;
 }
 
 ADDR Identifier::getOffset()
 {
 	if (this->type == PARA)
-		return this->offset;
+		return UNITSIZE * (2 + this->offset);
 	else
-	{
-		int display_size = symbol_table->nodes[this->this_node]->display_size;
-		return this->offset + UNITSIZE * display_size;
-	}
+		return UNITSIZE * this->offset;
 }
 
 Constance::Constance(char* name, int value) 
 : Identifier(name, CONST)
 {
 	this->value = value;
+	this->offset -= 1;
 	bool status = symbol_table->insertIdent(this);
 }
 
@@ -225,6 +221,7 @@ Constance::Constance(const Constance& cons)
 Variable::Variable(char* name, TYPE type)
 : Identifier(name, type)
 {
+	this->offset -= 1;
 	bool status = symbol_table->insertIdent(this);
 }
 
@@ -240,6 +237,7 @@ Array::Array(char* name, TYPE type, int length)
 : Identifier(name, type)
 {
 	this->len = length;
+	this->offset -= length;
 	symbol_table->insertIdent(this);
 }
 
@@ -304,7 +302,7 @@ int Temp::temp_cnt = 0;
 Temp::Temp() 
 {
 	this->this_node = symbol_table->index;
-	this->offset = symbol_table->nodes[symbol_table->index]->offset_cnt;
+	this->offset = -symbol_table->nodes[symbol_table->index]->offset_cnt - 1;
 	this->id = temp_cnt;
 	this->type = TEMP;
 	this->temp_type = TEMPTP;
@@ -357,12 +355,13 @@ void Temp::print()
 {
 	if (this == NULL)
 		printf("NULL");
-	else if (this->type == IDENTTP)
+	else if (this->temp_type == IDENTTP)
 		printf("%s", this->ident->name);
-	else if (this->type == TEMPTP)
+	else if (this->temp_type == TEMPTP)
 		printf("Temp%d", this->id);
 	else
-		printf("Temp%d=%d", this->id, this->value);
+		printf("%d", this->value);
+		//printf("Temp%d=%d", this->id, this->value);
 }
 
 Temp* zero;

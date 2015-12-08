@@ -148,6 +148,8 @@ public:
 		std::vector<Asm*> asms;
 		Node();
 		void compile();
+		//save address of a temp to $esi
+		void getTempAddr(Temp* temp);
 	};
 	Node* nodes[MAXCNT];
 	//create a new node

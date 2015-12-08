@@ -33,17 +33,8 @@ procedure proc1;
 		end;
 	
 	begin
-		t[0] := -(-1);
-		t[1] := +10 - 18 * 3 / 6;
-		t[2] := 002-000-0000;
-		for i := 6 / 2 to 2 + 4 do
-			t[i] := t[i - 1] + t[i - 2];
 		if i < (2 * 3)
 		then write("Compile error");
-		tmp := t[2];
-		proc2(t[2], t[1] + 3, e);
-		if t[2] <> tmp
-		then write("Sub check passed");
 	end;
 	
 procedure proc2(var a, b:integer; var c:char);
@@ -85,7 +76,7 @@ begin
 end;
 	
 begin
-	e := 63;
+	e := a1;
 	read(inputc, inputi);
 	result := e * 4 / (e * 2) + fact1(inputi);
 	if result > 10
@@ -96,8 +87,5 @@ begin
 	if ans1 <> ans2
 	then write("Compile error");
 	proc1;
-	for i := 2 to inputi do
-		for j := i downto 0 + 0 do
-			arr[i + j] := i - j;
 end
 .

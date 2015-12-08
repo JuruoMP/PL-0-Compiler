@@ -44,13 +44,6 @@ int main()
 		word_list[i].print();
 	}
 	Grammar grammar;
-	for (int i = 0; i < code_table->nodecnt; ++i)
-	{
-		for (int j = 0; j < code_table->nodes[i]->codes.size(); ++j)
-		{
-			code_table->nodes[i]->codes.at(j)->print();
-		}
-	}
 	system("pause");
 	return 0;
 }

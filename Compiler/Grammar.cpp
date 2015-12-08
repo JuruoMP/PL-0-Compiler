@@ -21,8 +21,11 @@ Grammar::Grammar()
 {
 	getSym();
 	program();
-	//for (int i = 0; i < code_table->nodecnt; ++i)
-		//code_table->nodes[i]->compile();
+	for (int i = 0; i <= code_table->nodecnt; ++i)
+		for (int j = 0; j < code_table->nodes[i]->codes.size(); ++j)
+			code_table->nodes[i]->codes.at(j)->print();
+	for (int i = 0; i < code_table->nodecnt; ++i)
+		code_table->nodes[i]->compile();
 }
 
 static unsigned int position = 0;
@@ -993,7 +996,6 @@ void Grammar::condition(Label *label, bool condition)
 			break;
 		default:
 			assert(0 == 1);
-			break;
 		}
 	}
 	ConditionCode code(cmptoken, left, right, label);

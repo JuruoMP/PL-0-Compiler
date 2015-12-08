@@ -9,6 +9,7 @@
 #include "Memory.h"
 
 #define MAXCNT 1024
+#define UNITSIZE 4
 
 enum TYPE
 {
@@ -116,6 +117,7 @@ public:
 	Temp(int value);
 	Temp(Identifier* ident, bool has_subscript, Temp* subscribe);
 	Temp::Temp(const Temp &temp);
+	Temp::Temp(const Identifier &ident);
 	void print();
 };
 

@@ -43,11 +43,17 @@ enum ASMTYPE
 	ASMINC,
 	ASMDEC,
 	ASMNEC,
-	ASMCMP
+	
+	ASMJE,//jump equal
+	ASMJNE,//jump not equal
+	ASMJL,//jump less
+	ASMJNL,//jump not less
+	ASMJG,//jump greater
+	ASMJNG,//jump not greater
 	
 };
 
-extern char* opcode[32];
+extern char* opcode[64];
 
 enum REGISTER
 {
