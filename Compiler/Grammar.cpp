@@ -22,8 +22,11 @@ Grammar::Grammar()
 	getSym();
 	program();
 	for (int i = 0; i <= code_table->nodecnt; ++i)
+	{
+		printf("\nNODE : %d\n", i);
 		for (int j = 0; j < code_table->nodes[i]->codes.size(); ++j)
 			code_table->nodes[i]->codes.at(j)->print();
+	}
 	for (int i = 0; i < code_table->nodecnt; ++i)
 		code_table->nodes[i]->compile();
 }
@@ -750,6 +753,7 @@ void Grammar::expression(Temp **result)
 #ifdef GrammarDebug
 	std::cout << "In Expression" << std::endl;
 #endif
+	*result = new Temp();
 	int value = 1;
 	if (word.token == ADDTK || word.token == SUBTK)
 	{
@@ -757,9 +761,12 @@ void Grammar::expression(Temp **result)
 			value = -1;
 		getSym();
 	}
-	term(result);
+	Temp* temp1 = NULL;
+	term(&temp1);
 	if (value == -1)
-		AssignCode code(SUBTK, *result, zero, *result);
+		AssignCode code(SUBTK, *result, zero, temp1);
+	else
+		AssignCode code(ADDTK, *result, zero, temp1);
 	while (word.token == ADDTK || word.token == SUBTK)
 	{
 		bool is_add;
@@ -768,12 +775,12 @@ void Grammar::expression(Temp **result)
 		else
 			is_add = false;
 		getSym();
-		Temp* temp = NULL;
-		term(&temp);
+		Temp* temp2 = NULL;
+		term(&temp2);
 		if (is_add)
-			AssignCode code(ADDTK, *result, *result, temp);
+			AssignCode code(ADDTK, *result, *result, temp2);
 		else
-			AssignCode code(SUBTK, *result, *result, temp);
+			AssignCode code(SUBTK, *result, *result, temp2);
 	}
 }
 
@@ -782,7 +789,9 @@ void Grammar::term(Temp **result)
 #ifdef GrammarDebug
 	std::cout << "In Term" << std::endl;
 #endif
-	factor(result);
+	*result = new Temp();
+	Temp *temp1 = NULL;
+	factor(&temp1);
 	while (word.token == MULTK || word.token == DIVTK)
 	{
 		bool is_mul;
@@ -791,12 +800,12 @@ void Grammar::term(Temp **result)
 		else
 			is_mul = false;
 		getSym();
-		Temp* temp = NULL;
-		factor(&temp);
+		Temp* temp2 = NULL;
+		factor(&temp2);
 		if (is_mul)
-			AssignCode code(MULTK, *result, *result, temp);
+			AssignCode code(MULTK, *result, *result, temp2);
 		else
-			AssignCode code(DIVTK, *result, *result, temp);
+			AssignCode code(DIVTK, *result, *result, temp2);
 	}
 }
 

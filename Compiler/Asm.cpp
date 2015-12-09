@@ -5,8 +5,8 @@ char* opcode[64] = {
 	"LEA", "LDS", "LES", "LFS", "LGS", "LSS",
 	"LAHF", "SAHF", "PUSHF", "POPF", "PUSHD", "POPD",
 	"JMP", "CALL", "RET",
-	"ADD", "SUB", "MUL", "DIV", "INC", "DEC", "NEC", 
-	"JE", "JNE", "JL", "JNL", "JG", "JNG"
+	"ADD", "SUB", "IMUL", "IDIV", "INC", "DEC", "NEC", 
+	"CMP", "JE", "JNE", "JL", "JNL", "JG", "JNG"
 };
 
 Asm::Asm(char* label_name)

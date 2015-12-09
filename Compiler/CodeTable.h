@@ -95,6 +95,7 @@ class CallCode : public Code
 {
 public:
 	Identifier* ident;
+	char str[MAXLEN]; //"fp_%s_%d", this->name, this->nodeid
 	Temp* target;
 	std::vector<Temp*> args;
 	CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args);
@@ -148,8 +149,12 @@ public:
 		std::vector<Asm*> asms;
 		Node();
 		void compile();
-		//save address of a temp to $esi
+		//save value of a temp to $edx
+		void getTempValue(Temp* temp);
+		//save addr of a temp to $esi
 		void getTempAddr(Temp* temp);
+		void push(std::string str);
+		void pop(std::string str);
 	};
 	Node* nodes[MAXCNT];
 	//create a new node

@@ -40,10 +40,10 @@ ConditionCode::ConditionCode(SymbolTK token, const Temp* num1, const Temp* num2,
 
 void ConditionCode::print()
 {
-	printf("%s\t", this->head);
-	printf("%s\t", token_name[this->token]);
-	this->num1->print(); printf("\t");
-	this->num2->print(); printf("\t");
+	printf("%s\t\t", this->head);
+	printf("%s\t\t", token_name[this->token]);
+	this->num1->print(); printf("\t\t");
+	this->num2->print(); printf("\t\t");
 	this->label->print(); printf("\n");
 }
 
@@ -56,7 +56,7 @@ GotoCode::GotoCode(const Label *label)
 
 void GotoCode::print()
 {
-	printf("%s\t", this->head);
+	printf("%s\t\t", this->head);
 	this->label->print(); printf("\n");
 }
 
@@ -71,8 +71,8 @@ FPCode::FPCode(int nodeid, char* name)
 
 void FPCode::print()
 {
-	printf("%s\t", this->head);
-	printf("%d\t", this->nodeid);
+	printf("%s\t\t", this->head);
+	printf("%d\t\t", this->nodeid);
 	printf("%s\n", this->str);
 }
 
@@ -85,7 +85,7 @@ LabelCode::LabelCode(const Label *label)
 
 void LabelCode::print()
 {
-	printf("%s\t", this->head);
+	printf("%s\t\t", this->head);
 	this->label->print(); printf("\n");
 }
 
@@ -101,10 +101,10 @@ AssignCode::AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Tem
 
 void AssignCode::print()
 {
-	printf("%s\t", this->head);
-	printf("%s\t", token_name[this->op]);
-	this->target->print(); printf("\t");
-	this->num1->print(); printf("\t");
+	printf("%s\t\t", this->head);
+	printf("%s\t\t", token_name[this->op]);
+	this->target->print(); printf("\t\t");
+	this->num1->print(); printf("\t\t");
 	this->num2->print(); printf("\n");
 }
 
@@ -112,6 +112,18 @@ CallCode::CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args)
 : Code(CALLKD, "Call")
 {
 	this->ident = ident;
+	if (this->ident->type == PROC)
+	{
+		Procedure* proc = dynamic_cast<Procedure*>(this->ident);
+		//"fp_%s_%d", this->name, this->nodeid
+		sprintf_s(this->str, MAXLEN - 1, "fp_%s_%d\t\t", proc->name, proc->nodeid);
+	}
+	else
+	{
+		Function* func = dynamic_cast<Function*>(this->ident);
+		//"fp_%s_%d", this->name, this->nodeid
+		sprintf_s(this->str, MAXLEN - 1, "fp_%s_%d\t\t", func->name, func->nodeid);
+	}
 	this->target = target;
 	std::copy(args.begin(), args.end(), std::back_inserter(this->args));
 	code_table->insertCode(this);
@@ -119,13 +131,13 @@ CallCode::CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args)
 
 void CallCode::print()
 {
-	printf("%s\t", this->head);
-	printf("%s\t", this->ident->name);
+	printf("%s\t\t", this->head);
+	printf("%s", this->str);
 	if (this->target != NULL)
 	{
 		printf("dst=");
 		this->target->print();
-		printf("\t");
+		printf("\t\t");
 	}
 	printf("argv=%d\n", args.size());
 }
@@ -159,7 +171,7 @@ WriteCode::WriteCode(Temp* temp)
 
 void WriteCode::print()
 {
-	printf("%s\t", this->head);
+	printf("%s\t\t", this->head);
 	if (this->is_string)
 		printf("%s", this->value.content);
 	else
@@ -176,7 +188,7 @@ ReadCode::ReadCode(Identifier* ident)
 
 void ReadCode::print()
 {
-	printf("%s\t", this->head);
+	printf("%s\t\t", this->head);
 	printf("%s\n", this->ident->name);
 }
 
@@ -330,62 +342,32 @@ void CodeTable::Node::compile()
 		if (basecode->kind == CONDITIONKD)
 		{
 			ConditionCode* code = dynamic_cast<ConditionCode*>(basecode);
-			if (code->num1->temp_type == VALUETP)
-			{
-				args.clear();
-				//mov eax, value
-				char value[MAXLEN];
-				args.push_back("eax");
-				sprintf_s(value, MAXLEN - 1, "%d", code->num1->value);
-				args.push_back(value);
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
-			else
-			{
-				/*
-				1.Generate code to load address of code->num1 to esi
-				2.MOV eax [esi]
-				*/
-				getTempAddr(code->num1);
-				args.clear();
-				args.push_back("eax"); args.push_back("[esi]");
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
-			if (code->num2->temp_type == VALUETP)
-			{
-				args.clear();
-				//mov ebx, value
-				char value[MAXLEN];
-				args.push_back("ebx");
-				sprintf_s(value, MAXLEN - 1, "%d", code->num2->value);
-				args.push_back(value);
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
-			else
-			{
-				/*
-				1.Generate code to load address of code->num2 to esi
-				2.MOV ebx, [esi]
-				*/
-				getTempAddr(code->num2);
-				args.clear();
-				args.push_back("ebx"); args.push_back("[esi]");
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-				/*add eax, eax, ebx*/
-				args.clear();
-				args.push_back("eax"); args.push_back("eax"); args.push_back("ebx");
-				asmcode = new Asm(ASMADD, args);
-				this->asms.push_back(asmcode);
-			}
+			/*
+			1.Generate code to load value of code->num1 to edx
+			2.MOV eax edx
+			*/
+			getTempValue(code->num1);
+			args.clear();
+			args.push_back("eax"); args.push_back("edx");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
+			/*
+			1.Generate code to load value of code->num2 to edx
+			2.MOV ebx edx
+			*/
+			getTempValue(code->num2);
+			args.clear();
+			args.push_back("ebx"); args.push_back("edx");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
 			/*
 			Generate compare code of numbers in eax & ebx
 			*/
 			args.clear();
 			args.push_back("eax"); args.push_back("ebx");
+			asmcode = new Asm(ASMCMP, args);
+			this->asms.push_back(asmcode);
+			args.clear();
 			char name[MAXLEN];
 			sprintf_s(name, MAXLEN - 1, "Label%d", code->label->id);
 			args.push_back(name);
@@ -426,7 +408,7 @@ void CodeTable::Node::compile()
 		else if (basecode->kind == FPKD)
 		{
 			FPCode* code = dynamic_cast<FPCode*>(basecode);
-			Asm* asmcode = new Asm(code->str);
+			Asm* asmcode = new Asm(code->str);//"fp_%s_%d", this->name, this->nodeid
 			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == LABELKD)
@@ -439,56 +421,65 @@ void CodeTable::Node::compile()
 		else if (basecode->kind == ASSIGNKD)
 		{
 			AssignCode* code = dynamic_cast<AssignCode*>(basecode);
-			if (code->num1->temp_type == VALUETP)
+			/*
+			1.Generate code to load value of code->num1 to edx
+			2.MOV eax edx
+			*/
+			getTempValue(code->num1);
+			args.clear();
+			args.push_back("eax"); args.push_back("edx");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
+			/*
+			1.Generate code to load value of code->num2 to edx
+			2.MOV ebx edx
+			*/
+			getTempValue(code->num2);
+			args.clear();
+			args.push_back("ebx"); args.push_back("edx");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
+			/*
+			calculate value of assignment and save it to eax
+			*/
+			switch (code->op)
 			{
+			case SETTK:
+				//mov eax, eax
+				break;
+			case ADDTK:
+				//add eax, ebx
 				args.clear();
-				//mov eax, value
-				char value[MAXLEN];
-				args.push_back("eax");
-				sprintf_s(value, MAXLEN - 1, "%d", code->num1->value);
-				args.push_back(value);
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
-			else
-			{
-				/*
-				1.Generate code to load address of code->num1 to esi
-				2.MOV eax [esi]
-				*/
-				getTempAddr(code->num1);
-				args.clear();
-				args.push_back("eax"); args.push_back("[esi]");
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
-			if (code->num2->temp_type == VALUETP)
-			{
-				args.clear();
-				//mov ebx, value
-				char value[MAXLEN];
-				args.push_back("ebx");
-				sprintf_s(value, MAXLEN - 1, "%d", code->num2->value);
-				args.push_back(value);
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
-			else
-			{
-				/*
-				1.Generate code to load address of code->num2 to esi
-				2.MOV ebx, [esi]
-				*/
-				getTempAddr(code->num2);
-				args.clear();
-				args.push_back("ebx"); args.push_back("[esi]");
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-				/*add eax, eax, ebx*/
-				args.clear();
-				args.push_back("eax"); args.push_back("eax"); args.push_back("ebx");
+				args.push_back("eax"); args.push_back("ebx");
 				asmcode = new Asm(ASMADD, args);
 				this->asms.push_back(asmcode);
+				break;
+			case SUBTK:
+				//sub eax, ebx
+				args.clear();
+				args.push_back("eax"); args.push_back("ebx");
+				asmcode = new Asm(ASMSUB, args);
+				this->asms.push_back(asmcode);
+				break;
+			case MULTK:
+				//imul ebx	<-edx.eax *= ebx
+				args.clear();
+				args.push_back("ebp");
+				asmcode = new Asm(ASMMUL, args);
+				this->asms.push_back(asmcode);
+				break;
+			case DIVTK:
+				//sub edx, edx
+				//idiv ebx	<-edx.eax/ebx, eaxÉÌ edxÓàÊý
+				args.clear();
+				args.push_back("edx"); args.push_back("edx");
+				asmcode = new Asm(ASMSUB, args);
+				this->asms.push_back(asmcode);
+				args.clear();
+				args.push_back("ebx");
+				asmcode = new Asm(ASMDIV, args);
+				this->asms.push_back(asmcode);
+				break;
 			}
 			if (code->target->temp_type == VALUETP)
 			{
@@ -569,11 +560,50 @@ void CodeTable::Node::compile()
 	this->asms.push_back(asmcode);
 }
 
+void CodeTable::Node::getTempValue(Temp *temp)
+{
+	push("eax");
+	push("ebx");
+	push("ecx");
+	push("esi");
+	push("edi");
+	Asm *asmcode;
+	std::vector<std::string> args;
+	if (temp->temp_type == VALUETP)
+	{
+		args.clear();
+		//mov eax, value
+		char value[MAXLEN];
+		args.push_back("edx");
+		sprintf_s(value, MAXLEN - 1, "%d", temp->value);
+		args.push_back(value);
+		asmcode = new Asm(ASMMOV, args);
+		this->asms.push_back(asmcode);
+	}
+	else
+	{
+		//get addr of a temp to $esi
+		getTempAddr(temp);
+		//mov edx, [esi]
+		args.clear();
+		args.push_back("edx"); args.push_back("[esi]");
+		asmcode = new Asm(ASMMOV, args);
+		this->asms.push_back(asmcode);
+	}
+	pop("eax");
+	pop("ebx");
+	pop("ecx");
+	pop("esi");
+	pop("edi");
+}
+
 void CodeTable::Node::getTempAddr(Temp *temp)
 {
-	//REMEMBER TO POP AND PUSH REGISTERS!!!
-	//DO NOT MODIFY THEIR VALUES!!!
-	//PUSHA
+	push("eax");
+	push("ebx");
+	push("ecx");
+	push("edx");
+	push("edi");
 	Asm *asmcode;
 	std::vector<std::string> args;
 	Identifier* ident;
@@ -592,25 +622,80 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	{
 		display_offset = 0;////////////////
 		ident_base_offset = ident->getOffset();
+		//mov esi, ebp
+		//add esi, ident_base_offset
+		args.clear();
+		args.push_back("esi"); args.push_back("ebp");
+		asmcode = new Asm(ASMMOV, args);
+		this->asms.push_back(asmcode);
+		args.clear();
+		args.push_back("esi");
+		char value[MAXLEN];
+		sprintf_s(value, MAXLEN - 1, "%d", ident_base_offset);
+		args.push_back(value);
+		asmcode = new Asm(ASMADD, args);
+		this->asms.push_back(asmcode);
 	}
 	else
 	{
 		display_offset = UNITSIZE * (2 + symbol_table->nodes[ident->this_node]->last_para + display_id);
 		ident_base_offset = ident->getOffset();
-		//display_ebp = [esi + display_offset]
-		//real_addr = display_ebp - ident_offset
+		//mov esi, ebp
+		//add esi, display_offset
+		//mov esi, [esi]
+		//add esi, ident_base_offset
+		args.clear();
+		args.push_back("esi"); args.push_back("ebp");
+		asmcode = new Asm(ASMMOV, args);
+		this->asms.push_back(asmcode);
+		args.clear();
+		args.push_back("esi");
+		char value[MAXLEN];
+		sprintf_s(value, MAXLEN - 1, "%d", display_offset);
+		args.push_back(value);
+		asmcode = new Asm(ASMADD, args);
+		this->asms.push_back(asmcode);
+		args.clear();
+		args.push_back("esi"); args.push_back("[esi]");
+		asmcode = new Asm(ASMMOV, args);
+		this->asms.push_back(asmcode);
+		args.clear();
+		args.push_back("esi");
+		sprintf_s(value, MAXLEN - 1, "%d", ident_base_offset);
+		args.push_back(value);
+		asmcode = new Asm(ASMADD, args);
 	}
 	if (temp->has_subscript)//only IDENTTP
 	{
-		getTempAddr(temp->subscribe);
-		//ident_offset += UNITSIZE * 
+		getTempValue(temp->subscribe);
+		//add esi, edx
+		args.clear();
+		args.push_back("esi");
+		args.push_back("edx");
+		asmcode = new Asm(ASMADD, args);
+		this->asms.push_back(asmcode);
 	}
-	//char value[MAXLEN];
-	//sprintf_s(value, MAXLEN - 1, "[%d]", code->num1->value);
-	//args.push_back(value);
-	asmcode = new Asm(ASMMOV, args);
+	pop("eax");
+	pop("ebx");
+	pop("ecx");
+	pop("edx");
+	pop("edi");
+}
+
+void CodeTable::Node::push(std::string str)
+{
+	std::vector<std::string> args;
+	args.push_back(str);
+	Asm* asmcode = new Asm(ASMPUSH, args);
 	this->asms.push_back(asmcode);
-	//POPA
+}
+
+void CodeTable::Node::pop(std::string str)
+{
+	std::vector<std::string> args;
+	args.push_back(str);
+	Asm* asmcode = new Asm(ASMPOP, args);
+	this->asms.push_back(asmcode);
 }
 
 CodeTable* CodeTable::codetable = NULL;
