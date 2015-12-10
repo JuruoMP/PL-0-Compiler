@@ -14,7 +14,7 @@ extern Temp* one;
 #define CODEINDEXNULL 0
 
 //#ifdef _DEBUG
-#define GrammarDebug 
+//#define GrammarDebug 
 //#endif
 
 Grammar::Grammar()
@@ -45,7 +45,7 @@ bool Grammar::getSym()
 	if (position < word_list.size())
 	{
 		word = word_list.at(position);
-		word.print();
+		//word.print();
 		position++;
 		sym_position = position;
 		return true;
@@ -61,6 +61,11 @@ TYPE Grammar::readType()
 	sym_position = position;
 	while (sym_position < word_list.size())
 	{
+		if (word_list.at(sym_position).token == COLONTK)
+		{
+			sym_position--;
+			break;
+		}
 		sym_position++;
 		if (word_list.at(sym_position).token == RPARENTTK)
 			break;
@@ -505,6 +510,10 @@ void Grammar::funcHead()
 		symbol_table->into(nodeid1);
 		code_table->into(nodeid2);
 		FPCode fpcode(nodeid1, name);
+		if (type == FUNCINT)
+			new Variable(name, RETINT);
+		else
+			new Variable(name, RETCHAR);
 		getSym();
 	}
 	else
@@ -688,7 +697,7 @@ void Grammar::sentence()
 		}
 		else if (ident->type == INT || ident->type == CHAR || 
 			ident->type == INTARRAY || ident->type == CHARARRAY ||
-			ident->type == FUNCINT || ident->type == FUNCCHAR ||
+			ident->type == RETINT || ident->type == RETCHAR ||
 			ident->type == PARA)
 		{
 			setSentence();
@@ -760,7 +769,7 @@ void Grammar::expression(Temp **result)
 #ifdef GrammarDebug
 	std::cout << "In Expression" << std::endl;
 #endif
-	*result = new Temp();
+	//*result = new Temp();
 	int value = 1;
 	if (word.token == ADDTK || word.token == SUBTK)
 	{
@@ -770,10 +779,16 @@ void Grammar::expression(Temp **result)
 	}
 	Temp* temp_left = NULL;
 	term(&temp_left);
-	if (value == -1)
-		AssignCode code(SUBTK, temp_left, zero, temp_left);
+	Temp * new_temp;
+	if (temp_left->temp_type == IDENTTP || temp_left->temp_type == VALUETP)
+		new_temp = new Temp();
 	else
-		AssignCode code(SETTK, temp_left, temp_left, temp_left);
+		new_temp = temp_left;
+	if (value == -1)
+		AssignCode code(SUBTK, new_temp, zero, temp_left);
+	else
+		AssignCode code(SETTK, new_temp, temp_left, temp_left);
+	temp_left = new_temp;
 	while (word.token == ADDTK || word.token == SUBTK)
 	{
 		bool is_add;
@@ -784,14 +799,18 @@ void Grammar::expression(Temp **result)
 		getSym();
 		Temp* temp_right = NULL;
 		term(&temp_right);
-		Temp* new_temp = new Temp();
+		if (temp_left->temp_type == IDENTTP || temp_left->temp_type == VALUETP)
+			new_temp = new Temp();
+		else
+			new_temp = temp_left;
 		if (is_add)
 			AssignCode code(ADDTK, new_temp, temp_left, temp_right);
 		else
 			AssignCode code(SUBTK, new_temp, temp_left, temp_right);
 		temp_left = new_temp;
 	}
-	AssignCode code(SETTK, *result, temp_left, temp_left);
+	*result = temp_left;
+	//AssignCode code(SETTK, *result, temp_left, temp_left);
 }
 
 void Grammar::term(Temp **result)
@@ -799,7 +818,7 @@ void Grammar::term(Temp **result)
 #ifdef GrammarDebug
 	std::cout << "In Term" << std::endl;
 #endif
-	*result = new Temp();
+	//*result = new Temp();
 	Temp *temp_left = NULL;
 	factor(&temp_left);
 	while (word.token == MULTK || word.token == DIVTK)
@@ -812,14 +831,19 @@ void Grammar::term(Temp **result)
 		getSym();
 		Temp* temp_right = NULL;
 		factor(&temp_right);
-		Temp* new_temp = new Temp();
+		Temp* new_temp;
+		if (temp_left->temp_type == IDENTTP || temp_left->temp_type == VALUETP)
+			new_temp = new Temp();
+		else
+			new_temp = temp_left;
 		if (is_mul)
 			AssignCode code(MULTK, new_temp, temp_left, temp_right);
 		else
 			AssignCode code(DIVTK, new_temp, temp_left, temp_right);
 		temp_left = new_temp;
 	}
-	AssignCode code(SETTK, *result, temp_left, temp_left);
+	*result = temp_left;
+	//AssignCode code(SETTK, *result, temp_left, temp_left);
 }
 
 void Grammar::factor(Temp **result)
@@ -862,7 +886,7 @@ void Grammar::factor(Temp **result)
 			}
 			*result = new Temp(ident, true, offset);
 		}
-		else if (ident->type == FUNCINT || ident->type == FUNCCHAR)
+		else if (ident->type == RETINT || ident->type == RETCHAR)
 		{
 			funcSentence(result);
 		}
@@ -908,6 +932,7 @@ void Grammar::funcSentence(Temp **temp)
 	if (word.token == IDENTTK)
 	{
 		Identifier* ident = symbol_table->findIdent(word.value.content);
+		ident = symbol_table->ret2head(ident);
 		Function* func = dynamic_cast<Function*>(ident);
 		if (func == NULL)
 		{
@@ -921,7 +946,6 @@ void Grammar::funcSentence(Temp **temp)
 			realParaTable(args);
 		}
 		*temp = new Temp();
-		//Identifier* this_func = symbol_table->findIdent(symbol_table->nodes[node_stack.top()]->name);//WRONG
 		CallCode code(ident, *temp, args);
 	}
 	else

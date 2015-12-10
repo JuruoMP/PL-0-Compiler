@@ -14,7 +14,8 @@ SymbolTable::Node::Node(char* name, bool is_proc, int level)
 	this->is_proc = is_proc;
 	this->display_size = level;
 	this->offset_cnt = 0;
-	this->last_para = this->last_const = this->last_var = 0;
+	this->last_para = this->last_const 
+		= this->last_var = this->last_temp = 0;
 }
 
 SymbolTable::SymbolTable()
@@ -80,7 +81,8 @@ bool SymbolTable::insertIdent(Identifier* ident)
 		nodes[index]->offset_cnt += 1;
 		nodes[index]->last_const = nodes[index]->offset_cnt;
 	}
-	else if (ident->type == INT || ident->type == CHAR)
+	else if (ident->type == INT || ident->type == CHAR ||
+		ident->type == RETINT || ident->type == RETCHAR)
 	{
 		Variable* var = dynamic_cast<Variable*>(ident);
 		Identifier* newvar = new Variable(*var);
@@ -143,10 +145,26 @@ Identifier* SymbolTable::findIdent(char* name)
 		for (it = nodes[tindex]->idents.begin(); it != nodes[tindex]->idents.end(); ++it)
 		{
 			Identifier* ident = *it;
+			//if (nodes[tindex]->is_proc == false && it == nodes[tindex]->idents.begin())
+				//continue;
 			if (!strcmp(ident->name, name))
 				return ident;
 		}
 		tindex = nodes[tindex]->father_index;
+	}
+	assert(0 == 1);
+	return NULL;
+}
+
+Identifier* SymbolTable::ret2head(Identifier* ret)
+{
+	int tindex = this->nodes[ret->this_node]->father_index;
+	std::vector<Identifier*>::iterator it;
+	for (it = nodes[tindex]->idents.begin(); it != nodes[tindex]->idents.end(); ++it)
+	{
+		Identifier* ident = *it;
+		if (!strcmp(ident->name, ret->name))
+			return ident;
 	}
 	assert(0 == 1);
 	return NULL;

@@ -21,6 +21,8 @@ enum TYPE
 	PROC,
 	FUNCINT,
 	FUNCCHAR,
+	RETINT,
+	RETCHAR,
 	TEMP,
 	NONE
 };
@@ -38,6 +40,31 @@ public:
 	ADDR getOffset();
 };
 //int Identifier::ident_index = 1;
+
+enum TEMPTYPE
+{
+	VALUETP,
+	TEMPTP,
+	IDENTTP
+};
+
+class Temp : public Identifier
+{
+	static int temp_cnt;
+public:
+	int id;//TEMPTP
+	TEMPTYPE temp_type;
+	int value;//VALUETP
+	Identifier* ident;//IDENTTP
+	bool has_subscript;//IDENTTP
+	Temp* subscribe;//IDENTTP
+	Temp();
+	Temp(int value);
+	Temp(Identifier* ident, bool has_subscript, Temp* subscribe);
+	Temp::Temp(const Temp &temp);
+	Temp::Temp(const Identifier &ident);
+	void print();
+};
 
 class Constance : public Identifier
 {
@@ -95,31 +122,6 @@ public:
 	void print() {}
 };
 
-enum TEMPTYPE
-{
-	VALUETP,
-	TEMPTP,
-	IDENTTP
-};
-
-class Temp : public Identifier
-{
-	static int temp_cnt;
-public:
-	int id;//TEMPTP
-	TEMPTYPE temp_type;
-	int value;//VALUETP
-	Identifier* ident;//IDENTTP
-	bool has_subscript;//IDENTTP
-	Temp* subscribe;//IDENTTP
-	Temp();
-	Temp(int value);
-	Temp(Identifier* ident, bool has_subscript, Temp* subscribe);
-	Temp::Temp(const Temp &temp);
-	Temp::Temp(const Identifier &ident);
-	void print();
-};
-
 class SymbolTable
 {
 private:
@@ -154,6 +156,7 @@ public:
 	Temp *findTemp(int id);
 	//check if a and b are at same level
 	bool sameLevel(Node &a, Node &b);
+	Identifier* ret2head(Identifier* ret);
 };//symbol_table;
 //int SymbolTable::symboltable_index = 1;
 

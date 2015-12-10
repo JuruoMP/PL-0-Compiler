@@ -11,7 +11,7 @@ extern Temp* zero;
 extern Temp* one;
 
 //#define ASMDEBUG
-#define LESSPUSHPOP
+//#define LESSPUSHPOP
 
 int Label::label_cnt = 0;
 Label::Label()
@@ -74,8 +74,8 @@ FPCode::FPCode(int nodeid, char* name)
 
 void FPCode::print()
 {
-	printf("%s\t\t", this->head);
-	printf("%d\t\t", this->nodeid);
+	printf("%s", this->head);
+	printf("(%d)\t\t", this->nodeid);
 	printf("%s\n", this->str);
 }
 
@@ -316,11 +316,9 @@ void CodeTable::Node::compile()
 {
 	Asm* asmcode;
 	std::vector<std::string> args;
-	//push	ebp
+	//push ebp
 	push("ebp");
-	asmcode = new Asm(ASMPUSH, args);
-	this->asms.push_back(asmcode);
-	//mov	ebp, esp
+	//mov ebp, esp
 	args.clear();
 	args.push_back("ebp"); args.push_back("esp");
 	asmcode = new Asm(ASMMOV, args);
@@ -341,13 +339,13 @@ void CodeTable::Node::compile()
 		sprintf_s(value, MAXLEN - 1, "%d", cons->value);
 		push(value);
 	}
-	//esp += (node->last_temp - node->last_const) * UNITSIZE;
+	//esp -= (node->last_temp - node->last_const) * UNITSIZE;
 	args.clear();
 	args.push_back("esp");
 	char value[MAXLEN];
 	sprintf_s(value, MAXLEN - 1, "%d", (node->last_temp - node->last_const) * UNITSIZE);
 	args.push_back(value);
-	asmcode = new Asm(ASMADD, args);
+	asmcode = new Asm(ASMSUB, args);
 	this->asms.push_back(asmcode);
 	for (int i = 0; i < this->codes.size(); ++i)
 	{
@@ -496,7 +494,7 @@ void CodeTable::Node::compile()
 			}
 			if (code->target->temp_type == VALUETP)
 			{
-				printf("Left value can not be constance");
+				printf("Left value can not be constance.\n");
 				assert(0 == 1);
 				//error();
 			}
@@ -574,7 +572,7 @@ void CodeTable::Node::compile()
 				}
 				else if (arg->temp_type == IDENTTP)
 				{
-					Parameter* para = this->getParaAt(i);
+					Parameter* para = code_table->nodes[callee_index]->getParaAt(i);
 					if (para)
 					{
 						if (para->real)
@@ -606,6 +604,15 @@ void CodeTable::Node::compile()
 			args.push_back(code->str);
 			asmcode = new Asm(ASMCALL, args);
 			this->asms.push_back(asmcode);
+			if (code->target)
+			{
+				getTempAddr(code->target);
+				//mov [esi], eax
+				args.clear();
+				args.push_back("[esi]"); args.push_back("eax");
+				asmcode = new Asm(ASMMOV, args);
+				this->asms.push_back(asmcode);
+			}
 		}
 		else if (basecode->kind == READKD)
 		{
@@ -622,12 +629,28 @@ void CodeTable::Node::compile()
 			assert(basecode->kind == NOPKD);
 		}
 	}
+	if(symbol_table->nodes[this->index]->is_proc == false)
+	{
+		//mov eax, [ebp + UNITSIZE]
+		args.clear();
+		args.push_back("eax");
+		char value[MAXLEN];
+		sprintf_s(value, MAXLEN - 1, "[ebp - %d]", UNITSIZE);
+		args.push_back(value);
+		asmcode = new Asm(ASMMOV, args);
+		this->asms.push_back(asmcode);
+	}
 #ifndef LESSPUSHPOP
 	//pop edi, esi, edx, ecx, ebx, eax
 	pop("edi"); pop("esi");
 	pop("edx"); pop("ecx"); pop("ebx"); pop("eax");
 #endif
-	//pop	ebp
+	//mov esp, ebp
+	args.clear();
+	args.push_back("esp"); args.push_back("ebp");
+	asmcode = new Asm(ASMMOV, args);
+	this->asms.push_back(asmcode);
+	//pop ebp
 	pop("ebp");
 	//ret
 	args.clear();
@@ -641,11 +664,11 @@ void CodeTable::Node::getTempValue(Temp *temp)
 	printf("getTempValue Start\n");
 #endif
 #ifndef LESSPUSHPOP
-	push("eax");
-	push("ebx");
-	push("ecx");
+	//push("eax");
+	//push("ebx");
+	//push("ecx");
 	push("esi");
-	push("edi");
+	//push("edi");
 #endif
 	Asm *asmcode;
 	std::vector<std::string> args;
@@ -671,11 +694,11 @@ void CodeTable::Node::getTempValue(Temp *temp)
 		this->asms.push_back(asmcode);
 	}
 #ifndef LESSPUSHPOP
-	pop("edi");
+	//pop("edi");
 	pop("esi");
-	pop("ecx");
-	pop("ebx");
-	pop("eax");
+	//pop("ecx");
+	//pop("ebx");
+	//pop("eax");
 #endif
 #ifdef ASMDEBUG
 	printf("getTempValue End\n");
@@ -688,11 +711,11 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	printf("getTempAddr Start\n");
 #endif
 #ifndef LESSPUSHPOP
-	push("eax");
-	push("ebx");
-	push("ecx");
+	//push("eax");
+	//push("ebx");
+	//push("ecx");
 	push("edx");
-	push("edi");
+	//push("edi");
 #endif
 	Asm *asmcode;
 	std::vector<std::string> args;
@@ -766,11 +789,11 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 		this->asms.push_back(asmcode);
 	}
 #ifndef LESSPUSHPOP
-	pop("edi");
+	//pop("edi");
 	pop("edx");
-	pop("ecx");
-	pop("ebx");
-	pop("eax");
+	//pop("ecx");
+	//pop("ebx");
+	//pop("eax");
 #endif
 #ifdef ASMDEBUG
 	printf("getTempAddr End\n");
