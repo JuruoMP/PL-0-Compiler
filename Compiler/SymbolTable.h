@@ -41,8 +41,8 @@ public:
 
 class Constance : public Identifier
 {
-	int value;
 public:
+	int value;
 	Constance(char* name, int value);
 	Constance(const Constance& cons);
 	void print() {}

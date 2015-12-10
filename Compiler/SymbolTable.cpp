@@ -348,6 +348,8 @@ Temp::Temp(const Temp &temp)
 	this->value = temp.value;
 	this->ident = temp.ident;
 	this->has_subscript = temp.has_subscript;
+	if (this->has_subscript)
+		this->subscribe = new Temp(*temp.subscribe);
 	this->offset = temp.offset;
 }
 

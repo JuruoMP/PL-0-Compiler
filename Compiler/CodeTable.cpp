@@ -316,9 +316,6 @@ void CodeTable::Node::compile()
 {
 	Asm* asmcode;
 	std::vector<std::string> args;
-	
-	ADDR esp_offset = 0;
-	//推入display地址，计算display区数
 	//push	ebp
 	push("ebp");
 	asmcode = new Asm(ASMPUSH, args);
@@ -328,20 +325,30 @@ void CodeTable::Node::compile()
 	args.push_back("ebp"); args.push_back("esp");
 	asmcode = new Asm(ASMMOV, args);
 	this->asms.push_back(asmcode);
-	//push	ebx
+#ifndef LESSPUSHPOP
+	//push eax, ebx, ecx, edx, esi, edi
+	push("eax"); push("ebx"); push("ecx"); push("edx");
+	push("esi"); push("edi");
+#endif
+	//push consts, vars, temps
+	int nodeid = this->index;
+	SymbolTable::Node* node = symbol_table->nodes[nodeid];
+	for (int i = 0; i < node->last_const; ++i)
+	{
+		Identifier* ident = node->idents.at(i);
+		Constance* cons = dynamic_cast<Constance*>(ident);
+		char value[MAXLEN];
+		sprintf_s(value, MAXLEN - 1, "%d", cons->value);
+		push(value);
+	}
+	//esp += (node->last_temp - node->last_const) * UNITSIZE;
 	args.clear();
-	args.push_back("ebx");
-	asmcode = new Asm(ASMPUSH, args);
-	//push	esi
-	args.clear();
-	args.push_back("esi");
-	asmcode = new Asm(ASMPUSH, args);
-	//push	edi
-	args.clear();
-	args.push_back("edi");
-	asmcode = new Asm(ASMPUSH, args);
-	//lea	edi, [ebp-??h]
-	
+	args.push_back("esp");
+	char value[MAXLEN];
+	sprintf_s(value, MAXLEN - 1, "%d", (node->last_temp - node->last_const) * UNITSIZE);
+	args.push_back(value);
+	asmcode = new Asm(ASMADD, args);
+	this->asms.push_back(asmcode);
 	for (int i = 0; i < this->codes.size(); ++i)
 	{
 		Code* basecode = this->codes.at(i);
@@ -615,36 +622,17 @@ void CodeTable::Node::compile()
 			assert(basecode->kind == NOPKD);
 		}
 	}
-	/*
-	//pop	edi  
-	args.clear();
-	args.push_back("edi");
-	asmcode = new Asm(ASMPOP, args);
-	this->asms.push_back(asmcode);
-	//pop	esi
-	args.clear();
-	args.push_back("esi");
-	asmcode = new Asm(ASMPOP, args);
-	this->asms.push_back(asmcode);
-	//pop	ebx
-	args.clear();
-	args.push_back("ebx");
-	asmcode = new Asm(ASMPOP, args);
-	this->asms.push_back(asmcode);
-	//mov	esp, ebp
-	args.clear();
-	args.push_back("ebp"); args.push_back("ebp");
-	asmcode = new Asm(ASMMOV, args);
-	this->asms.push_back(asmcode);
+#ifndef LESSPUSHPOP
+	//pop edi, esi, edx, ecx, ebx, eax
+	pop("edi"); pop("esi");
+	pop("edx"); pop("ecx"); pop("ebx"); pop("eax");
+#endif
 	//pop	ebp
-	args.clear();
-	args.push_back("ebp");
-	asmcode = new Asm(ASMPOP, args);
-	this->asms.push_back(asmcode);
+	pop("ebp");
 	//ret
+	args.clear();
 	asmcode = new Asm(ASMRET, args);
 	this->asms.push_back(asmcode);
-	*/
 }
 
 void CodeTable::Node::getTempValue(Temp *temp)
