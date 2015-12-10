@@ -11,81 +11,8 @@ var a2 : integer;
 	ans1, ans2 : integer;
 	i, j : integer;
 	n : integer;
-	
-procedure proc1;
-	var t : array[010] of char;
-		i : integer;
-		tmp : integer;
-		
-	procedure proc2(var a, b:integer; var c:char);
-		procedure proc3;
-			var tmp : char;
-			begin
-				tmp := 10;
-				write("i = ", i);
-				write(tmp);
-			end;
-		begin
-			a2 := a2 + (-b1);
-			write("char integer const var for if array of ", 01 + 10);
-			write(c1);
-			proc3;
-		end;
-	
-	begin
-		if i < (2 * 3)
-		then write("Compile error");
-	end;
-	
-procedure proc2(var a, b:integer; var c:char);
-begin
-	;
-end;
-	
-procedure proc3(a, b:integer; c:char);
-begin
-end;
-	
-function fact1(n:integer):integer;
-begin
-	if n < 0
-	then n := 0;
-	if n = 0
-	then fact1 := 1
-	else fact1 := fact1(n - 1) * n;
-	proc2(a2, inputi, inputc);
-end;
 
-function fact2(n:integer):integer;
 begin
-	proc3(a2, inputi, inputc);
-	if n <= 1
-	then n := 1;
-	fact2 := 1;
-	do
-	begin
-		fact2 := fact2 * n;
-		n := n - 1;
-	end
-	while n >= 1
-end;
-	
-function prime:integer;
-begin
-	prime := 7;
-end;
-	
-begin
-	e := a1;
-	read(inputc, inputi);
-	result := e * 4 / (e * 2) + fact1(inputi);
-	if result > 10
-	then write("result > 10");
-	iprime := prime;
-	ans1 := fact1(prime);
-	ans2 := fact2(iprime + 0);
-	if ans1 <> ans2
-	then write("Compile error");
-	proc1;
+	e := 63 + a1;
 end
 .

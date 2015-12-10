@@ -1,10 +1,12 @@
 
+int f(int n)
+{
+	return n + 1;
+}
+
 int main()
 {
 	int a = 3;
-	if (1 < a)
-		a = 1;
-	else
-		a = 2;
+	int b = f(a);
 	return 0;
 }

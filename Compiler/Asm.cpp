@@ -13,6 +13,7 @@ Asm::Asm(char* label_name)
 {
 	this->is_label = true;
 	strcpy_s(this->label_name, MAXLEN - 1, label_name);
+	this->print();
 }
 
 Asm::Asm(ASMTYPE type, std::vector<std::string> args)
@@ -21,6 +22,7 @@ Asm::Asm(ASMTYPE type, std::vector<std::string> args)
 	this->m_type = type;
 	for (int i = 0; i < args.size(); ++i)
 		this->m_args.push_back(args.at(i));
+	this->print();
 }
 
 void Asm::print()

@@ -326,9 +326,9 @@ Temp::Temp(Identifier* ident, bool has_subscript, Temp* subscribe)
 {
 	this->this_node = symbol_table->index;
 	if (zero == NULL)
-		zero = new Temp();
+		zero = new Temp(0);
 	if (one == NULL)
-		one = new Temp();
+		one = new Temp(1);
 	this->type = TEMP;
 	this->temp_type = IDENTTP;
 	this->ident = ident;

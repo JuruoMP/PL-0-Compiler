@@ -155,6 +155,8 @@ public:
 		void getTempAddr(Temp* temp);
 		void push(std::string str);
 		void pop(std::string str);
+		void printasm();
+		Parameter* getParaAt(int pos);
 	};
 	Node* nodes[MAXCNT];
 	//create a new node

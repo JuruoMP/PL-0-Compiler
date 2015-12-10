@@ -27,8 +27,15 @@ Grammar::Grammar()
 		for (int j = 0; j < code_table->nodes[i]->codes.size(); ++j)
 			code_table->nodes[i]->codes.at(j)->print();
 	}
-	for (int i = 0; i < code_table->nodecnt; ++i)
+	printf("\n\nASM CODE : \n");
+	for (int i = 1; i <= code_table->nodecnt; ++i)
+	{
+		printf("\nNODE : %d\n", i);
+		symbol_table->into(i);
+		code_table->into(i);
 		code_table->nodes[i]->compile();
+		//code_table->nodes[i]->printasm();
+	}
 }
 
 static unsigned int position = 0;
@@ -761,12 +768,12 @@ void Grammar::expression(Temp **result)
 			value = -1;
 		getSym();
 	}
-	Temp* temp1 = NULL;
-	term(&temp1);
+	Temp* temp_left = NULL;
+	term(&temp_left);
 	if (value == -1)
-		AssignCode code(SUBTK, *result, zero, temp1);
+		AssignCode code(SUBTK, temp_left, zero, temp_left);
 	else
-		AssignCode code(ADDTK, *result, zero, temp1);
+		AssignCode code(SETTK, temp_left, temp_left, temp_left);
 	while (word.token == ADDTK || word.token == SUBTK)
 	{
 		bool is_add;
@@ -775,13 +782,16 @@ void Grammar::expression(Temp **result)
 		else
 			is_add = false;
 		getSym();
-		Temp* temp2 = NULL;
-		term(&temp2);
+		Temp* temp_right = NULL;
+		term(&temp_right);
+		Temp* new_temp = new Temp();
 		if (is_add)
-			AssignCode code(ADDTK, *result, *result, temp2);
+			AssignCode code(ADDTK, new_temp, temp_left, temp_right);
 		else
-			AssignCode code(SUBTK, *result, *result, temp2);
+			AssignCode code(SUBTK, new_temp, temp_left, temp_right);
+		temp_left = new_temp;
 	}
+	AssignCode code(SETTK, *result, temp_left, temp_left);
 }
 
 void Grammar::term(Temp **result)
@@ -790,8 +800,8 @@ void Grammar::term(Temp **result)
 	std::cout << "In Term" << std::endl;
 #endif
 	*result = new Temp();
-	Temp *temp1 = NULL;
-	factor(&temp1);
+	Temp *temp_left = NULL;
+	factor(&temp_left);
 	while (word.token == MULTK || word.token == DIVTK)
 	{
 		bool is_mul;
@@ -800,13 +810,16 @@ void Grammar::term(Temp **result)
 		else
 			is_mul = false;
 		getSym();
-		Temp* temp2 = NULL;
-		factor(&temp2);
+		Temp* temp_right = NULL;
+		factor(&temp_right);
+		Temp* new_temp = new Temp();
 		if (is_mul)
-			AssignCode code(MULTK, *result, *result, temp2);
+			AssignCode code(MULTK, new_temp, temp_left, temp_right);
 		else
-			AssignCode code(DIVTK, *result, *result, temp2);
+			AssignCode code(DIVTK, new_temp, temp_left, temp_right);
+		temp_left = new_temp;
 	}
+	AssignCode code(SETTK, *result, temp_left, temp_left);
 }
 
 void Grammar::factor(Temp **result)
@@ -821,12 +834,7 @@ void Grammar::factor(Temp **result)
 		{
 			error(IDENTNOTDEFINED);
 		}
-		else if (ident->type == CONST)
-		{
-			*result = new Temp(ident, false, NULL);
-			getSym();
-		}
-		else if (ident->type == INT || ident->type == CHAR)
+		else if (ident->type == CONST || ident->type == INT || ident->type == CHAR)
 		{
 			*result = new Temp(ident, false, NULL);
 			getSym();

@@ -10,6 +10,9 @@ extern std::stack<int> node_stack;
 extern Temp* zero;
 extern Temp* one;
 
+//#define ASMDEBUG
+#define LESSPUSHPOP
+
 int Label::label_cnt = 0;
 Label::Label()
 {
@@ -105,7 +108,9 @@ void AssignCode::print()
 	printf("%s\t\t", token_name[this->op]);
 	this->target->print(); printf("\t\t");
 	this->num1->print(); printf("\t\t");
-	this->num2->print(); printf("\n");
+	if (this->op != SETTK)
+		this->num2->print();
+	printf("\n");
 }
 
 CallCode::CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args)
@@ -309,13 +314,13 @@ CodeTable::Node::Node()
 
 void CodeTable::Node::compile()
 {
-	ADDR esp_offset = 0;
-	//推入display地址，计算display区数
 	Asm* asmcode;
 	std::vector<std::string> args;
+	
+	ADDR esp_offset = 0;
+	//推入display地址，计算display区数
 	//push	ebp
-	args.clear();
-	args.push_back("ebp");
+	push("ebp");
 	asmcode = new Asm(ASMPUSH, args);
 	this->asms.push_back(asmcode);
 	//mov	ebp, esp
@@ -336,6 +341,7 @@ void CodeTable::Node::compile()
 	args.push_back("edi");
 	asmcode = new Asm(ASMPUSH, args);
 	//lea	edi, [ebp-??h]
+	
 	for (int i = 0; i < this->codes.size(); ++i)
 	{
 		Code* basecode = this->codes.at(i);
@@ -430,59 +436,61 @@ void CodeTable::Node::compile()
 			args.push_back("eax"); args.push_back("edx");
 			asmcode = new Asm(ASMMOV, args);
 			this->asms.push_back(asmcode);
-			/*
-			1.Generate code to load value of code->num2 to edx
-			2.MOV ebx edx
-			*/
-			getTempValue(code->num2);
-			args.clear();
-			args.push_back("ebx"); args.push_back("edx");
-			asmcode = new Asm(ASMMOV, args);
-			this->asms.push_back(asmcode);
-			/*
-			calculate value of assignment and save it to eax
-			*/
-			switch (code->op)
+			if (code->op != SETTK)
 			{
-			case SETTK:
-				//mov eax, eax
-				break;
-			case ADDTK:
-				//add eax, ebx
+				/*
+				1.Generate code to load value of code->num2 to edx
+				2.MOV ebx edx
+				*/
+				getTempValue(code->num2);
 				args.clear();
-				args.push_back("eax"); args.push_back("ebx");
-				asmcode = new Asm(ASMADD, args);
+				args.push_back("ebx"); args.push_back("edx");
+				asmcode = new Asm(ASMMOV, args);
 				this->asms.push_back(asmcode);
-				break;
-			case SUBTK:
-				//sub eax, ebx
-				args.clear();
-				args.push_back("eax"); args.push_back("ebx");
-				asmcode = new Asm(ASMSUB, args);
-				this->asms.push_back(asmcode);
-				break;
-			case MULTK:
-				//imul ebx	<-edx.eax *= ebx
-				args.clear();
-				args.push_back("ebp");
-				asmcode = new Asm(ASMMUL, args);
-				this->asms.push_back(asmcode);
-				break;
-			case DIVTK:
-				//sub edx, edx
-				//idiv ebx	<-edx.eax/ebx, eax商 edx余数
-				args.clear();
-				args.push_back("edx"); args.push_back("edx");
-				asmcode = new Asm(ASMSUB, args);
-				this->asms.push_back(asmcode);
-				args.clear();
-				args.push_back("ebx");
-				asmcode = new Asm(ASMDIV, args);
-				this->asms.push_back(asmcode);
-				break;
+				/*
+				calculate value of assignment and save it to eax
+				*/
+				switch (code->op)
+				{
+				case ADDTK:
+					//add eax, ebx
+					args.clear();
+					args.push_back("eax"); args.push_back("ebx");
+					asmcode = new Asm(ASMADD, args);
+					this->asms.push_back(asmcode);
+					break;
+				case SUBTK:
+					//sub eax, ebx
+					args.clear();
+					args.push_back("eax"); args.push_back("ebx");
+					asmcode = new Asm(ASMSUB, args);
+					this->asms.push_back(asmcode);
+					break;
+				case MULTK:
+					//imul ebx	<-edx.eax *= ebx
+					args.clear();
+					args.push_back("ebp");
+					asmcode = new Asm(ASMMUL, args);
+					this->asms.push_back(asmcode);
+					break;
+				case DIVTK:
+					//sub edx, edx
+					//idiv ebx	<-edx.eax/ebx, eax商 edx余数
+					args.clear();
+					args.push_back("edx"); args.push_back("edx");
+					asmcode = new Asm(ASMSUB, args);
+					this->asms.push_back(asmcode);
+					args.clear();
+					args.push_back("ebx");
+					asmcode = new Asm(ASMDIV, args);
+					this->asms.push_back(asmcode);
+					break;
+				}
 			}
 			if (code->target->temp_type == VALUETP)
 			{
+				printf("Left value can not be constance");
+				assert(0 == 1);
 				//error();
 			}
 			else
@@ -500,20 +508,97 @@ void CodeTable::Node::compile()
 		}
 		else if (basecode->kind == CALLKD)
 		{
-			//
-			//A->B 推入A的display区给B
-			//如果A比B等级高，再推入A作为B的display区
+			/*
+			A -> B
+			Push display address(prev ebps)
+			Notice : 
+			if A and B are the same level(A.father == B.father), 
+			then B.display = A.display
+			*/
 			CallCode* code = dynamic_cast<CallCode*>(basecode);
-			std::vector<std::string> args;
-			//逆向push参数
+			int caller_index = this->index;
+			int callee_index = code->ident->this_node;
+			//Calculate display_base of caller and count of displays should be copied
+			ADDR display_offset = UNITSIZE * (2 + symbol_table->nodes[caller_index]->last_para);
+			int display_cnt = 0, tmp = callee_index;
+			while (tmp > 1)
+			{
+				display_cnt++;
+				tmp = symbol_table->nodes[tmp]->father_index;
+			}
+			//push reversed displays to stack
+			//display_base = $ebp + display_offset
+			//$esi = $ebp + display_offset
+			//mov esi, ebp
+			//add esi, display_offset
+			args.clear();
+			args.push_back("esi"); args.push_back("ebp");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
+			args.clear();
+			args.push_back("esi");
+			char value[MAXLEN];
+			sprintf_s(value, MAXLEN - 1, "%d", display_offset);
+			args.push_back(value);
+			asmcode = new Asm(ASMADD, args);
+			//push [display_base($esi) + i * UNITSIZE]
+			for (int i = display_cnt - 1; i >= 0; --i)
+			{
+				args.clear();
+				sprintf_s(value, MAXLEN - 1, "[esi + %d]", i * UNITSIZE);
+				args.push_back(value);
+				asmcode = new Asm(ASMPUSH, args);
+				this->asms.push_back(asmcode);
+			}
+			//push reversed parameters to stack
+			for (int i = code->args.size() - 1; i >= 0; --i)
+			{
+				args.clear();
+				Temp* arg = code->args.at(i);
+				if (arg->temp_type == VALUETP)
+				{
+					sprintf_s(value, MAXLEN - 1, "%d", arg->value);
+					args.push_back(value);
+				}
+				else if (arg->temp_type == TEMPTP)
+				{
+					getTempValue(arg);
+					args.push_back("edx");
+				}
+				else if (arg->temp_type == IDENTTP)
+				{
+					Parameter* para = this->getParaAt(i);
+					if (para)
+					{
+						if (para->real)
+						{
+							getTempAddr(arg);
+							args.push_back("esi");
+						}
+						else
+						{
+							getTempValue(arg);
+							args.push_back("edx");
+						}
+					}
+					else
+					{
+						//error();
+						assert(0 == 1);
+					}
+				}
+				else
+				{
+					assert(0 == 1);
+				}
+				asmcode = new Asm(ASMPUSH, args);
+				this->asms.push_back(asmcode);
+			}
 			//call函数
-			//push ebp
-			//局部变量申请空间
-			//释放局部空间
-			//pop ebp
-			//ret n <- 参数占用的空间
-			//code->
-			Asm* callcode = new Asm(ASMCALL, args);
+			args.clear();
+			args.push_back(code->str);
+			asmcode = new Asm(ASMCALL, args);
+			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == READKD)
 		{
@@ -530,6 +615,7 @@ void CodeTable::Node::compile()
 			assert(basecode->kind == NOPKD);
 		}
 	}
+	/*
 	//pop	edi  
 	args.clear();
 	args.push_back("edi");
@@ -558,15 +644,21 @@ void CodeTable::Node::compile()
 	//ret
 	asmcode = new Asm(ASMRET, args);
 	this->asms.push_back(asmcode);
+	*/
 }
 
 void CodeTable::Node::getTempValue(Temp *temp)
 {
+#ifdef ASMDEBUG
+	printf("getTempValue Start\n");
+#endif
+#ifndef LESSPUSHPOP
 	push("eax");
 	push("ebx");
 	push("ecx");
 	push("esi");
 	push("edi");
+#endif
 	Asm *asmcode;
 	std::vector<std::string> args;
 	if (temp->temp_type == VALUETP)
@@ -590,24 +682,34 @@ void CodeTable::Node::getTempValue(Temp *temp)
 		asmcode = new Asm(ASMMOV, args);
 		this->asms.push_back(asmcode);
 	}
-	pop("eax");
-	pop("ebx");
-	pop("ecx");
-	pop("esi");
+#ifndef LESSPUSHPOP
 	pop("edi");
+	pop("esi");
+	pop("ecx");
+	pop("ebx");
+	pop("eax");
+#endif
+#ifdef ASMDEBUG
+	printf("getTempValue End\n");
+#endif
 }
 
 void CodeTable::Node::getTempAddr(Temp *temp)
 {
+#ifdef ASMDEBUG
+	printf("getTempAddr Start\n");
+#endif
+#ifndef LESSPUSHPOP
 	push("eax");
 	push("ebx");
 	push("ecx");
 	push("edx");
 	push("edi");
+#endif
 	Asm *asmcode;
 	std::vector<std::string> args;
 	Identifier* ident;
-	int display_offset = 0, ident_base_offset = 0, subscribe_offset = 0;
+	ADDR display_offset = 0, ident_base_offset = 0, subscribe_offset = 0;
 	if (temp->temp_type == IDENTTP)
 		ident = temp->ident;
 	else
@@ -675,11 +777,16 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 		asmcode = new Asm(ASMADD, args);
 		this->asms.push_back(asmcode);
 	}
-	pop("eax");
-	pop("ebx");
-	pop("ecx");
-	pop("edx");
+#ifndef LESSPUSHPOP
 	pop("edi");
+	pop("edx");
+	pop("ecx");
+	pop("ebx");
+	pop("eax");
+#endif
+#ifdef ASMDEBUG
+	printf("getTempAddr End\n");
+#endif
 }
 
 void CodeTable::Node::push(std::string str)
@@ -696,6 +803,20 @@ void CodeTable::Node::pop(std::string str)
 	args.push_back(str);
 	Asm* asmcode = new Asm(ASMPOP, args);
 	this->asms.push_back(asmcode);
+}
+
+void CodeTable::Node::printasm()
+{
+	for (int i = 0; i < this->asms.size(); ++i)
+		this->asms.at(i)->print();
+}
+
+Parameter* CodeTable::Node::getParaAt(int pos)
+{
+	int nodeid = this->index;
+	Identifier* ident = symbol_table->nodes[nodeid]->idents.at(pos);
+	Parameter* para = dynamic_cast<Parameter*>(ident);
+	return para;
 }
 
 CodeTable* CodeTable::codetable = NULL;

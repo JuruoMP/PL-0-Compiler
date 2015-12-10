@@ -2,14 +2,13 @@
 #define SYMBOLTABLE_H
 
 #include <vector>
-#include <map>
 #include <string>
 #include <stack>
 #include "Symbol.h"
 #include "Memory.h"
 
 #define MAXCNT 1024
-#define UNITSIZE 4
+#define UNITSIZE 1
 
 enum TYPE
 {
