@@ -1,26 +1,13 @@
 const a1 = 010, b1 = -5, c1 = +1, d = 'z';
 
-var a2 : integer;
-    b2, c2 : char;
-	e : char;
-	arr : array[10] of integer;
-	inputc : char;
-	inputi : integer;
-	result : integer;
-	iprime : integer;
-	ans1, ans2 : integer;
-	i, j : integer;
-	n : integer;
+var arr : array[10] of integer;
 
-function fact1(n:integer):integer;
+procedure proc;
 begin
-	if n < 0
-	then n := 0;
-	if n = 0
-	then fact1 := 1
-	else fact1 := fact1(n - 1) * n;
+	arr[1] := 2;
 end;
 
 begin
+	proc;
 end
 .

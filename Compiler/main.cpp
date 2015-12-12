@@ -36,17 +36,12 @@ void Init()
 
 int main()
 {
-	//freopen("code.asm", "w", stdout);
+	freopen("code.asm", "w", stdout);
 	Init();
 	Symbol symbol("test.txt");
-	//extern Memory* memory;
 	symbol_table = symbol_table->getInstance();
 	symbol.mgetsym();
-	/*
-	for (int i = 0; i < word_list.size(); ++i)
-		word_list[i].print();
-	*/
 	Grammar grammar;
-	system("pause");
+	//system("pause");
 	return 0;
 }

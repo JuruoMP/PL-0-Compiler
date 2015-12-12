@@ -167,6 +167,8 @@ public:
 	void back();
 	//push code on current node, return true if succeed, false otherwise
 	bool insertCode(Code* code);
+	void Init();
+	void End();
 };
 
 extern CodeTable* code_table;

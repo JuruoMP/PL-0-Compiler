@@ -28,14 +28,23 @@ Grammar::Grammar()
 			code_table->nodes[i]->codes.at(j)->print();
 	}
 	printf("\n\nASM CODE : \n");
+	code_table->Init();
 	for (int i = 1; i <= code_table->nodecnt; ++i)
 	{
-		printf("\nNODE : %d\n", i);
 		symbol_table->into(i);
 		code_table->into(i);
 		code_table->nodes[i]->compile();
-		//code_table->nodes[i]->printasm();
 	}
+	code_table->End();
+	for (int i = 1; i <= code_table->nodecnt; ++i)
+	{
+		printf("\n");
+		printf("\nNODE : %d\n", i);
+		//"fp_%s_%d", this->name, this->nodeid
+		code_table->nodes[i]->printasm();
+		printf("\n");
+	}
+	printf("ENDPOINT :\n");
 }
 
 static unsigned int position = 0;
@@ -886,7 +895,8 @@ void Grammar::factor(Temp **result)
 			}
 			*result = new Temp(ident, true, offset);
 		}
-		else if (ident->type == RETINT || ident->type == RETCHAR)
+		else if (ident->type == RETINT || ident->type == RETCHAR ||
+			ident->type == FUNCINT || ident->type == RETCHAR)
 		{
 			funcSentence(result);
 		}
@@ -932,7 +942,8 @@ void Grammar::funcSentence(Temp **temp)
 	if (word.token == IDENTTK)
 	{
 		Identifier* ident = symbol_table->findIdent(word.value.content);
-		ident = symbol_table->ret2head(ident);
+		if (ident->type != FUNCINT && ident->type != FUNCCHAR)
+			ident = symbol_table->ret2head(ident);
 		Function* func = dynamic_cast<Function*>(ident);
 		if (func == NULL)
 		{

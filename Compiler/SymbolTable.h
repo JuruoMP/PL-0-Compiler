@@ -8,7 +8,7 @@
 #include "Memory.h"
 
 #define MAXCNT 1024
-#define UNITSIZE 1
+#define UNITSIZE 4
 
 enum TYPE
 {

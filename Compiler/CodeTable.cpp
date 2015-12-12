@@ -155,7 +155,7 @@ NopCode::NopCode()
 
 void NopCode::print()
 {
-	printf("Nop\n");
+	printf(";Nop\n");
 }
 
 WriteCode::WriteCode(char* content)
@@ -316,37 +316,6 @@ void CodeTable::Node::compile()
 {
 	Asm* asmcode;
 	std::vector<std::string> args;
-	//push ebp
-	push("ebp");
-	//mov ebp, esp
-	args.clear();
-	args.push_back("ebp"); args.push_back("esp");
-	asmcode = new Asm(ASMMOV, args);
-	this->asms.push_back(asmcode);
-#ifndef LESSPUSHPOP
-	//push eax, ebx, ecx, edx, esi, edi
-	push("eax"); push("ebx"); push("ecx"); push("edx");
-	push("esi"); push("edi");
-#endif
-	//push consts, vars, temps
-	int nodeid = this->index;
-	SymbolTable::Node* node = symbol_table->nodes[nodeid];
-	for (int i = 0; i < node->last_const; ++i)
-	{
-		Identifier* ident = node->idents.at(i);
-		Constance* cons = dynamic_cast<Constance*>(ident);
-		char value[MAXLEN];
-		sprintf_s(value, MAXLEN - 1, "%d", cons->value);
-		push(value);
-	}
-	//esp -= (node->last_temp - node->last_const) * UNITSIZE;
-	args.clear();
-	args.push_back("esp");
-	char value[MAXLEN];
-	sprintf_s(value, MAXLEN - 1, "%d", (node->last_temp - node->last_const) * UNITSIZE);
-	args.push_back(value);
-	asmcode = new Asm(ASMSUB, args);
-	this->asms.push_back(asmcode);
 	for (int i = 0; i < this->codes.size(); ++i)
 	{
 		Code* basecode = this->codes.at(i);
@@ -415,11 +384,45 @@ void CodeTable::Node::compile()
 			sprintf_s(name, MAXLEN - 1, "Label%d", code->label->id);
 			args.push_back(name);
 			asmcode = new Asm(ASMJMP, args);
+			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == FPKD)
 		{
 			FPCode* code = dynamic_cast<FPCode*>(basecode);
 			Asm* asmcode = new Asm(code->str);//"fp_%s_%d", this->name, this->nodeid
+			this->asms.push_back(asmcode);
+			//push ebp
+			push("ebp");
+			//mov ebp, esp
+			args.clear();
+			args.push_back("ebp"); args.push_back("esp");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
+#ifndef LESSPUSHPOP
+			//push eax, ebx, ecx, edx, esi, edi
+			if (symbol_table->nodes[this->index]->is_proc)
+				push("eax");
+			push("ebx"); push("ecx"); push("edx");
+			push("esi"); push("edi");
+#endif
+			//push consts, vars, temps
+			int nodeid = this->index;
+			SymbolTable::Node* node = symbol_table->nodes[nodeid];
+			for (int i = 0; i < node->last_const; ++i)
+			{
+				Identifier* ident = node->idents.at(i);
+				Constance* cons = dynamic_cast<Constance*>(ident);
+				char value[MAXLEN];
+				sprintf_s(value, MAXLEN - 1, "%d", cons->value);
+				push(value);
+			}
+			//esp -= (node->last_temp - node->last_const) * UNITSIZE;
+			args.clear();
+			args.push_back("esp");
+			char value[MAXLEN];
+			sprintf_s(value, MAXLEN - 1, "%d", (node->last_temp - node->last_const) * UNITSIZE);
+			args.push_back(value);
+			asmcode = new Asm(ASMSUB, args);
 			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == LABELKD)
@@ -427,7 +430,8 @@ void CodeTable::Node::compile()
 			LabelCode* code = dynamic_cast<LabelCode*>(basecode);
 			char name[MAXLEN];
 			sprintf_s(name, MAXLEN - 1, "Label%d", code->label->id);
-			Asm* asmcode = new Asm(name);
+			asmcode = new Asm(name);
+			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == ASSIGNKD)
 		{
@@ -474,7 +478,8 @@ void CodeTable::Node::compile()
 				case MULTK:
 					//imul ebx	<-edx.eax *= ebx
 					args.clear();
-					args.push_back("ebp");
+					args.push_back("eax");
+					args.push_back("ebx");
 					asmcode = new Asm(ASMMUL, args);
 					this->asms.push_back(asmcode);
 					break;
@@ -513,22 +518,25 @@ void CodeTable::Node::compile()
 		}
 		else if (basecode->kind == CALLKD)
 		{
-			/*
-			A -> B
-			Push display address(prev ebps)
-			Notice : 
-			if A and B are the same level(A.father == B.father), 
-			then B.display = A.display
-			*/
 			CallCode* code = dynamic_cast<CallCode*>(basecode);
 			int caller_index = this->index;
-			int callee_index = code->ident->this_node;
+			int callee_index;
+			if (code->ident->type == PROC)
+				callee_index = dynamic_cast<Procedure*>(code->ident)->nodeid;
+			else
+				callee_index = dynamic_cast<Function*>(code->ident)->nodeid;
 			//Calculate display_base of caller and count of displays should be copied
-			ADDR display_offset = UNITSIZE * (2 + symbol_table->nodes[caller_index]->last_para);
-			int display_cnt = 0, tmp = callee_index;
+			int callee_display_cnt = 0, caller_display_cnt = 0;
+			int tmp = callee_index;
 			while (tmp > 1)
 			{
-				display_cnt++;
+				callee_display_cnt++;
+				tmp = symbol_table->nodes[tmp]->father_index;
+			}
+			tmp = caller_index;
+			while (tmp > 1)
+			{
+				caller_display_cnt++;
 				tmp = symbol_table->nodes[tmp]->father_index;
 			}
 			//push reversed displays to stack
@@ -542,33 +550,65 @@ void CodeTable::Node::compile()
 			this->asms.push_back(asmcode);
 			args.clear();
 			args.push_back("esi");
+			ADDR display_offset = UNITSIZE * (2 + symbol_table->nodes[callee_index]->last_para + caller_display_cnt);
 			char value[MAXLEN];
 			sprintf_s(value, MAXLEN - 1, "%d", display_offset);
 			args.push_back(value);
 			asmcode = new Asm(ASMADD, args);
+			this->asms.push_back(asmcode);
 			//push [display_base($esi) + i * UNITSIZE]
-			for (int i = display_cnt - 1; i >= 0; --i)
+			/*
+			|consts		|
+			|___________|
+			|prev ebp	|
+			|ret addr	|
+			|paras		|
+			|display2	|
+			|display1	|_____display_offset
+			|...		|
+			*/
+			if (caller_display_cnt < callee_display_cnt)
 			{
-				args.clear();
-				sprintf_s(value, MAXLEN - 1, "[esi + %d]", i * UNITSIZE);
-				args.push_back(value);
-				asmcode = new Asm(ASMPUSH, args);
-				this->asms.push_back(asmcode);
+				//case of calling sub function
+				for (int i = 1; i <= caller_display_cnt; ++i)
+				{
+					args.clear();
+					sprintf_s(value, MAXLEN - 1, "[esi - %d]", i * UNITSIZE);
+					args.push_back(value);
+					asmcode = new Asm(ASMPUSH, args);
+					this->asms.push_back(asmcode);
+				}
+				//the last display is the ebp of caller
+				this->asms.push_back(new Asm(ASMMARK, args));
+				push("ebp");
+			}
+			else
+			{
+				//case of calling function of the same level or higher level
+				for (int i = 1; i <= callee_display_cnt; ++i)
+				{
+					args.clear();
+					sprintf_s(value, MAXLEN - 1, "[esi - %d]", i * UNITSIZE);
+					args.push_back(value);
+					asmcode = new Asm(ASMPUSH, args);
+					this->asms.push_back(asmcode);
+				}
 			}
 			//push reversed parameters to stack
 			for (int i = code->args.size() - 1; i >= 0; --i)
 			{
+				//TODO : 判断参数类型
 				args.clear();
 				Temp* arg = code->args.at(i);
 				if (arg->temp_type == VALUETP)
 				{
 					sprintf_s(value, MAXLEN - 1, "%d", arg->value);
-					args.push_back(value);
+					push(value);
 				}
 				else if (arg->temp_type == TEMPTP)
 				{
 					getTempValue(arg);
-					args.push_back("edx");
+					push("edx");
 				}
 				else if (arg->temp_type == IDENTTP)
 				{
@@ -578,12 +618,12 @@ void CodeTable::Node::compile()
 						if (para->real)
 						{
 							getTempAddr(arg);
-							args.push_back("esi");
+							push("esi");
 						}
 						else
 						{
 							getTempValue(arg);
-							args.push_back("edx");
+							push("edx");
 						}
 					}
 					else
@@ -596,8 +636,6 @@ void CodeTable::Node::compile()
 				{
 					assert(0 == 1);
 				}
-				asmcode = new Asm(ASMPUSH, args);
-				this->asms.push_back(asmcode);
 			}
 			//call函数
 			args.clear();
@@ -613,6 +651,12 @@ void CodeTable::Node::compile()
 				asmcode = new Asm(ASMMOV, args);
 				this->asms.push_back(asmcode);
 			}
+			args.clear();
+			args.push_back("esp");
+			sprintf_s(value, MAXLEN - 1, "%d", UNITSIZE * (callee_display_cnt + code->args.size()));
+			args.push_back(value);
+			asmcode = new Asm(ASMADD, args);
+			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == READKD)
 		{
@@ -643,7 +687,9 @@ void CodeTable::Node::compile()
 #ifndef LESSPUSHPOP
 	//pop edi, esi, edx, ecx, ebx, eax
 	pop("edi"); pop("esi");
-	pop("edx"); pop("ecx"); pop("ebx"); pop("eax");
+	pop("edx"); pop("ecx"); pop("ebx");
+	if (symbol_table->nodes[this->index]->is_proc)
+		pop("eax");
 #endif
 	//mov esp, ebp
 	args.clear();
@@ -661,7 +707,7 @@ void CodeTable::Node::compile()
 void CodeTable::Node::getTempValue(Temp *temp)
 {
 #ifdef ASMDEBUG
-	printf("getTempValue Start\n");
+	printf(";getTempValue Start\n");
 #endif
 #ifndef LESSPUSHPOP
 	//push("eax");
@@ -675,7 +721,7 @@ void CodeTable::Node::getTempValue(Temp *temp)
 	if (temp->temp_type == VALUETP)
 	{
 		args.clear();
-		//mov eax, value
+		//mov edx, value
 		char value[MAXLEN];
 		args.push_back("edx");
 		sprintf_s(value, MAXLEN - 1, "%d", temp->value);
@@ -701,14 +747,14 @@ void CodeTable::Node::getTempValue(Temp *temp)
 	//pop("eax");
 #endif
 #ifdef ASMDEBUG
-	printf("getTempValue End\n");
+	printf(";getTempValue End\n");
 #endif
 }
 
 void CodeTable::Node::getTempAddr(Temp *temp)
 {
 #ifdef ASMDEBUG
-	printf("getTempAddr Start\n");
+	printf(";getTempAddr Start\n");
 #endif
 #ifndef LESSPUSHPOP
 	//push("eax");
@@ -751,7 +797,7 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	}
 	else
 	{
-		display_offset = UNITSIZE * (2 + symbol_table->nodes[ident->this_node]->last_para + display_id);
+		display_offset = UNITSIZE * (2 + symbol_table->nodes[temp->this_node]->last_para + display_id - 1);
 		ident_base_offset = ident->getOffset();
 		//mov esi, ebp
 		//add esi, display_offset
@@ -768,6 +814,7 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 		args.push_back(value);
 		asmcode = new Asm(ASMADD, args);
 		this->asms.push_back(asmcode);
+		this->asms.push_back(new Asm(ASMMARK, args));
 		args.clear();
 		args.push_back("esi"); args.push_back("[esi]");
 		asmcode = new Asm(ASMMOV, args);
@@ -781,6 +828,11 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	if (temp->has_subscript)//only IDENTTP
 	{
 		getTempValue(temp->subscribe);
+		//imul edx, 4
+		args.clear();
+		args.push_back("edx"); args.push_back("4");
+		asmcode = new Asm(ASMMUL, args);
+		this->asms.push_back(asmcode);
 		//add esi, edx
 		args.clear();
 		args.push_back("esi");
@@ -796,8 +848,39 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	//pop("eax");
 #endif
 #ifdef ASMDEBUG
-	printf("getTempAddr End\n");
+	printf(";getTempAddr End\n");
 #endif
+}
+
+void CodeTable::Init()
+{
+	Asm* asmcode;
+	std::vector<std::string> args;
+	//push ebp
+	this->nodes[1]->push("ebp");
+	//mov ebp, esp
+	args.clear();
+	args.push_back("ebp"); args.push_back("esp");
+	asmcode = new Asm(ASMMOV, args);
+	this->nodes[1]->asms.push_back(asmcode);
+#ifndef LESSPUSHPOP
+	//push eax, ebx, ecx, edx, esi, edi
+	this->nodes[1]->push("eax");
+	this->nodes[1]->push("ebx");
+	this->nodes[1]->push("ecx");
+	this->nodes[1]->push("edx");
+	this->nodes[1]->push("esi");
+	this->nodes[1]->push("edi");
+#endif
+}
+
+void CodeTable::End()
+{
+	std::vector<std::string> args;
+	this->nodes[1]->asms.pop_back();
+	args.clear();
+	args.push_back("ENDPOINT");
+	this->nodes[1]->asms.push_back(new Asm(ASMJMP, args));
 }
 
 void CodeTable::Node::push(std::string str)

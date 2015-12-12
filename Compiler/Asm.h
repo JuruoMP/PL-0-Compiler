@@ -51,6 +51,8 @@ enum ASMTYPE
 	ASMJNL,//jump not less
 	ASMJG,//jump greater
 	ASMJNG,//jump not greater
+
+	ASMMARK
 	
 };
 
