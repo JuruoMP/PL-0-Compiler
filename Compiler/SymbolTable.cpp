@@ -284,8 +284,23 @@ Parameter::Parameter(const Parameter& para)
 	this->offset = para.offset;
 }
 
+Callable::Callable(char* name, TYPE type)
+: Identifier(name, type) {}
+
+Parameter* Callable::getParaAt(int pos)
+{
+	int nodeid = this->nodeid;
+	if (this->type == FUNCINT || this->type == FUNCCHAR)
+		pos++;
+	if (symbol_table->nodes[nodeid]->idents.size() <= pos)
+		return NULL;
+	Identifier* ident = symbol_table->nodes[nodeid]->idents.at(pos);
+	Parameter* para = dynamic_cast<Parameter*>(ident);
+	return para;
+}
+
 Procedure::Procedure(char* name, int nodeid) 
-: Identifier(name, PROC)
+: Callable(name, PROC)
 {
 	this->nodeid = nodeid;
 	symbol_table->insertIdent(this);
@@ -301,7 +316,7 @@ Procedure::Procedure(const Procedure& proc)
 }
 
 Function::Function(char* name, TYPE type, int nodeid) 
-: Identifier(name, type)
+: Callable(name, type)
 {
 	this->nodeid = nodeid;
 	symbol_table->insertIdent(this);
@@ -338,6 +353,7 @@ Temp::Temp(int value)
 	this->value = value;
 	this->has_subscript = false;
 	temp_cnt++;
+	//symbol_table->insertIdent(this);
 }
 
 Temp::Temp(Identifier* ident, bool has_subscript, Temp* subscribe)
@@ -348,13 +364,29 @@ Temp::Temp(Identifier* ident, bool has_subscript, Temp* subscribe)
 	if (one == NULL)
 		one = new Temp(1);
 	this->type = TEMP;
-	this->temp_type = IDENTTP;
+	if (ident->type == INT || ident->type == CHAR ||
+		ident->type == INTARRAY || ident->type == CHARARRAY)
+		this->temp_type = VARTP;
+	else if (ident->type == CONST)
+		this->temp_type = CONSTTP;
+	else if (ident->type == PARA)
+	{
+		Parameter* para = dynamic_cast<Parameter*>(ident);
+		if (para->real)
+			this->temp_type = REALPARA;
+		else
+			this->temp_type = FORMPARA;
+	}
+	else
+		//TODO : change this to readable
+		this->temp_type = VARTP;
 	this->ident = ident;
 	this->has_subscript = has_subscript;
 	if (this->has_subscript)
 		this->subscribe = new Temp(*subscribe);
 	this->offset = 0;
 }
+
 
 Temp::Temp(const Temp &temp)
 {
@@ -375,8 +407,16 @@ void Temp::print()
 {
 	if (this == NULL)
 		printf("NULL");
-	else if (this->temp_type == IDENTTP)
+	else if (this->temp_type == CONSTTP || this->temp_type == VARTP)
+	{
 		printf("%s", this->ident->name);
+		if (this->has_subscript)
+		{
+			printf("[");
+			this->subscribe->print();
+			printf("]");
+		}
+	}
 	else if (this->temp_type == TEMPTP)
 		printf("Temp%d", this->id);
 	else

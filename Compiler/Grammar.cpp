@@ -27,6 +27,7 @@ Grammar::Grammar()
 		for (int j = 0; j < code_table->nodes[i]->codes.size(); ++j)
 			code_table->nodes[i]->codes.at(j)->print();
 	}
+	
 	printf("\n\nASM CODE : \n");
 	code_table->Init();
 	for (int i = 1; i <= code_table->nodecnt; ++i)
@@ -45,6 +46,7 @@ Grammar::Grammar()
 		printf("\n");
 	}
 	printf("ENDPOINT :\n");
+	
 }
 
 static unsigned int position = 0;
@@ -778,7 +780,6 @@ void Grammar::expression(Temp **result)
 #ifdef GrammarDebug
 	std::cout << "In Expression" << std::endl;
 #endif
-	//*result = new Temp();
 	int value = 1;
 	if (word.token == ADDTK || word.token == SUBTK)
 	{
@@ -789,14 +790,16 @@ void Grammar::expression(Temp **result)
 	Temp* temp_left = NULL;
 	term(&temp_left);
 	Temp * new_temp;
-	if (temp_left->temp_type == IDENTTP || temp_left->temp_type == VALUETP)
-		new_temp = new Temp();
+	if (value == -1)
+	{
+		if (temp_left->temp_type == TEMPTP)
+			new_temp = temp_left;
+		else
+			new_temp = new Temp();
+		AssignCode code(SUBTK, new_temp, zero, temp_left);
+	}
 	else
 		new_temp = temp_left;
-	if (value == -1)
-		AssignCode code(SUBTK, new_temp, zero, temp_left);
-	else
-		AssignCode code(SETTK, new_temp, temp_left, temp_left);
 	temp_left = new_temp;
 	while (word.token == ADDTK || word.token == SUBTK)
 	{
@@ -808,10 +811,12 @@ void Grammar::expression(Temp **result)
 		getSym();
 		Temp* temp_right = NULL;
 		term(&temp_right);
-		if (temp_left->temp_type == IDENTTP || temp_left->temp_type == VALUETP)
-			new_temp = new Temp();
-		else
+		if (temp_left->temp_type == TEMPTP)
 			new_temp = temp_left;
+		else if (temp_right->temp_type == TEMPTP)
+			new_temp = temp_right;
+		else
+			new_temp = new Temp();
 		if (is_add)
 			AssignCode code(ADDTK, new_temp, temp_left, temp_right);
 		else
@@ -841,10 +846,12 @@ void Grammar::term(Temp **result)
 		Temp* temp_right = NULL;
 		factor(&temp_right);
 		Temp* new_temp;
-		if (temp_left->temp_type == IDENTTP || temp_left->temp_type == VALUETP)
-			new_temp = new Temp();
-		else
+		if (temp_left->temp_type == TEMPTP)
 			new_temp = temp_left;
+		else if (temp_right->temp_type == TEMPTP)
+			new_temp = temp_right;
+		else
+			new_temp = new Temp();
 		if (is_mul)
 			AssignCode code(MULTK, new_temp, temp_left, temp_right);
 		else
@@ -957,7 +964,7 @@ void Grammar::funcSentence(Temp **temp)
 			realParaTable(args);
 		}
 		*temp = new Temp();
-		CallCode code(ident, *temp, args);
+		CallCode code(func, *temp, args);
 	}
 	else
 	{
@@ -1130,7 +1137,7 @@ void Grammar::forSentence()
 	{
 		error(EXPECTFOR);
 	}
-	Identifier* ident;
+	Identifier* ident = NULL;
 	if (word.token == IDENTTK)
 	{
 		ident = symbol_table->findIdent(word.value.content);
@@ -1140,6 +1147,7 @@ void Grammar::forSentence()
 	{
 		ERROR(EXPECTIDENT);
 	}
+	Temp* temp_ident = new Temp(ident, false, NULL);
 	if (word.token == SETTK)
 	{
 		getSym();
@@ -1148,8 +1156,9 @@ void Grammar::forSentence()
 	{
 		error(EXPECTSET);
 	}
-	Temp *loop = new Temp();
-	expression(&loop);
+	Temp *init_value = NULL;
+	expression(&init_value);
+	AssignCode(SETTK, temp_ident, init_value, init_value);
 	LabelCode label_code1(label1);
 	bool is_to = true;
 	if (word.token == TOTK || word.token == DOWNTOTK)
@@ -1177,14 +1186,14 @@ void Grammar::forSentence()
 	sentence();
 	if (is_to)
 	{
-		ConditionCode condition_code(SMALLTK, loop, end_value, label2);
-		AssignCode assign_code(ADDTK, loop, loop, one);
+		ConditionCode condition_code(SMALLTK, init_value, end_value, label2);
+		AssignCode assign_code(ADDTK, temp_ident, temp_ident, one);
 		GotoCode goto_code(label1);
 	}
 	else
 	{
-		ConditionCode condition_code(LARGETK, loop, end_value, label2);
-		AssignCode assign_code(SUBTK, loop, loop, one);
+		ConditionCode condition_code(LARGETK, init_value, end_value, label2);
+		AssignCode assign_code(SUBTK, temp_ident, temp_ident, one);
 		GotoCode goto_code(label1);
 	}
 	LabelCode label_code2(label2);
@@ -1210,7 +1219,7 @@ void Grammar::procSentence()
 			/*proc->paraTable.paras.size() = 0*/
 			realParaTable(args);
 		}
-		CallCode code(ident, NULL, args);
+		CallCode code(proc, NULL, args);
 	}
 	else
 	{

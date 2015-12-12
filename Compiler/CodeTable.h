@@ -94,11 +94,11 @@ public:
 class CallCode : public Code
 {
 public:
-	Identifier* ident;
+	Callable* cal;
 	char str[MAXLEN]; //"fp_%s_%d", this->name, this->nodeid
 	Temp* target;
 	std::vector<Temp*> args;
-	CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args);
+	CallCode(Callable* cal, Temp* target, std::vector<Temp*> args);
 	void print();
 };
 
@@ -156,7 +156,6 @@ public:
 		void push(std::string str);
 		void pop(std::string str);
 		void printasm();
-		Parameter* getParaAt(int pos);
 	};
 	Node* nodes[MAXCNT];
 	//create a new node

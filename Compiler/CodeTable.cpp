@@ -113,24 +113,51 @@ void AssignCode::print()
 	printf("\n");
 }
 
-CallCode::CallCode(Identifier* ident, Temp* target, std::vector<Temp*> args)
+CallCode::CallCode(Callable* cal, Temp* target, std::vector<Temp*> args)
 : Code(CALLKD, "Call")
 {
-	this->ident = ident;
-	if (this->ident->type == PROC)
+	this->cal = cal;
+	if (this->cal->type == PROC)
 	{
-		Procedure* proc = dynamic_cast<Procedure*>(this->ident);
+		Procedure* proc = dynamic_cast<Procedure*>(this->cal);
 		//"fp_%s_%d", this->name, this->nodeid
 		sprintf_s(this->str, MAXLEN - 1, "fp_%s_%d\t\t", proc->name, proc->nodeid);
 	}
-	else
+	else if (this->cal->type == FUNCINT || this->cal->type == FUNCCHAR)
 	{
-		Function* func = dynamic_cast<Function*>(this->ident);
+		Function* func = dynamic_cast<Function*>(this->cal);
 		//"fp_%s_%d", this->name, this->nodeid
 		sprintf_s(this->str, MAXLEN - 1, "fp_%s_%d\t\t", func->name, func->nodeid);
+		this->target = target;
+	}
+	else
+	{
+		assert(0 == 1);
 	}
 	this->target = target;
-	std::copy(args.begin(), args.end(), std::back_inserter(this->args));
+	for (int i = 0; i < args.size(); ++i)
+	{
+		Parameter* require = cal->getParaAt(i);
+		Temp* passin = args.at(i);
+		if (require == NULL)
+		{
+			assert(0 == 1);
+			//error("too many parameter(s)");
+		}
+		else if (require->real && 
+			(passin->temp_type == VALUETP || passin->temp_type == TEMPTP || passin->temp_type == CONSTTP))
+		{
+			assert(0 == 1);
+			//error("var type parameter is not writable");
+		}
+		else
+			this->args.push_back(passin);
+	}
+	if (cal->getParaAt(args.size()) != NULL)
+	{
+		assert(0 == 1);
+		//error("too less parameter(s)");
+	}
 	code_table->insertCode(this);
 }
 
@@ -144,7 +171,9 @@ void CallCode::print()
 		this->target->print();
 		printf("\t\t");
 	}
-	printf("argv=%d\n", args.size());
+	else
+		printf("(no ret)\t");
+	printf("argc=%d\n", args.size());
 }
 
 NopCode::NopCode()
@@ -497,34 +526,25 @@ void CodeTable::Node::compile()
 					break;
 				}
 			}
-			if (code->target->temp_type == VALUETP)
-			{
-				printf("Left value can not be constance.\n");
-				assert(0 == 1);
-				//error();
-			}
-			else
-			{
-				/*
-				1.Generate code to load address of code->target to esi
-				2.MOV [esi], eax
-				*/
-				getTempAddr(code->target);
-				args.clear();
-				args.push_back("[esi]"); args.push_back("eax");
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
+			/*
+			1.Generate code to load address of code->target to esi
+			2.MOV [esi], eax
+			*/
+			getTempAddr(code->target);
+			args.clear();
+			args.push_back("[esi]"); args.push_back("eax");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
 		}
 		else if (basecode->kind == CALLKD)
 		{
 			CallCode* code = dynamic_cast<CallCode*>(basecode);
 			int caller_index = this->index;
 			int callee_index;
-			if (code->ident->type == PROC)
-				callee_index = dynamic_cast<Procedure*>(code->ident)->nodeid;
+			if (code->cal->type == PROC)
+				callee_index = dynamic_cast<Procedure*>(code->cal)->nodeid;
 			else
-				callee_index = dynamic_cast<Function*>(code->ident)->nodeid;
+				callee_index = dynamic_cast<Function*>(code->cal)->nodeid;
 			//Calculate display_base of caller and count of displays should be copied
 			int callee_display_cnt = 0, caller_display_cnt = 0;
 			int tmp = callee_index;
@@ -564,8 +584,8 @@ void CodeTable::Node::compile()
 			|ret addr	|
 			|paras		|
 			|display2	|
-			|display1	|_____display_offset
-			|...		|
+			|display1	|/_____display_offset
+			|...		|\
 			*/
 			if (caller_display_cnt < callee_display_cnt)
 			{
@@ -597,39 +617,33 @@ void CodeTable::Node::compile()
 			//push reversed parameters to stack
 			for (int i = code->args.size() - 1; i >= 0; --i)
 			{
-				//TODO : 判断参数类型
 				args.clear();
+				Parameter* para = code->cal->getParaAt(i);
+				assert(para != NULL); 
 				Temp* arg = code->args.at(i);
 				if (arg->temp_type == VALUETP)
 				{
+					assert(para->real == false);
 					sprintf_s(value, MAXLEN - 1, "%d", arg->value);
 					push(value);
 				}
-				else if (arg->temp_type == TEMPTP)
+				else if (arg->temp_type == TEMPTP || arg->temp_type == CONSTTP)
 				{
+					assert(para->real == false);
 					getTempValue(arg);
 					push("edx");
 				}
-				else if (arg->temp_type == IDENTTP)
+				else if (arg->temp_type == VARTP)
 				{
-					Parameter* para = code_table->nodes[callee_index]->getParaAt(i);
-					if (para)
+					if (para->real)
 					{
-						if (para->real)
-						{
-							getTempAddr(arg);
-							push("esi");
-						}
-						else
-						{
-							getTempValue(arg);
-							push("edx");
-						}
+						getTempAddr(arg);
+						push("esi");
 					}
 					else
 					{
-						//error();
-						assert(0 == 1);
+						getTempValue(arg);
+						push("edx");
 					}
 				}
 				else
@@ -767,7 +781,8 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	std::vector<std::string> args;
 	Identifier* ident;
 	ADDR display_offset = 0, ident_base_offset = 0, subscribe_offset = 0;
-	if (temp->temp_type == IDENTTP)
+	if (temp->temp_type == VARTP || temp->temp_type == CONSTTP || 
+		temp->temp_type == REALPARA || temp->temp_type == FORMPARA)
 		ident = temp->ident;
 	else
 		ident = symbol_table->findTemp(temp->id);
@@ -794,6 +809,14 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 		args.push_back(value);
 		asmcode = new Asm(ASMADD, args);
 		this->asms.push_back(asmcode);
+		if (temp->temp_type == REALPARA)
+		{
+			//mov esi, [esi]
+			args.clear();
+			args.push_back("esi"); args.push_back("[esi]");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
+		}
 	}
 	else
 	{
@@ -903,14 +926,6 @@ void CodeTable::Node::printasm()
 {
 	for (int i = 0; i < this->asms.size(); ++i)
 		this->asms.at(i)->print();
-}
-
-Parameter* CodeTable::Node::getParaAt(int pos)
-{
-	int nodeid = this->index;
-	Identifier* ident = symbol_table->nodes[nodeid]->idents.at(pos);
-	Parameter* para = dynamic_cast<Parameter*>(ident);
-	return para;
 }
 
 CodeTable* CodeTable::codetable = NULL;

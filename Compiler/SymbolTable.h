@@ -45,7 +45,10 @@ enum TEMPTYPE
 {
 	VALUETP,
 	TEMPTP,
-	IDENTTP
+	VARTP,
+	CONSTTP,
+	REALPARA,
+	FORMPARA
 };
 
 class Temp : public Identifier
@@ -102,21 +105,32 @@ public:
 	void print() {}
 };
 
-class Procedure : public Identifier
+class Callable : public Identifier
 {
 public:
 	int nodeid;
 	ADDR addr;
+	Callable() {}
+	Callable(char* name, TYPE type);
+	virtual void print() = 0;
+	Parameter* getParaAt(int pos);
+};
+
+class Procedure : public Callable
+{
+public:
+	//int nodeid;
+	//ADDR addr;
 	Procedure(char* name, int nodeid);
 	Procedure(const Procedure& proc);
 	void print() {}
 };
 
-class Function : public Identifier
+class Function : public Callable
 {
 public:
-	int nodeid;
-	ADDR addr;
+	//int nodeid;
+	//ADDR addr;
 	Function(char* name, TYPE type, int nodeid);
 	Function(const Function& func);
 	void print() {}
