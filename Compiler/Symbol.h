@@ -2,6 +2,7 @@
 #define SYMBOL_H
 
 #include <vector>
+#include "common.h"
 /*
 #ifdef _DEBUG
 #define SymbolDEBUG

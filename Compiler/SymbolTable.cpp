@@ -80,6 +80,7 @@ bool SymbolTable::insertIdent(Identifier* ident)
 		nodes[index]->idents.push_back(newcons);
 		nodes[index]->offset_cnt += 1;
 		nodes[index]->last_const = nodes[index]->offset_cnt;
+		nodes[index]->last_var = nodes[index]->last_temp = nodes[index]->last_const;
 	}
 	else if (ident->type == INT || ident->type == CHAR ||
 		ident->type == RETINT || ident->type == RETCHAR)
@@ -89,6 +90,7 @@ bool SymbolTable::insertIdent(Identifier* ident)
 		nodes[index]->idents.push_back(newvar);
 		nodes[index]->offset_cnt += 1;
 		nodes[index]->last_var = nodes[index]->offset_cnt;
+		nodes[index]->last_temp = nodes[index]->last_var;
 	}
 	else if (ident->type == INTARRAY || ident->type == CHARARRAY)
 	{
@@ -97,6 +99,7 @@ bool SymbolTable::insertIdent(Identifier* ident)
 		nodes[index]->idents.push_back(newarr);
 		nodes[index]->offset_cnt += arr->len;
 		nodes[index]->last_var = nodes[index]->offset_cnt;
+		nodes[index]->last_temp = nodes[index]->last_const;
 	}
 	else if (ident->type == PARA)
 	{
@@ -403,25 +406,27 @@ Temp::Temp(const Temp &temp)
 	this->offset = temp.offset;
 }
 
-void Temp::print()
+std::string Temp::print()
 {
+	std::string str;
 	if (this == NULL)
-		printf("NULL");
+		str = "NULL";
 	else if (this->temp_type == CONSTTP || this->temp_type == VARTP)
 	{
-		printf("%s", this->ident->name);
+		str = this->ident->name;
 		if (this->has_subscript)
 		{
-			printf("[");
-			this->subscribe->print();
-			printf("]");
+			str += "[";
+			str += this->subscribe->print();
+			str += "]";
 		}
 	}
 	else if (this->temp_type == TEMPTP)
-		printf("Temp%d", this->id);
+		str = "Temp" + int2string(this->id);
 	else
-		printf("%d", this->value);
-		//printf("Temp%d=%d", this->id, this->value);
+		str = int2string(this->value);
+	//printf("Temp%d=%d", this->id, this->value);
+	return str;
 }
 
 Temp* zero;

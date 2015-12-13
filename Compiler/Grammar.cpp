@@ -21,14 +21,15 @@ Grammar::Grammar()
 {
 	getSym();
 	program();
+	/*
 	for (int i = 0; i <= code_table->nodecnt; ++i)
 	{
 		printf("\nNODE : %d\n", i);
 		for (int j = 0; j < code_table->nodes[i]->codes.size(); ++j)
-			code_table->nodes[i]->codes.at(j)->print();
+			std::cout << code_table->nodes[i]->codes.at(j)->print();
 	}
-	
-	printf("\n\nASM CODE : \n");
+	*/
+	//printf("\n\nASM CODE : \n");
 	code_table->Init();
 	for (int i = 1; i <= code_table->nodecnt; ++i)
 	{
@@ -40,7 +41,7 @@ Grammar::Grammar()
 	for (int i = 1; i <= code_table->nodecnt; ++i)
 	{
 		printf("\n");
-		printf("\nNODE : %d\n", i);
+		printf("\n;NODE : %d\n", i);
 		//"fp_%s_%d", this->name, this->nodeid
 		code_table->nodes[i]->printasm();
 		printf("\n");

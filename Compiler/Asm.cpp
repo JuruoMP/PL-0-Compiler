@@ -7,11 +7,14 @@ char* opcode[64] = {
 	"JMP", "CALL", "RET",
 	"ADD", "SUB", "IMUL", "IDIV", "INC", "DEC", "NEC",
 	"CMP", "JE", "JNE", "JL", "JNL", "JG", "JNG",
-	";MARK"
+	";MARK", ";"
 };
 
 Asm::Asm(char* label_name)
 {
+#ifdef _DEBUG
+	this->is_str = false;
+#endif
 	this->is_label = true;
 	strcpy_s(this->label_name, MAXLEN - 1, label_name);
 	//this->print();
@@ -28,6 +31,13 @@ Asm::Asm(ASMTYPE type, std::vector<std::string> args)
 
 void Asm::print()
 {
+#ifdef _DEBUG
+	if (is_str)
+	{
+		std::cout << this->str << std::endl;
+		return;
+	}
+#endif
 	if (this->is_label)
 	{
 		std::cout << this->label_name << ":" << std::endl;
@@ -44,4 +54,12 @@ void Asm::print()
 		std::cout << std::endl;
 	}
 }
+
+#ifdef _DEBUG
+Asm::Asm(std::string str)
+{
+	this->is_str = true;
+	this->str = str;
+}
+#endif
 

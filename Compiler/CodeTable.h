@@ -33,7 +33,7 @@ class Label
 public:
 	int id;
 	Label();
-	void print();
+	std::string print();
 };
 
 class Code
@@ -42,7 +42,7 @@ public:
 	KIND kind;
 	char head[MAXLEN];
 	Code(KIND kind, char* type_name);
-	virtual void print() = 0;
+	virtual std::string print() = 0;
 };
 
 class ConditionCode : public Code
@@ -52,7 +52,7 @@ public:
 	Temp *num1, *num2;
 	Label *label;
 	ConditionCode(SymbolTK token, const Temp* num1, const Temp* num2, const Label* label);
-	void print();
+	std::string print();
 };
 
 class GotoCode : public Code
@@ -60,7 +60,7 @@ class GotoCode : public Code
 public:
 	Label *label;
 	GotoCode(const Label *label);
-	void print();
+	std::string print();
 };
 
 class FPCode : public Code
@@ -70,7 +70,7 @@ public:
 	char name[MAXLEN]; //name
 	char str[MAXLEN]; //"fp_%s_%d", this->name, this->nodeid
 	FPCode(int nodeid, char* name);
-	void print();
+	std::string print();
 };
 
 class LabelCode : public Code
@@ -78,7 +78,7 @@ class LabelCode : public Code
 public:
 	Label* label;
 	LabelCode(const Label *label);
-	void print();
+	std::string print();
 };
 
 class AssignCode : public Code
@@ -88,7 +88,7 @@ public:
 	Temp *num1, *num2;
 	SymbolTK op;
 	AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Temp* src2);
-	void print();
+	std::string print();
 };
 
 class CallCode : public Code
@@ -99,14 +99,14 @@ public:
 	Temp* target;
 	std::vector<Temp*> args;
 	CallCode(Callable* cal, Temp* target, std::vector<Temp*> args);
-	void print();
+	std::string print();
 };
 
 class NopCode : public Code
 {
 public:
 	NopCode();
-	void print();
+	std::string print();
 };
 
 class ReadCode : public Code
@@ -114,7 +114,7 @@ class ReadCode : public Code
 public:
 	Identifier* ident;
 	ReadCode(Identifier* ident);
-	void print();
+	std::string print();
 };
 
 class WriteCode : public Code
@@ -128,7 +128,7 @@ public:
 	}value;
 	WriteCode(char* content);
 	WriteCode(Temp* temp);
-	void print();
+	std::string print();
 };
 
 class CodeTable

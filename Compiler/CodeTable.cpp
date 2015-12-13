@@ -10,7 +10,7 @@ extern std::stack<int> node_stack;
 extern Temp* zero;
 extern Temp* one;
 
-//#define ASMDEBUG
+#define ASMDEBUG
 //#define LESSPUSHPOP
 
 int Label::label_cnt = 0;
@@ -20,9 +20,11 @@ Label::Label()
 	label_cnt++;
 }
 
-void Label::print()
+std::string Label::print()
 {
-	printf("Label%d", this->id);
+	std::string str;
+	str = "Label" + this->id;
+	return str;
 }
 
 Code::Code(KIND kind, char* type_name)
@@ -41,13 +43,17 @@ ConditionCode::ConditionCode(SymbolTK token, const Temp* num1, const Temp* num2,
 	code_table->insertCode(this);
 }
 
-void ConditionCode::print()
+std::string ConditionCode::print()
 {
-	printf("%s\t\t", this->head);
-	printf("%s\t\t", token_name[this->token]);
-	this->num1->print(); printf("\t\t");
-	this->num2->print(); printf("\t\t");
-	this->label->print(); printf("\n");
+	std::string str;
+	str = this->token + "\t\t";
+	str += token_name[this->token]; str += "\t\t";
+	str += this->head; str += "\t\t";
+	str +=  token_name[this->token]; str += "\t\t";
+	str += this->num1->print() + "\t\t";
+	str += this->num2->print() + "\t\t";
+	str += this->label->print();
+	return str;
 }
 
 GotoCode::GotoCode(const Label *label)
@@ -57,10 +63,12 @@ GotoCode::GotoCode(const Label *label)
 	code_table->insertCode(this);
 }
 
-void GotoCode::print()
+std::string GotoCode::print()
 {
-	printf("%s\t\t", this->head);
-	this->label->print(); printf("\n");
+	std::string str;
+	str += this->head; str += "\t\t";
+	str += this->label->print();
+	return str;
 }
 
 FPCode::FPCode(int nodeid, char* name)
@@ -72,11 +80,13 @@ FPCode::FPCode(int nodeid, char* name)
 	code_table->insertCode(this);
 }
 
-void FPCode::print()
+std::string FPCode::print()
 {
-	printf("%s", this->head);
-	printf("(%d)\t\t", this->nodeid);
-	printf("%s\n", this->str);
+	std::string str;
+	str += this->head;
+	str += "("; str += int2string(this->nodeid); str += ")"; str += "\t\t";
+	str += this->str;
+	return str;
 }
 
 LabelCode::LabelCode(const Label *label)
@@ -86,10 +96,12 @@ LabelCode::LabelCode(const Label *label)
 	code_table->insertCode(this);
 }
 
-void LabelCode::print()
+std::string LabelCode::print()
 {
-	printf("%s\t\t", this->head);
-	this->label->print(); printf("\n");
+	std::string str;
+	str += this->head; str += "\t\t";
+	str += this->label->print();
+	return str;
 }
 
 AssignCode::AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Temp* src2)
@@ -102,15 +114,16 @@ AssignCode::AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Tem
 	code_table->insertCode(this);
 }
 
-void AssignCode::print()
+std::string AssignCode::print()
 {
-	printf("%s\t\t", this->head);
-	printf("%s\t\t", token_name[this->op]);
-	this->target->print(); printf("\t\t");
-	this->num1->print(); printf("\t\t");
+	std::string str;
+	str += this->head; str += "\t\t";
+	str += token_name[this->op]; str += "\t\t";
+	str += this->target->print(); str += "\t\t";
+	str += this->num1->print(); str += "\t\t";
 	if (this->op != SETTK)
-		this->num2->print();
-	printf("\n");
+		str += this->num2->print();
+	return str;
 }
 
 CallCode::CallCode(Callable* cal, Temp* target, std::vector<Temp*> args)
@@ -161,19 +174,21 @@ CallCode::CallCode(Callable* cal, Temp* target, std::vector<Temp*> args)
 	code_table->insertCode(this);
 }
 
-void CallCode::print()
+std::string CallCode::print()
 {
-	printf("%s\t\t", this->head);
-	printf("%s", this->str);
+	std::string str;
+	str += this->head; str += "\t\t";
+	str += this->str;
 	if (this->target != NULL)
 	{
-		printf("dst=");
-		this->target->print();
-		printf("\t\t");
+		str += "dst=";
+		str += this->target->print();
+		str += "\t\t";
 	}
 	else
-		printf("(no ret)\t");
-	printf("argc=%d\n", args.size());
+		str += "(no ret)\t";
+	str += "argc="; str += int2string(args.size());
+	return str;
 }
 
 NopCode::NopCode()
@@ -182,9 +197,10 @@ NopCode::NopCode()
 	code_table->insertCode(this);
 };
 
-void NopCode::print()
+std::string NopCode::print()
 {
-	printf(";Nop\n");
+	std::string str = ";NOP";
+	return str;
 }
 
 WriteCode::WriteCode(char* content)
@@ -203,14 +219,15 @@ WriteCode::WriteCode(Temp* temp)
 	code_table->insertCode(this);
 }
 
-void WriteCode::print()
+std::string WriteCode::print()
 {
-	printf("%s\t\t", this->head);
+	std::string str;
+	str += this->head; str += "\t\t";
 	if (this->is_string)
-		printf("%s", this->value.content);
+		str += this->value.content;
 	else
-		this->value.temp->print();
-	printf("\n");
+		str += this->value.temp->print();
+	return str;
 }
 
 ReadCode::ReadCode(Identifier* ident)
@@ -220,10 +237,13 @@ ReadCode::ReadCode(Identifier* ident)
 	code_table->insertCode(this);
 }
 
-void ReadCode::print()
+std::string ReadCode::print()
 {
-	printf("%s\t\t", this->head);
-	printf("%s\n", this->ident->name);
+	std::string str;
+	str += this->head;
+	str += "\t\t";
+	str += this->ident->name;
+	return str;
 }
 
 int CodeTable::nodecnt = 0;
@@ -347,6 +367,9 @@ void CodeTable::Node::compile()
 	std::vector<std::string> args;
 	for (int i = 0; i < this->codes.size(); ++i)
 	{
+#ifdef _DEBUG
+		this->asms.push_back(new Asm(";" + this->codes.at(i)->print()));
+#endif
 		Code* basecode = this->codes.at(i);
 		if (basecode->kind == CONDITIONKD)
 		{
@@ -570,7 +593,7 @@ void CodeTable::Node::compile()
 			this->asms.push_back(asmcode);
 			args.clear();
 			args.push_back("esi");
-			ADDR display_offset = UNITSIZE * (2 + symbol_table->nodes[callee_index]->last_para + caller_display_cnt);
+			ADDR display_offset = UNITSIZE * (2 + symbol_table->nodes[caller_index]->last_para + caller_display_cnt);
 			char value[MAXLEN];
 			sprintf_s(value, MAXLEN - 1, "%d", display_offset);
 			args.push_back(value);
@@ -598,9 +621,17 @@ void CodeTable::Node::compile()
 					asmcode = new Asm(ASMPUSH, args);
 					this->asms.push_back(asmcode);
 				}
-				//the last display is the ebp of caller
+				//the last display is (ebp - 4) of caller
+				//lea edi, [ebp - 4]
+				//push edi
 				this->asms.push_back(new Asm(ASMMARK, args));
-				push("ebp");
+				args.clear();
+				char value[MAXLEN];
+				sprintf_s(value, MAXLEN - 1, "[ebp - %d]", UNITSIZE);
+				args.push_back("edi"); args.push_back(value);
+				asmcode = new Asm(ASMLEA, args);
+				this->asms.push_back(asmcode);
+				push("edi");
 			}
 			else
 			{
@@ -721,7 +752,8 @@ void CodeTable::Node::compile()
 void CodeTable::Node::getTempValue(Temp *temp)
 {
 #ifdef ASMDEBUG
-	printf(";getTempValue Start\n");
+	this->asms.push_back(new Asm(";getTempValue Srart"));
+	//printf(";getTempValue Start\n");
 #endif
 #ifndef LESSPUSHPOP
 	//push("eax");
@@ -761,14 +793,16 @@ void CodeTable::Node::getTempValue(Temp *temp)
 	//pop("eax");
 #endif
 #ifdef ASMDEBUG
-	printf(";getTempValue End\n");
+	this->asms.push_back(new Asm(";getTempValue End"));
+	//printf(";getTempValue End\n");
 #endif
 }
 
 void CodeTable::Node::getTempAddr(Temp *temp)
 {
 #ifdef ASMDEBUG
-	printf(";getTempAddr Start\n");
+	this->asms.push_back(new Asm(";getTempAddr Srart"));
+	//printf(";getTempAddr Start\n");
 #endif
 #ifndef LESSPUSHPOP
 	//push("eax");
@@ -830,6 +864,7 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 		args.push_back("esi"); args.push_back("ebp");
 		asmcode = new Asm(ASMMOV, args);
 		this->asms.push_back(asmcode);
+		this->asms.push_back(new Asm(";add display offset to esi"));
 		args.clear();
 		args.push_back("esi");
 		char value[MAXLEN];
@@ -837,7 +872,7 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 		args.push_back(value);
 		asmcode = new Asm(ASMADD, args);
 		this->asms.push_back(asmcode);
-		this->asms.push_back(new Asm(ASMMARK, args));
+		this->asms.push_back(new Asm(";display is to esi"));
 		args.clear();
 		args.push_back("esi"); args.push_back("[esi]");
 		asmcode = new Asm(ASMMOV, args);
@@ -871,7 +906,8 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	//pop("eax");
 #endif
 #ifdef ASMDEBUG
-	printf(";getTempAddr End\n");
+	this->asms.push_back(new Asm(";getTempAddr End"));
+	//printf(";getTempAddr End\n");
 #endif
 }
 

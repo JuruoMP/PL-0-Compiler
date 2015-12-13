@@ -36,7 +36,7 @@ public:
 	ADDR offset;
 	Identifier() {};
 	Identifier(char* name, TYPE type);
-	virtual void print() = 0;
+	virtual std::string print() = 0;
 	ADDR getOffset();
 };
 //int Identifier::ident_index = 1;
@@ -66,7 +66,7 @@ public:
 	Temp(Identifier* ident, bool has_subscript, Temp* subscribe);
 	Temp::Temp(const Temp &temp);
 	Temp::Temp(const Identifier &ident);
-	void print();
+	std::string print();
 };
 
 class Constance : public Identifier
@@ -75,7 +75,7 @@ public:
 	int value;
 	Constance(char* name, int value);
 	Constance(const Constance& cons);
-	void print() {}
+	std::string print() { return NULL; }
 };
 
 class Variable : public Identifier
@@ -83,7 +83,7 @@ class Variable : public Identifier
 public:
 	Variable(char* name, TYPE type);
 	Variable(const Variable& var);
-	void print() {}
+	std::string print() { return NULL; }
 };
 
 class Array : public Identifier
@@ -93,7 +93,7 @@ public:
 	Array() : Identifier() {}
 	Array(char* name, TYPE type, int length);
 	Array(const Array& arr);
-	void print() {}
+	std::string print() { return NULL; }
 };
 
 class Parameter : public Identifier
@@ -102,7 +102,7 @@ public:
 	bool real;//true if pass by value, false if pass by address
 	Parameter(char* name, bool real);
 	Parameter(const Parameter& para);
-	void print() {}
+	std::string print() { return NULL; }
 };
 
 class Callable : public Identifier
@@ -112,7 +112,7 @@ public:
 	ADDR addr;
 	Callable() {}
 	Callable(char* name, TYPE type);
-	virtual void print() = 0;
+	virtual std::string print() = 0;
 	Parameter* getParaAt(int pos);
 };
 
@@ -123,7 +123,7 @@ public:
 	//ADDR addr;
 	Procedure(char* name, int nodeid);
 	Procedure(const Procedure& proc);
-	void print() {}
+	std::string print() { return NULL; }
 };
 
 class Function : public Callable
@@ -133,7 +133,7 @@ public:
 	//ADDR addr;
 	Function(char* name, TYPE type, int nodeid);
 	Function(const Function& func);
-	void print() {}
+	std::string print() { return NULL; }
 };
 
 class SymbolTable

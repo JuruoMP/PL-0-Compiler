@@ -52,7 +52,8 @@ enum ASMTYPE
 	ASMJG,//jump greater
 	ASMJNG,//jump not greater
 
-	ASMMARK
+	ASMMARK,
+	ASMORIGIN
 	
 };
 
@@ -79,6 +80,11 @@ public:
 	std::vector<std::string> m_args;
 	Asm(char* label_name);
 	Asm(ASMTYPE type, std::vector<std::string> args);
+#ifdef _DEBUG
+	bool is_str;
+	std::string str;
+	Asm(std::string str);
+#endif
 	void print();
 };
 
