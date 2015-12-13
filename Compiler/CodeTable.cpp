@@ -7,10 +7,11 @@ extern char token_name[][16];
 extern SymbolTable* symbol_table;
 extern Memory* memory;
 extern std::stack<int> node_stack;
+StringTable* string_table;
 extern Temp* zero;
 extern Temp* one;
 
-#define ASMDEBUG
+//#define ASMDEBUG
 //#define LESSPUSHPOP
 
 int Label::label_cnt = 0;
@@ -23,7 +24,7 @@ Label::Label()
 std::string Label::print()
 {
 	std::string str;
-	str = "Label" + this->id;
+	str = "Label" + int2string(this->id);
 	return str;
 }
 
@@ -207,7 +208,7 @@ WriteCode::WriteCode(char* content)
 : Code(WRITEKD, "Write")
 {
 	this->is_string = true;
-	strcpy_s(this->value.content, MAXLEN - 1, content);
+	this->value.str_id = string_table->add(content);
 	code_table->insertCode(this);
 }
 
@@ -224,16 +225,16 @@ std::string WriteCode::print()
 	std::string str;
 	str += this->head; str += "\t\t";
 	if (this->is_string)
-		str += this->value.content;
+		str += "String" + int2string(this->value.str_id);
 	else
 		str += this->value.temp->print();
 	return str;
 }
 
-ReadCode::ReadCode(Identifier* ident)
+ReadCode::ReadCode(Temp* temp)
 : Code(READKD, "Read")
 {
-	this->ident = ident;
+	this->temp = temp;
 	code_table->insertCode(this);
 }
 
@@ -242,7 +243,7 @@ std::string ReadCode::print()
 	std::string str;
 	str += this->head;
 	str += "\t\t";
-	str += this->ident->name;
+	str += this->temp->print();
 	return str;
 }
 
@@ -705,13 +706,91 @@ void CodeTable::Node::compile()
 		}
 		else if (basecode->kind == READKD)
 		{
-			//TODO : ADD CODE TO READ
 			ReadCode* code = dynamic_cast<ReadCode*>(basecode);
+			//getTempAddr()
+			//mov eax, esi
+			//lea ebx, _value
+			//push eax
+			//push ebx
+			//call scanf
+			//add esp, 2 * UNITSIZE
+			getTempAddr(code->temp);
+			args.clear();
+			args.push_back("eax"); args.push_back("esi");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
+			args.clear();
+			args.push_back("ebx"); args.push_back("_value");
+			asmcode = new Asm(ASMLEA, args);
+			this->asms.push_back(asmcode);
+			push("eax");
+			push("ebx");
+			args.clear();
+			args.push_back("scanf");
+			asmcode = new Asm(ASMCALL, args);
+			this->asms.push_back(asmcode);
+			args.clear();
+			args.push_back("esp");
+			char value[MAXLEN];
+			sprintf_s(value, MAXLEN - 1, "%d", 2 * UNITSIZE);
+			args.push_back(value);
+			asmcode = new Asm(ASMADD, args);
+			this->asms.push_back(asmcode);
+
 		}
 		else if (basecode->kind == WRITEKD)
 		{
-			//TODO : ADD CODE TO WRITE
 			WriteCode* code = dynamic_cast<WriteCode*>(basecode);
+			if (code->is_string)
+			{
+				//printf("%s", string)
+				//mov eax "in_string+id"
+				//lea ebx, _string
+				args.clear();
+				args.push_back("eax");
+				char str[MAXLEN];
+				sprintf_s(str, MAXLEN - 1, "in_string%d", code->value.str_id);
+				args.push_back(str);
+				asmcode = new Asm(ASMLEA, args);
+				this->asms.push_back(asmcode);
+				args.clear();
+				args.push_back("ebx"); args.push_back("_string");
+				asmcode = new Asm(ASMLEA, args);
+				this->asms.push_back(asmcode);
+			}
+			else
+			{
+				//printf("%d", value)
+				//getTempValue()
+				//mov eax edx
+				//lea ebx, _value
+				getTempValue(code->value.temp);
+				args.clear();
+				args.push_back("eax"); args.push_back("edx");
+				asmcode = new Asm(ASMMOV, args);
+				this->asms.push_back(asmcode);
+				args.clear();
+				args.push_back("ebx"); args.push_back("_value");
+				asmcode = new Asm(ASMLEA, args);
+				this->asms.push_back(asmcode);
+			}
+			//push eax
+			//push ebx
+			//call printf
+			//add esp, 2 * UNITSIZE
+			push("eax");
+			push("ebx");
+			args.clear();
+			args.push_back("printf");
+			asmcode = new Asm(ASMCALL, args);
+			this->asms.push_back(asmcode);
+			args.clear();
+			args.push_back("esp");
+			char value[MAXLEN];
+			sprintf_s(value, MAXLEN - 1, "%d", 2 * UNITSIZE);
+			args.push_back(value);
+			asmcode = new Asm(ASMADD, args);
+			this->asms.push_back(asmcode);
 		}
 		else
 		{
@@ -964,4 +1043,19 @@ void CodeTable::Node::printasm()
 		this->asms.at(i)->print();
 }
 
+StringTable* StringTable::getInstance()
+{
+	if (stringtable == NULL)
+		stringtable = new StringTable();
+	return stringtable;
+}
+
+int StringTable::add(char* str)
+{
+	std::string value = str;
+	this->strs.push_back(value);
+	return strs.size() - 1;
+}
+
 CodeTable* CodeTable::codetable = NULL;
+StringTable* StringTable::stringtable = NULL;

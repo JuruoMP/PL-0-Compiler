@@ -8,6 +8,7 @@ static WORD word, preread;
 extern SymbolTable* symbol_table;
 extern std::stack<int> node_stack;
 extern CodeTable* code_table;
+extern StringTable* string_table;
 extern Temp* zero;
 extern Temp* one;
 
@@ -26,11 +27,11 @@ Grammar::Grammar()
 	{
 		printf("\nNODE : %d\n", i);
 		for (int j = 0; j < code_table->nodes[i]->codes.size(); ++j)
-			std::cout << code_table->nodes[i]->codes.at(j)->print();
+			std::cout << code_table->nodes[i]->codes.at(j)->print() << std::endl;
 	}
 	*/
 	//printf("\n\nASM CODE : \n");
-	code_table->Init();
+	//code_table->Init();
 	for (int i = 1; i <= code_table->nodecnt; ++i)
 	{
 		symbol_table->into(i);
@@ -38,6 +39,16 @@ Grammar::Grammar()
 		code_table->nodes[i]->compile();
 	}
 	code_table->End();
+
+	for (int i = 0; i < string_table->strs.size(); ++i)
+	{
+		//char string%d[] = ...
+		std::cout << "char in_string" << i << "[] = \""
+			<< string_table->strs.at(i) << "\";" << std::endl;
+	}
+	printf("int main()\n");
+	printf("{\n");
+	printf("_asm{\n");
 	for (int i = 1; i <= code_table->nodecnt; ++i)
 	{
 		printf("\n");
@@ -1187,13 +1198,13 @@ void Grammar::forSentence()
 	sentence();
 	if (is_to)
 	{
-		ConditionCode condition_code(SMALLTK, init_value, end_value, label2);
+		ConditionCode condition_code(LARGEEQUTK, temp_ident, end_value, label2);
 		AssignCode assign_code(ADDTK, temp_ident, temp_ident, one);
 		GotoCode goto_code(label1);
 	}
 	else
 	{
-		ConditionCode condition_code(LARGETK, init_value, end_value, label2);
+		ConditionCode condition_code(SMALLEQUTK, temp_ident, end_value, label2);
 		AssignCode assign_code(SUBTK, temp_ident, temp_ident, one);
 		GotoCode goto_code(label1);
 	}
@@ -1282,7 +1293,8 @@ void Grammar::readSentence()
 	if (word.token == IDENTTK)
 	{
 		ident = symbol_table->findIdent(word.value.content);
-		ReadCode read_code(ident);
+		Temp* temp = new Temp(ident, false, NULL);
+		ReadCode read_code(temp);
 		getSym();
 	}
 	else
@@ -1295,7 +1307,8 @@ void Grammar::readSentence()
 		if (word.token == IDENTTK)
 		{
 			ident = symbol_table->findIdent(word.value.content);
-			ReadCode read_code(ident);
+			Temp* temp = new Temp(ident, false, NULL);
+			ReadCode read_code(temp);
 			getSym();
 		}
 		else

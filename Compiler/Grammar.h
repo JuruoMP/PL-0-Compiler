@@ -13,6 +13,7 @@ extern int errcnt;
 extern SymbolTable* symbol_table;
 extern std::stack<int> node_stack;
 extern CodeTable* code_table;
+extern StringTable* string_table;
 extern Temp* zero;
 extern Temp* one;
 

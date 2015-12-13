@@ -8,6 +8,7 @@
 #include "Asm.h"
 
 #define MAXCNT 1024
+#define MAXSTRLEN 2048
 
 extern char token_name[][16];
 extern SymbolTable* symbol_table;
@@ -112,8 +113,8 @@ public:
 class ReadCode : public Code
 {
 public:
-	Identifier* ident;
-	ReadCode(Identifier* ident);
+	Temp* temp;
+	ReadCode(Temp* temp);
 	std::string print();
 };
 
@@ -123,7 +124,7 @@ public:
 	bool is_string;
 	union VALUE
 	{
-		char content[MAXLEN];
+		int str_id;
 		Temp* temp;
 	}value;
 	WriteCode(char* content);
@@ -170,7 +171,21 @@ public:
 	void End();
 };
 
+class StringTable
+{
+private:
+	static StringTable* stringtable;
+	StringTable() {}
+public:
+	std::vector<std::string> strs;
+	StringTable* getInstance();
+	int index;
+	//return index of str, starting from 0
+	int add(char* str);
+};
+
 extern CodeTable* code_table;
+extern StringTable* string_table;
 extern Temp* zero;
 extern Temp* one;
 

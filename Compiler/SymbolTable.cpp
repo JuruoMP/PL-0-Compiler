@@ -29,9 +29,7 @@ SymbolTable::SymbolTable()
 SymbolTable* SymbolTable::getInstance()
 {
 	if (symboltable == NULL)
-	{
 		symboltable = new SymbolTable();
-	}
 	return symboltable;
 }
 
