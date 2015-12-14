@@ -40,7 +40,29 @@ MOV	esi, ebp
 ADD	esi, -32
 POP	edx
 MOV	[esi], eax
-;Assign		MULTK		Temp56		e		4
+;Read		inputc
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -76
+POP	edx
+MOV	eax, esi
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	scanf
+ADD	esp, 8
+;Read		inputi
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -80
+POP	edx
+MOV	eax, esi
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	scanf
+ADD	esp, 8
+;Assign		MULTK		Temp58		e		4
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -59,7 +81,7 @@ MOV	esi, ebp
 ADD	esi, -112
 POP	edx
 MOV	[esi], eax
-;Assign		MULTK		Temp58		e		2
+;Assign		MULTK		Temp60		e		2
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -78,7 +100,7 @@ MOV	esi, ebp
 ADD	esi, -116
 POP	edx
 MOV	[esi], eax
-;Assign		DIVTK		Temp56		Temp56		Temp58
+;Assign		DIVTK		Temp58		Temp58		Temp60
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -102,13 +124,20 @@ MOV	esi, ebp
 ADD	esi, -112
 POP	edx
 MOV	[esi], eax
-;Call		fp_fact1_7		dst=Temp60		argc=1
+;Call		fp_fact1_7		dst=Temp61		argc=1
 MOV	esi, ebp
 ADD	esi, 8
 ;MARK	esi, 8
 LEA	edi, [ebp - 4]
 PUSH	edi
-PUSH	3
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -80
+POP	edx
+MOV	edx, [esi]
+POP	esi
+PUSH	edx
 CALL	fp_fact1_7		
 PUSH	edx
 MOV	esi, ebp
@@ -116,7 +145,7 @@ ADD	esi, -120
 POP	edx
 MOV	[esi], eax
 ADD	esp, 8
-;Assign		ADDTK		Temp56		Temp56		Temp60
+;Assign		ADDTK		Temp58		Temp58		Temp61
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -139,7 +168,7 @@ MOV	esi, ebp
 ADD	esi, -112
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		result		Temp56		
+;Assign		SETTK		result		Temp58		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -181,7 +210,7 @@ JMP	Label14
 Label13:
 ;Label:		Label14
 Label14:
-;Call		fp_prime_9		dst=Temp62		argc=0
+;Call		fp_prime_9		dst=Temp63		argc=0
 MOV	esi, ebp
 ADD	esi, 8
 ;MARK	esi, 8
@@ -194,7 +223,7 @@ ADD	esi, -124
 POP	edx
 MOV	[esi], eax
 ADD	esp, 4
-;Assign		SETTK		iprime		Temp62		
+;Assign		SETTK		iprime		Temp63		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -208,7 +237,7 @@ MOV	esi, ebp
 ADD	esi, -88
 POP	edx
 MOV	[esi], eax
-;Call		fp_prime_9		dst=Temp63		argc=0
+;Call		fp_prime_9		dst=Temp64		argc=0
 MOV	esi, ebp
 ADD	esi, 8
 ;MARK	esi, 8
@@ -221,7 +250,7 @@ ADD	esi, -128
 POP	edx
 MOV	[esi], eax
 ADD	esp, 4
-;Call		fp_fact1_7		dst=Temp64		argc=1
+;Call		fp_fact1_7		dst=Temp65		argc=1
 MOV	esi, ebp
 ADD	esi, 8
 ;MARK	esi, 8
@@ -242,7 +271,7 @@ ADD	esi, -132
 POP	edx
 MOV	[esi], eax
 ADD	esp, 8
-;Assign		SETTK		ans1		Temp64		
+;Assign		SETTK		ans1		Temp65		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -256,7 +285,7 @@ MOV	esi, ebp
 ADD	esi, -92
 POP	edx
 MOV	[esi], eax
-;Assign		ADDTK		Temp66		iprime		0
+;Assign		ADDTK		Temp67		iprime		0
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -275,7 +304,7 @@ MOV	esi, ebp
 ADD	esi, -136
 POP	edx
 MOV	[esi], eax
-;Call		fp_fact2_8		dst=Temp67		argc=1
+;Call		fp_fact2_8		dst=Temp68		argc=1
 MOV	esi, ebp
 ADD	esi, 8
 ;MARK	esi, 8
@@ -296,7 +325,7 @@ ADD	esi, -140
 POP	edx
 MOV	[esi], eax
 ADD	esp, 8
-;Assign		SETTK		ans2		Temp67		
+;Assign		SETTK		ans2		Temp68		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -504,7 +533,7 @@ MOV	[esi], eax
 JMP	Label19
 ;Label:		Label20
 Label20:
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		5		Label18
+;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		inputi		Label18
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -514,7 +543,11 @@ MOV	edx, [esi]
 POP	esi
 MOV	eax, edx
 PUSH	esi
-MOV	edx, 5
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -80
+POP	edx
+MOV	edx, [esi]
 POP	esi
 MOV	ebx, edx
 CMP	eax, ebx
@@ -566,7 +599,7 @@ PUSH	edx
 PUSH	esi
 PUSH	edi
 SUB	esp, 84
-;Assign		SUBTK		Temp9		0		1
+;Assign		SUBTK		Temp11		0		1
 PUSH	esi
 MOV	edx, 0
 POP	esi
@@ -581,7 +614,7 @@ MOV	esi, ebp
 ADD	esi, -52
 POP	edx
 MOV	[esi], eax
-;Assign		SUBTK		Temp9		0		Temp9
+;Assign		SUBTK		Temp11		0		Temp11
 PUSH	esi
 MOV	edx, 0
 POP	esi
@@ -600,7 +633,7 @@ MOV	esi, ebp
 ADD	esi, -52
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		t[0]		Temp9		
+;Assign		SETTK		t[0]		Temp11		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -619,7 +652,7 @@ IMUL	edx, 4
 ADD	esi, edx
 POP	edx
 MOV	[esi], eax
-;Assign		MULTK		Temp14		18		3
+;Assign		MULTK		Temp16		18		3
 PUSH	esi
 MOV	edx, 18
 POP	esi
@@ -634,7 +667,7 @@ MOV	esi, ebp
 ADD	esi, -56
 POP	edx
 MOV	[esi], eax
-;Assign		DIVTK		Temp14		Temp14		6
+;Assign		DIVTK		Temp16		Temp16		6
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -654,7 +687,7 @@ MOV	esi, ebp
 ADD	esi, -56
 POP	edx
 MOV	[esi], eax
-;Assign		SUBTK		Temp14		10		Temp14
+;Assign		SUBTK		Temp16		10		Temp16
 PUSH	esi
 MOV	edx, 10
 POP	esi
@@ -673,7 +706,7 @@ MOV	esi, ebp
 ADD	esi, -56
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		t[1]		Temp14		
+;Assign		SETTK		t[1]		Temp16		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -692,7 +725,7 @@ IMUL	edx, 4
 ADD	esi, edx
 POP	edx
 MOV	[esi], eax
-;Assign		SUBTK		Temp19		2		0
+;Assign		SUBTK		Temp21		2		0
 PUSH	esi
 MOV	edx, 2
 POP	esi
@@ -707,7 +740,7 @@ MOV	esi, ebp
 ADD	esi, -60
 POP	edx
 MOV	[esi], eax
-;Assign		SUBTK		Temp19		Temp19		0
+;Assign		SUBTK		Temp21		Temp21		0
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -726,7 +759,7 @@ MOV	esi, ebp
 ADD	esi, -60
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		t[2]		Temp19		
+;Assign		SETTK		t[2]		Temp21		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -745,7 +778,7 @@ IMUL	edx, 4
 ADD	esi, edx
 POP	edx
 MOV	[esi], eax
-;Assign		DIVTK		Temp23		6		2
+;Assign		DIVTK		Temp25		6		2
 PUSH	esi
 MOV	edx, 6
 POP	esi
@@ -761,7 +794,7 @@ MOV	esi, ebp
 ADD	esi, -64
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		i		Temp23		
+;Assign		SETTK		i		Temp25		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -777,7 +810,7 @@ POP	edx
 MOV	[esi], eax
 ;Label:		Label0
 Label0:
-;Assign		ADDTK		Temp26		2		4
+;Assign		ADDTK		Temp28		2		4
 PUSH	esi
 MOV	edx, 2
 POP	esi
@@ -792,7 +825,7 @@ MOV	esi, ebp
 ADD	esi, -68
 POP	edx
 MOV	[esi], eax
-;Assign		SUBTK		Temp28		i		1
+;Assign		SUBTK		Temp30		i		1
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -811,7 +844,7 @@ MOV	esi, ebp
 ADD	esi, -72
 POP	edx
 MOV	[esi], eax
-;Assign		SUBTK		Temp30		i		2
+;Assign		SUBTK		Temp32		i		2
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -830,7 +863,7 @@ MOV	esi, ebp
 ADD	esi, -76
 POP	edx
 MOV	[esi], eax
-;Assign		ADDTK		Temp31		t[Temp28]		t[Temp30]
+;Assign		ADDTK		Temp33		t[Temp30]		t[Temp32]
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -871,7 +904,7 @@ MOV	esi, ebp
 ADD	esi, -80
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		t[i]		Temp31		
+;Assign		SETTK		t[i]		Temp33		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -894,7 +927,7 @@ IMUL	edx, 4
 ADD	esi, edx
 POP	edx
 MOV	[esi], eax
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		Temp26		Label1
+;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		Temp28		Label1
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -936,7 +969,7 @@ MOV	[esi], eax
 JMP	Label0
 ;Label:		Label1
 Label1:
-;Assign		MULTK		Temp34		2		3
+;Assign		MULTK		Temp36		2		3
 PUSH	esi
 MOV	edx, 2
 POP	esi
@@ -951,7 +984,7 @@ MOV	esi, ebp
 ADD	esi, -84
 POP	edx
 MOV	[esi], eax
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		Temp34		Label2
+;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		Temp36		Label2
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1099,8 +1132,43 @@ PUSH	ecx
 PUSH	edx
 PUSH	esi
 PUSH	edi
-SUB	esp, 8
-;Assign		SUBTK		Temp3		0		b1
+SUB	esp, 12
+;Assign		ADDTK		Temp4		0		1
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, 8
+MOV	esi, [esi]
+POP	edx
+MOV	edx, [esi]
+POP	esi
+MOV	eax, edx
+PUSH	esi
+MOV	edx, 1
+POP	esi
+MOV	ebx, edx
+ADD	eax, ebx
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -4
+POP	edx
+MOV	[esi], eax
+;Assign		SETTK		0		Temp4		
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -4
+POP	edx
+MOV	edx, [esi]
+POP	esi
+MOV	eax, edx
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, 8
+MOV	esi, [esi]
+POP	edx
+MOV	[esi], eax
+;Assign		SUBTK		Temp5		0		b1
 PUSH	esi
 MOV	edx, 0
 POP	esi
@@ -1119,10 +1187,10 @@ MOV	ebx, edx
 SUB	eax, ebx
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -4
+ADD	esi, -8
 POP	edx
 MOV	[esi], eax
-;Assign		ADDTK		Temp3		a2		Temp3
+;Assign		ADDTK		Temp5		a2		Temp5
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1137,7 +1205,7 @@ MOV	eax, edx
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -4
+ADD	esi, -8
 POP	edx
 MOV	edx, [esi]
 POP	esi
@@ -1145,14 +1213,14 @@ MOV	ebx, edx
 ADD	eax, ebx
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -4
+ADD	esi, -8
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		a2		Temp3		
+;Assign		SETTK		a2		Temp5		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -4
+ADD	esi, -8
 POP	edx
 MOV	edx, [esi]
 POP	esi
@@ -1172,7 +1240,7 @@ PUSH	eax
 PUSH	ebx
 CALL	printf
 ADD	esp, 8
-;Assign		ADDTK		Temp6		1		10
+;Assign		ADDTK		Temp8		1		10
 PUSH	esi
 MOV	edx, 1
 POP	esi
@@ -1184,14 +1252,14 @@ MOV	ebx, edx
 ADD	eax, ebx
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -8
+ADD	esi, -12
 POP	edx
 MOV	[esi], eax
-;Write		Temp6
+;Write		Temp8
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -8
+ADD	esi, -12
 POP	edx
 MOV	edx, [esi]
 POP	esi
@@ -1431,7 +1499,7 @@ MOV	[esi], eax
 JMP	Label9
 ;Label:		Label8
 Label8:
-;Assign		SUBTK		Temp44		0		1
+;Assign		SUBTK		Temp46		0		1
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1450,7 +1518,7 @@ MOV	esi, ebp
 ADD	esi, -8
 POP	edx
 MOV	[esi], eax
-;Call		fp_fact1_7		dst=Temp45		argc=1
+;Call		fp_fact1_7		dst=Temp47		argc=1
 MOV	esi, ebp
 ADD	esi, 16
 PUSH	[esi - 4]
@@ -1469,7 +1537,7 @@ ADD	esi, -12
 POP	edx
 MOV	[esi], eax
 ADD	esp, 8
-;Assign		MULTK		Temp45		Temp45		0
+;Assign		MULTK		Temp47		Temp47		0
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1492,7 +1560,7 @@ MOV	esi, ebp
 ADD	esi, -12
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		fact1		Temp45		
+;Assign		SETTK		fact1		Temp47		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1508,6 +1576,36 @@ POP	edx
 MOV	[esi], eax
 ;Label:		Label9
 Label9:
+;Call		fp_proc2_5		(no ret)	argc=3
+MOV	esi, ebp
+ADD	esi, 16
+PUSH	[esi - 4]
+PUSH	edx
+MOV	esi, ebp
+;add display offset to esi:
+ADD	esi, 12
+;display is to esi:
+MOV	esi, [esi]
+POP	edx
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+;add display offset to esi:
+ADD	esi, 12
+;display is to esi:
+MOV	esi, [esi]
+POP	edx
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+;add display offset to esi:
+ADD	esi, 12
+;display is to esi:
+MOV	esi, [esi]
+POP	edx
+PUSH	esi
+CALL	fp_proc2_5		
+ADD	esp, 16
 MOV	eax, [ebp - 4]
 POP	edi
 POP	esi
@@ -1531,6 +1629,45 @@ PUSH	edx
 PUSH	esi
 PUSH	edi
 SUB	esp, 16
+;Call		fp_proc3_6		(no ret)	argc=3
+MOV	esi, ebp
+ADD	esi, 16
+PUSH	[esi - 4]
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+;add display offset to esi:
+ADD	esi, 12
+;display is to esi:
+MOV	esi, [esi]
+POP	edx
+MOV	edx, [esi]
+POP	esi
+PUSH	edx
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+;add display offset to esi:
+ADD	esi, 12
+;display is to esi:
+MOV	esi, [esi]
+POP	edx
+MOV	edx, [esi]
+POP	esi
+PUSH	edx
+PUSH	esi
+PUSH	edx
+MOV	esi, ebp
+;add display offset to esi:
+ADD	esi, 12
+;display is to esi:
+MOV	esi, [esi]
+POP	edx
+MOV	edx, [esi]
+POP	esi
+PUSH	edx
+CALL	fp_proc3_6		
+ADD	esp, 16
 ;LARGETK		Condition		LARGETK		0		1		Label10
 PUSH	esi
 PUSH	edx
@@ -1574,7 +1711,7 @@ POP	edx
 MOV	[esi], eax
 ;Label:		Label12
 Label12:
-;Assign		MULTK		Temp49		temp		0
+;Assign		MULTK		Temp51		temp		0
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1597,7 +1734,7 @@ MOV	esi, ebp
 ADD	esi, -12
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		temp		Temp49		
+;Assign		SETTK		temp		Temp51		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1611,7 +1748,7 @@ MOV	esi, ebp
 ADD	esi, -8
 POP	edx
 MOV	[esi], eax
-;Assign		SUBTK		Temp51		0		1
+;Assign		SUBTK		Temp53		0		1
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp
@@ -1630,7 +1767,7 @@ MOV	esi, ebp
 ADD	esi, -16
 POP	edx
 MOV	[esi], eax
-;Assign		SETTK		0		Temp51		
+;Assign		SETTK		0		Temp53		
 PUSH	esi
 PUSH	edx
 MOV	esi, ebp

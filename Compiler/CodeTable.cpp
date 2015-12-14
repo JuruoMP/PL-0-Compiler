@@ -146,7 +146,8 @@ CallCode::CallCode(Callable* cal, Temp* target, std::vector<Temp*> args)
 	}
 	else
 	{
-		assert(0 == 1);
+		code_table->error("Identifier not callable.");
+		//assert(0 == 1);
 	}
 	this->target = target;
 	for (int i = 0; i < args.size(); ++i)
@@ -155,22 +156,22 @@ CallCode::CallCode(Callable* cal, Temp* target, std::vector<Temp*> args)
 		Temp* passin = args.at(i);
 		if (require == NULL)
 		{
-			assert(0 == 1);
-			//error("too many parameter(s)");
+			code_table->error("Too many parameter(s).");
+			//assert(0 == 1);
 		}
 		else if (require->real && 
 			(passin->temp_type == VALUETP || passin->temp_type == TEMPTP || passin->temp_type == CONSTTP))
 		{
-			assert(0 == 1);
-			//error("var type parameter is not writable");
+			code_table->error("'var' type parameter is not writable.");
+			//assert(0 == 1);
 		}
 		else
 			this->args.push_back(passin);
 	}
 	if (cal->getParaAt(args.size()) != NULL)
 	{
-		assert(0 == 1);
-		//error("too less parameter(s)");
+		code_table->error("Too less parameter(s).");
+		//assert(0 == 1);
 	}
 	code_table->insertCode(this);
 }
@@ -212,11 +213,12 @@ WriteCode::WriteCode(char* content)
 	code_table->insertCode(this);
 }
 
-WriteCode::WriteCode(Temp* temp)
+WriteCode::WriteCode(Temp* temp, bool use_char)
 : Code(WRITEKD, "Write")
 {
 	this->is_string = false;
-	this->value.temp = temp;
+	this->value.ident.temp = temp;
+	this->value.ident.use_char = use_char;
 	code_table->insertCode(this);
 }
 
@@ -227,7 +229,7 @@ std::string WriteCode::print()
 	if (this->is_string)
 		str += "String" + int2string(this->value.str_id);
 	else
-		str += this->value.temp->print();
+		str += this->value.ident.temp->print();
 	return str;
 }
 
@@ -351,7 +353,8 @@ bool CodeTable::insertCode(Code* code)
 	}
 	else
 	{
-		assert(0 == 1);
+		code_table->error("Invalid code.");
+		//assert(0 == 1);
 	}
 	return true;
 }
@@ -425,7 +428,8 @@ void CodeTable::Node::compile()
 				asmcode = new Asm(ASMJNE, args);
 				break;
 			default:
-				assert(0 == 1);
+				code_table->error("Not a compare operation.");
+				//assert(0 == 1);
 			}
 			this->asms.push_back(asmcode);
 		}
@@ -655,13 +659,22 @@ void CodeTable::Node::compile()
 				Temp* arg = code->args.at(i);
 				if (arg->temp_type == VALUETP)
 				{
-					assert(para->real == false);
+					if (para->real)
+						code_table->error("Value type can not be passed by address.");
+					//assert(para->real == false);
 					sprintf_s(value, MAXLEN - 1, "%d", arg->value);
 					push(value);
 				}
 				else if (arg->temp_type == TEMPTP || arg->temp_type == CONSTTP)
 				{
-					assert(para->real == false);
+					if (para->real)
+					{
+						if (arg->temp_type == TEMPTP)
+							code_table->error("Temp value can not be passed by address.");
+						else
+							code_table->error("Const type can not be passed by address.");
+						//assert(para->real == false);
+					}
 					getTempValue(arg);
 					push("edx");
 				}
@@ -680,7 +693,8 @@ void CodeTable::Node::compile()
 				}
 				else
 				{
-					assert(0 == 1);
+					code_table->error("Parameter invalid.");
+					//assert(0 == 1);
 				}
 			}
 			//callº¯Êý
@@ -764,13 +778,17 @@ void CodeTable::Node::compile()
 				//getTempValue()
 				//mov eax edx
 				//lea ebx, _value
-				getTempValue(code->value.temp);
+				getTempValue(code->value.ident.temp);
 				args.clear();
 				args.push_back("eax"); args.push_back("edx");
 				asmcode = new Asm(ASMMOV, args);
 				this->asms.push_back(asmcode);
 				args.clear();
-				args.push_back("ebx"); args.push_back("_value");
+				args.push_back("ebx");
+				if(code->value.ident.use_char)
+					args.push_back("_charac");
+				else
+					args.push_back("_value");
 				asmcode = new Asm(ASMLEA, args);
 				this->asms.push_back(asmcode);
 			}
@@ -1021,6 +1039,11 @@ void CodeTable::End()
 	this->nodes[1]->asms.push_back(new Asm(ASMJMP, args));
 }
 
+void CodeTable::error(char* err_info)
+{
+	std::cerr << err_info << std::endl;
+}
+
 void CodeTable::Node::push(std::string str)
 {
 	std::vector<std::string> args;
@@ -1059,3 +1082,7 @@ int StringTable::add(char* str)
 
 CodeTable* CodeTable::codetable = NULL;
 StringTable* StringTable::stringtable = NULL;
+
+char code_error[][MAXLEN] = {
+	""
+};

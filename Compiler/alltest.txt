@@ -26,6 +26,7 @@ procedure proc1;
 				write(tmp);
 			end;
 		begin
+			a := a + 1;
 			a2 := a2 + (-b1);
 			write("char integer const var for if array of ", 01 + 10);
 			write(c1);

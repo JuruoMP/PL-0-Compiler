@@ -125,10 +125,13 @@ public:
 	union VALUE
 	{
 		int str_id;
-		Temp* temp;
+		struct{
+			Temp* temp;
+			bool use_char;
+		}ident;
 	}value;
 	WriteCode(char* content);
-	WriteCode(Temp* temp);
+	WriteCode(Temp* temp, bool use_char);
 	std::string print();
 };
 
@@ -169,6 +172,7 @@ public:
 	bool insertCode(Code* code);
 	void Init();
 	void End();
+	void error(char* err_info);
 };
 
 class StringTable
