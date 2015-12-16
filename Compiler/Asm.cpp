@@ -5,7 +5,7 @@ char* opcode[64] = {
 	"LEA", "LDS", "LES", "LFS", "LGS", "LSS",
 	"LAHF", "SAHF", "PUSHF", "POPF", "PUSHD", "POPD",
 	"JMP", "CALL", "RET",
-	"ADD", "SUB", "IMUL", "IDIV", "INC", "DEC", "NEC",
+	"ADD", "SUB", "IMUL", "IDIV", "INC", "DEC", "NEC", "CDQ", 
 	"CMP", "JE", "JNE", "JL", "JNL", "JG", "JNG",
 	";MARK", ";"
 };

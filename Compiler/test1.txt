@@ -1,0 +1,32 @@
+var a, b : integer;
+
+procedure myswap;
+	var temp : integer;
+	begin
+		temp = a;
+		a = b;
+		b = temp;
+	end
+
+function mymod(n, m : integer);
+	begin
+		if 
+		begin
+			...
+		end
+		else mymod := mymod(n, m);
+	end
+
+function mygcd(n, m : integer);
+	begin
+		if
+		begin
+			...
+		end
+		else mygcd := mygcd(m, mymod(n, m));
+	end
+
+function mylcm(n, m : integer)
+	begin
+		mylcm = n * m / mygcd(m, n);
+	end

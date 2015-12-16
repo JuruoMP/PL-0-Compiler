@@ -159,6 +159,7 @@
     <Text Include="Symbol.txt" />
     <Text Include="SymbolTable.txt" />
     <Text Include="test.txt" />
+    <Text Include="test1.txt" />
     <Text Include="文法.txt" />
   </ItemGroup>
   <ItemGroup>

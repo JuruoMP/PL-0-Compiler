@@ -3,12 +3,12 @@
 char _string[] = "%s";
 char _value[] = "%d";
 char _charac[] = "%c";
-char in_string0[] = "i = ";
-char in_string1[] = "char integer const var for if array of ";
-char in_string2[] = "Compile error";
-char in_string3[] = "Sub check passed";
-char in_string4[] = "result > 10";
-char in_string5[] = "Compile error";
+char in_string0[] = " ";
+char in_string1[] = " ";
+char in_string2[] = " ";
+char in_string3[] = " ";
+char in_string4[] = " ";
+char in_string5[] = " ";
 int main()
 {
 _asm{
@@ -25,178 +25,516 @@ PUSH	ecx
 PUSH	edx
 PUSH	esi
 PUSH	edi
-PUSH	10
-PUSH	-5
-PUSH	1
-PUSH	122
 SUB	esp, 136
-;Assign		SETTK		e		63		
+;Assign		ADDTK		Temp4		1		1
+;getTempValue Srart:
 PUSH	esi
-MOV	edx, 63
+MOV	edx, 1
 POP	esi
+;getTempValue End:
 MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -32
-POP	edx
-MOV	[esi], eax
-;Read		inputc
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -76
-POP	edx
-MOV	eax, esi
-LEA	ebx, _value
-PUSH	eax
-PUSH	ebx
-CALL	scanf
-ADD	esp, 8
-;Read		inputi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -80
-POP	edx
-MOV	eax, esi
-LEA	ebx, _value
-PUSH	eax
-PUSH	ebx
-CALL	scanf
-ADD	esp, 8
-;Assign		MULTK		Temp58		e		4
+;getTempValue Srart:
 PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -32
-POP	edx
-MOV	edx, [esi]
+MOV	edx, 1
 POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 4
-POP	esi
+;getTempValue End:
 MOV	ebx, edx
-IMUL	eax, ebx
+ADD	eax, ebx
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -112
+ADD	esi, -128
 POP	edx
+;getTempAddr End:
 MOV	[esi], eax
-;Assign		MULTK		Temp60		e		2
+;Assign		SETTK		a		Temp4		
+;getTempValue Srart:
 PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -32
+ADD	esi, -128
 POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
+;getTempValue End:
 MOV	eax, edx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -28
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		ADDTK		Temp6		2		a
+;getTempValue Srart:
 PUSH	esi
 MOV	edx, 2
 POP	esi
-MOV	ebx, edx
-IMUL	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -116
-POP	edx
-MOV	[esi], eax
-;Assign		DIVTK		Temp58		Temp58		Temp60
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -112
-POP	edx
-MOV	edx, [esi]
-POP	esi
+;getTempValue End:
 MOV	eax, edx
+;getTempValue Srart:
 PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -116
+ADD	esi, -28
 POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
-MOV	ebx, edx
-SUB	edx, edx
-IDIV	ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -112
-POP	edx
-MOV	[esi], eax
-;Call		fp_fact1_7		dst=Temp61		argc=1
-MOV	esi, ebp
-ADD	esi, 8
-;MARK	esi, 8
-LEA	edi, [ebp - 4]
-PUSH	edi
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -80
-POP	edx
-MOV	edx, [esi]
-POP	esi
-PUSH	edx
-CALL	fp_fact1_7		
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -120
-POP	edx
-MOV	[esi], eax
-ADD	esp, 8
-;Assign		ADDTK		Temp58		Temp58		Temp61
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -112
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -120
-POP	edx
-MOV	edx, [esi]
-POP	esi
+;getTempValue End:
 MOV	ebx, edx
 ADD	eax, ebx
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -112
+ADD	esi, -132
 POP	edx
+;getTempAddr End:
 MOV	[esi], eax
-;Assign		SETTK		result		Temp58		
+;Assign		SETTK		b		Temp6		
+;getTempValue Srart:
 PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -112
+ADD	esi, -132
 POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
+;getTempValue End:
 MOV	eax, edx
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -84
+ADD	esi, -32
 POP	edx
+;getTempAddr End:
 MOV	[esi], eax
-;SMALLEQUTK		Condition		SMALLEQUTK		result		10		Label13
+;Assign		SUBTK		Temp8		b		2
+;getTempValue Srart:
 PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -84
+ADD	esi, -32
 POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
+;getTempValue End:
 MOV	eax, edx
+;getTempValue Srart:
 PUSH	esi
-MOV	edx, 10
+MOV	edx, 2
 POP	esi
+;getTempValue End:
 MOV	ebx, edx
-CMP	eax, ebx
-JNG	Label13
+SUB	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -136
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		SETTK		c		Temp8		
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -136
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -36
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		DIVTK		Temp9		b		c
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -32
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -36
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+CDQ	
+IDIV	ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -140
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		SETTK		d		Temp9		
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -140
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -40
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Write		String0
+LEA	eax, in_string0
+LEA	ebx, _string
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Write		a
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -28
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Write		String1
+LEA	eax, in_string1
+LEA	ebx, _string
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Write		b
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -32
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Write		String2
+LEA	eax, in_string2
+LEA	ebx, _string
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Write		c
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -36
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Write		String3
+LEA	eax, in_string3
+LEA	ebx, _string
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Write		d
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -40
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
+;Assign		ADDTK		Temp10		a		b
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -28
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -32
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+ADD	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		MULTK		Temp10		Temp10		c
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -36
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+IMUL	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		ADDTK		Temp11		d		a
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -40
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -28
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+ADD	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -148
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		DIVTK		Temp11		Temp11		b
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -148
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -32
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+CDQ	
+IDIV	ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -148
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		ADDTK		Temp10		Temp10		Temp11
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -148
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+ADD	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		DIVTK		Temp10		Temp10		d
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -40
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+CDQ	
+IDIV	ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		SETTK		a		Temp10		
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -144
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -28
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
 ;Write		String4
 LEA	eax, in_string4
 LEA	ebx, _string
@@ -204,160 +542,317 @@ PUSH	eax
 PUSH	ebx
 CALL	printf
 ADD	esp, 8
-;Goto:		Label14
-JMP	Label14
-;Label:		Label13
-Label13:
-;Label:		Label14
-Label14:
-;Call		fp_prime_9		dst=Temp63		argc=0
-MOV	esi, ebp
-ADD	esi, 8
-;MARK	esi, 8
-LEA	edi, [ebp - 4]
-PUSH	edi
-CALL	fp_prime_9		
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -124
-POP	edx
-MOV	[esi], eax
-ADD	esp, 4
-;Assign		SETTK		iprime		Temp63		
+;Write		a
+;getTempValue Srart:
 PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -124
+ADD	esi, -28
 POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
+;getTempValue End:
 MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -88
-POP	edx
-MOV	[esi], eax
-;Call		fp_prime_9		dst=Temp64		argc=0
-MOV	esi, ebp
-ADD	esi, 8
-;MARK	esi, 8
-LEA	edi, [ebp - 4]
-PUSH	edi
-CALL	fp_prime_9		
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -128
-POP	edx
-MOV	[esi], eax
-ADD	esp, 4
-;Call		fp_fact1_7		dst=Temp65		argc=1
-MOV	esi, ebp
-ADD	esi, 8
-;MARK	esi, 8
-LEA	edi, [ebp - 4]
-PUSH	edi
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -128
-POP	edx
-MOV	edx, [esi]
-POP	esi
-PUSH	edx
-CALL	fp_fact1_7		
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -132
-POP	edx
-MOV	[esi], eax
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	printf
 ADD	esp, 8
-;Assign		SETTK		ans1		Temp65		
+;Assign		SETTK		arr[0]		1		
+;getTempValue Srart:
 PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -132
-POP	edx
-MOV	edx, [esi]
+MOV	edx, 1
 POP	esi
+;getTempValue End:
 MOV	eax, edx
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -92
-POP	edx
-MOV	[esi], eax
-;Assign		ADDTK		Temp67		iprime		0
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -88
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
+ADD	esi, -120
+;getTempValue Srart:
 PUSH	esi
 MOV	edx, 0
 POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -136
+;getTempValue End:
+IMUL	edx, edx, 4
+ADD	esi, edx
 POP	edx
+;getTempAddr End:
 MOV	[esi], eax
-;Call		fp_fact2_8		dst=Temp68		argc=1
-MOV	esi, ebp
-ADD	esi, 8
-;MARK	esi, 8
-LEA	edi, [ebp - 4]
-PUSH	edi
+;Assign		SETTK		arr[1]		1		
+;getTempValue Srart:
 PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -136
-POP	edx
-MOV	edx, [esi]
+MOV	edx, 1
 POP	esi
-PUSH	edx
-CALL	fp_fact2_8		
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -140
-POP	edx
-MOV	[esi], eax
-ADD	esp, 8
-;Assign		SETTK		ans2		Temp68		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -140
-POP	edx
-MOV	edx, [esi]
-POP	esi
+;getTempValue End:
 MOV	eax, edx
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -96
+ADD	esi, -120
+;getTempValue Srart:
+PUSH	esi
+MOV	edx, 1
+POP	esi
+;getTempValue End:
+IMUL	edx, edx, 4
+ADD	esi, edx
 POP	edx
+;getTempAddr End:
 MOV	[esi], eax
-;abel:EQUTK		Condition		EQUTK		ans1		ans2		Label15
+;Assign		SETTK		i		2		
+;getTempValue Srart:
 PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -92
-POP	edx
-MOV	edx, [esi]
+MOV	edx, 2
 POP	esi
+;getTempValue End:
 MOV	eax, edx
-PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -96
+ADD	esi, -124
 POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Label:		Label0
+Label0:
+;LARGETK		Condition		LARGETK		i		19		Label1
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+MOV	edx, 19
+POP	esi
+;getTempValue End:
 MOV	ebx, edx
 CMP	eax, ebx
-JE	Label15
+JG	Label1
+;Assign		SUBTK		Temp19		i		1
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+MOV	edx, 1
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+SUB	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -152
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		SUBTK		Temp21		i		2
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+MOV	edx, 2
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+SUB	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -156
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		ADDTK		Temp22		arr[Temp19]		arr[Temp21]
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -120
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -152
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+IMUL	edx, edx, 4
+ADD	esi, edx
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -120
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -156
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+IMUL	edx, edx, 4
+ADD	esi, edx
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+ADD	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -160
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		SETTK		arr[i]		Temp22		
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -160
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -120
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+IMUL	edx, edx, 4
+ADD	esi, edx
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Assign		ADDTK		i		i		1
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+MOV	edx, 1
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+ADD	eax, ebx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Goto:		Label0
+JMP	Label0
+;Label:		Label1
+Label1:
+;Assign		SETTK		i		0		
+;getTempValue Srart:
+PUSH	esi
+MOV	edx, 0
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
+MOV	[esi], eax
+;Label:		Label2
+Label2:
+;LARGETK		Condition		LARGETK		i		19		Label3
+;getTempValue Srart:
+PUSH	esi
+;getTempAddr Srart:
+PUSH	edx
+MOV	esi, ebp
+ADD	esi, -124
+POP	edx
+;getTempAddr End:
+MOV	edx, [esi]
+POP	esi
+;getTempValue End:
+MOV	eax, edx
+;getTempValue Srart:
+PUSH	esi
+MOV	edx, 19
+POP	esi
+;getTempValue End:
+MOV	ebx, edx
+CMP	eax, ebx
+JG	Label3
 ;Write		String5
 LEA	eax, in_string5
 LEA	ebx, _string
@@ -365,216 +860,68 @@ PUSH	eax
 PUSH	ebx
 CALL	printf
 ADD	esp, 8
-;Goto:		Label16
-JMP	Label16
-;Label:		Label15
-Label15:
-;Label:		Label16
-Label16:
-;Call		fp_proc1_2		(no ret)	argc=0
-MOV	esi, ebp
-ADD	esi, 8
-;MARK	esi, 8
-LEA	edi, [ebp - 4]
-PUSH	edi
-CALL	fp_proc1_2		
-ADD	esp, 4
-;Assign		SETTK		i		2		
+;Write		arr[i]
+;getTempValue Srart:
 PUSH	esi
-MOV	edx, 2
-POP	esi
-MOV	eax, edx
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -100
-POP	edx
-MOV	[esi], eax
-;Label:		Label17
-Label17:
-;Assign		SETTK		j		i		
+ADD	esi, -120
+;getTempValue Srart:
 PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -100
+ADD	esi, -124
 POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -104
-POP	edx
-MOV	[esi], eax
-;Label:		Label19
-Label19:
-;Assign		ADDTK		Temp72		0		0
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -144
-POP	edx
-MOV	[esi], eax
-;Assign		ADDTK		Temp73		i		j
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -100
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -104
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -148
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp74		i		j
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -100
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -104
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -152
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		arr[Temp73]		Temp74		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -152
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -72
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -148
-POP	edx
-MOV	edx, [esi]
-POP	esi
-IMUL	edx, 4
+;getTempValue End:
+IMUL	edx, edx, 4
 ADD	esi, edx
 POP	edx
-MOV	[esi], eax
-;SMALLEQUTK		Condition		SMALLEQUTK		j		Temp72		Label20
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -104
-POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
+;getTempValue End:
 MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -144
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JNG	Label20
-;Assign		SUBTK		j		j		1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -104
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -104
-POP	edx
-MOV	[esi], eax
-;Goto:		Label19
-JMP	Label19
-;Label:		Label20
-Label20:
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		inputi		Label18
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -100
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -80
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JNL	Label18
+LEA	ebx, _value
+PUSH	eax
+PUSH	ebx
+CALL	printf
+ADD	esp, 8
 ;Assign		ADDTK		i		i		1
+;getTempValue Srart:
 PUSH	esi
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -100
+ADD	esi, -124
 POP	edx
+;getTempAddr End:
 MOV	edx, [esi]
 POP	esi
+;getTempValue End:
 MOV	eax, edx
+;getTempValue Srart:
 PUSH	esi
 MOV	edx, 1
 POP	esi
+;getTempValue End:
 MOV	ebx, edx
 ADD	eax, ebx
+;getTempAddr Srart:
 PUSH	edx
 MOV	esi, ebp
-ADD	esi, -100
+ADD	esi, -124
 POP	edx
+;getTempAddr End:
 MOV	[esi], eax
-;Goto:		Label17
-JMP	Label17
-;Label:		Label18
-Label18:
+;Goto:		Label2
+JMP	Label2
+;Label:		Label3
+Label3:
 POP	edi
 POP	esi
 POP	edx
@@ -584,1274 +931,6 @@ POP	eax
 MOV	esp, ebp
 POP	ebp
 JMP	ENDPOINT
-
-
-
-;NODE : 2
-;FP:(2)		fp_proc1_2
-fp_proc1_2:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	eax
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 84
-;Assign		SUBTK		Temp11		0		1
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -52
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp11		0		Temp11
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -52
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -52
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		t[0]		Temp11		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -52
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-MOV	edx, 0
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	[esi], eax
-;Assign		MULTK		Temp16		18		3
-PUSH	esi
-MOV	edx, 18
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 3
-POP	esi
-MOV	ebx, edx
-IMUL	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -56
-POP	edx
-MOV	[esi], eax
-;Assign		DIVTK		Temp16		Temp16		6
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -56
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 6
-POP	esi
-MOV	ebx, edx
-SUB	edx, edx
-IDIV	ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -56
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp16		10		Temp16
-PUSH	esi
-MOV	edx, 10
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -56
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -56
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		t[1]		Temp16		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -56
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-MOV	edx, 1
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp21		2		0
-PUSH	esi
-MOV	edx, 2
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -60
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp21		Temp21		0
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -60
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -60
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		t[2]		Temp21		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -60
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-MOV	edx, 2
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	[esi], eax
-;Assign		DIVTK		Temp25		6		2
-PUSH	esi
-MOV	edx, 6
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 2
-POP	esi
-MOV	ebx, edx
-SUB	edx, edx
-IDIV	ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -64
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		i		Temp25		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -64
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	[esi], eax
-;Label:		Label0
-Label0:
-;Assign		ADDTK		Temp28		2		4
-PUSH	esi
-MOV	edx, 2
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 4
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -68
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp30		i		1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -72
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp32		i		2
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 2
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -76
-POP	edx
-MOV	[esi], eax
-;Assign		ADDTK		Temp33		t[Temp30]		t[Temp32]
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -72
-POP	edx
-MOV	edx, [esi]
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -76
-POP	edx
-MOV	edx, [esi]
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -80
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		t[i]		Temp33		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -80
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	edx, [esi]
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	[esi], eax
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		Temp28		Label1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -68
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JNL	Label1
-;Assign		ADDTK		i		i		1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	[esi], eax
-;Goto:		Label0
-JMP	Label0
-;Label:		Label1
-Label1:
-;Assign		MULTK		Temp36		2		3
-PUSH	esi
-MOV	edx, 2
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 3
-POP	esi
-MOV	ebx, edx
-IMUL	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -84
-POP	edx
-MOV	[esi], eax
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		i		Temp36		Label2
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -44
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -84
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JNL	Label2
-;Write		String2
-LEA	eax, in_string2
-LEA	ebx, _string
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-;Goto:		Label3
-JMP	Label3
-;Label:		Label2
-Label2:
-;Label:		Label3
-Label3:
-;Assign		SETTK		tmp		t[2]		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-MOV	edx, 2
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -48
-POP	edx
-MOV	[esi], eax
-;Call		fp_proc2_3		(no ret)	argc=3
-MOV	esi, ebp
-ADD	esi, 12
-PUSH	[esi - 4]
-;MARK	[esi - 4]
-LEA	edi, [ebp - 4]
-PUSH	edi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 8
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-MOV	edx, 1
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-MOV	edx, 2
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-PUSH	esi
-CALL	fp_proc2_3		
-ADD	esp, 20
-;abel:EQUTK		Condition		EQUTK		t[2]		tmp		Label4
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -40
-PUSH	esi
-MOV	edx, 2
-POP	esi
-IMUL	edx, 4
-ADD	esi, edx
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -48
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JE	Label4
-;Write		String3
-LEA	eax, in_string3
-LEA	ebx, _string
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-;Goto:		Label5
-JMP	Label5
-;Label:		Label4
-Label4:
-;Label:		Label5
-Label5:
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-POP	eax
-MOV	esp, ebp
-POP	ebp
-RET	
-
-
-
-;NODE : 3
-;FP:(3)		fp_proc2_3
-fp_proc2_3:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	eax
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 12
-;Assign		ADDTK		Temp4		0		1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		0		Temp4		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-MOV	esi, [esi]
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp5		0		b1
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 24
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	[esi], eax
-;Assign		ADDTK		Temp5		a2		Temp5
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 24
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		a2		Temp5		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 24
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	[esi], eax
-;Write		String1
-LEA	eax, in_string1
-LEA	ebx, _string
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-;Assign		ADDTK		Temp8		1		10
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 10
-POP	esi
-MOV	ebx, edx
-ADD	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	[esi], eax
-;Write		Temp8
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-LEA	ebx, _value
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-;Write		c1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 24
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-LEA	ebx, _value
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-;Call		fp_proc3_4		(no ret)	argc=0
-MOV	esi, ebp
-ADD	esi, 28
-PUSH	[esi - 4]
-PUSH	[esi - 8]
-;MARK	[esi - 8]
-LEA	edi, [ebp - 4]
-PUSH	edi
-CALL	fp_proc3_4		
-ADD	esp, 12
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-POP	eax
-MOV	esp, ebp
-POP	ebp
-RET	
-
-
-
-;NODE : 4
-;FP:(4)		fp_proc3_4
-fp_proc3_4:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	eax
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 4
-;Assign		SETTK		tmp		10		
-PUSH	esi
-MOV	edx, 10
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	[esi], eax
-;Write		String0
-LEA	eax, in_string0
-LEA	ebx, _string
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-;Write		i
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 12
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-LEA	ebx, _value
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-;Write		tmp
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-LEA	ebx, _value
-PUSH	eax
-PUSH	ebx
-CALL	printf
-ADD	esp, 8
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-POP	eax
-MOV	esp, ebp
-POP	ebp
-RET	
-
-
-
-;NODE : 5
-;FP:(5)		fp_proc2_5
-fp_proc2_5:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	eax
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 0
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-POP	eax
-MOV	esp, ebp
-POP	ebp
-RET	
-
-
-
-;NODE : 6
-;FP:(6)		fp_proc3_6
-fp_proc3_6:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	eax
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 0
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-POP	eax
-MOV	esp, ebp
-POP	ebp
-RET	
-
-
-
-;NODE : 7
-;FP:(7)		fp_fact1_7
-fp_fact1_7:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 12
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		0		0		Label6
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JNL	Label6
-;Assign		SETTK		0		0		
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	[esi], eax
-;Goto:		Label7
-JMP	Label7
-;Label:		Label6
-Label6:
-;Label:		Label7
-Label7:
-;bel:NEQUTK		Condition		NEQUTK		0		0		Label8
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 0
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JNE	Label8
-;Assign		SETTK		fact1		1		
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	[esi], eax
-;Goto:		Label9
-JMP	Label9
-;Label:		Label8
-Label8:
-;Assign		SUBTK		Temp46		0		1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	[esi], eax
-;Call		fp_fact1_7		dst=Temp47		argc=1
-MOV	esi, ebp
-ADD	esi, 16
-PUSH	[esi - 4]
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-PUSH	edx
-CALL	fp_fact1_7		
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	[esi], eax
-ADD	esp, 8
-;Assign		MULTK		Temp47		Temp47		0
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-IMUL	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		fact1		Temp47		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	[esi], eax
-;Label:		Label9
-Label9:
-;Call		fp_proc2_5		(no ret)	argc=3
-MOV	esi, ebp
-ADD	esi, 16
-PUSH	[esi - 4]
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 12
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 12
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 12
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-PUSH	esi
-CALL	fp_proc2_5		
-ADD	esp, 16
-MOV	eax, [ebp - 4]
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-MOV	esp, ebp
-POP	ebp
-RET	
-
-
-
-;NODE : 8
-;FP:(8)		fp_fact2_8
-fp_fact2_8:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 16
-;Call		fp_proc3_6		(no ret)	argc=3
-MOV	esi, ebp
-ADD	esi, 16
-PUSH	[esi - 4]
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 12
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-PUSH	edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 12
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-PUSH	edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-;add display offset to esi:
-ADD	esi, 12
-;display is to esi:
-MOV	esi, [esi]
-POP	edx
-MOV	edx, [esi]
-POP	esi
-PUSH	edx
-CALL	fp_proc3_6		
-ADD	esp, 16
-;LARGETK		Condition		LARGETK		0		1		Label10
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JG	Label10
-;Assign		SETTK		0		1		
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	[esi], eax
-;Goto:		Label11
-JMP	Label11
-;Label:		Label10
-Label10:
-;Label:		Label11
-Label11:
-;Assign		SETTK		temp		1		
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	[esi], eax
-;Label:		Label12
-Label12:
-;Assign		MULTK		Temp51		temp		0
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	ebx, edx
-IMUL	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		temp		Temp51		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -12
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	[esi], eax
-;Assign		SUBTK		Temp53		0		1
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-SUB	eax, ebx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -16
-POP	edx
-MOV	[esi], eax
-;Assign		SETTK		0		Temp53		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -16
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	[esi], eax
-;Label:LARGEEQUTK		Condition		LARGEEQUTK		0		1		Label12
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, 8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	esi
-MOV	edx, 1
-POP	esi
-MOV	ebx, edx
-CMP	eax, ebx
-JNL	Label12
-;Assign		SETTK		fact2		temp		
-PUSH	esi
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -8
-POP	edx
-MOV	edx, [esi]
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	[esi], eax
-MOV	eax, [ebp - 4]
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-MOV	esp, ebp
-POP	ebp
-RET	
-
-
-
-;NODE : 9
-;FP:(9)		fp_prime_9
-fp_prime_9:
-PUSH	ebp
-MOV	ebp, esp
-PUSH	ebx
-PUSH	ecx
-PUSH	edx
-PUSH	esi
-PUSH	edi
-SUB	esp, 4
-;Assign		SETTK		prime		7		
-PUSH	esi
-MOV	edx, 7
-POP	esi
-MOV	eax, edx
-PUSH	edx
-MOV	esi, ebp
-ADD	esi, -4
-POP	edx
-MOV	[esi], eax
-MOV	eax, [ebp - 4]
-POP	edi
-POP	esi
-POP	edx
-POP	ecx
-POP	ebx
-MOV	esp, ebp
-POP	ebp
-RET	
 
 ENDPOINT :
 }

@@ -71,7 +71,7 @@ bool SymbolTable::insertIdent(Identifier* ident)
 	}
 	if (it != nodes[index]->idents.end())
 		return false;
-	if (ident->type == CONST)
+	if (ident->type == CONSTINT || ident->type == CONSTCHAR)
 	{
 		Constance* cons = dynamic_cast<Constance*>(ident);
 		Identifier* newcons = new Constance(*cons);
@@ -97,7 +97,7 @@ bool SymbolTable::insertIdent(Identifier* ident)
 		nodes[index]->idents.push_back(newarr);
 		nodes[index]->offset_cnt += arr->len;
 		nodes[index]->last_var = nodes[index]->offset_cnt;
-		nodes[index]->last_temp = nodes[index]->last_const;
+		nodes[index]->last_temp = nodes[index]->last_var;
 	}
 	else if (ident->type == PARA)
 	{
@@ -153,7 +153,9 @@ Identifier* SymbolTable::findIdent(char* name)
 		}
 		tindex = nodes[tindex]->father_index;
 	}
-	assert(0 == 1);
+	std::string str_name = name;
+	this->error("Identifier(" + str_name +  ")not found");
+	//assert(0 == 1);
 	return NULL;
 }
 
@@ -189,7 +191,8 @@ Temp* SymbolTable::findTemp(int id)
 		}
 		tindex = nodes[tindex]->father_index;
 	}
-	assert(0 == 1);
+	this->error("Temp" + int2string(id) + "not found");
+	//assert(0 == 1);
 	return NULL;
 }
 
@@ -199,6 +202,11 @@ bool SymbolTable::sameLevel(Node &a, Node &b)
 		return true;
 	else
 		return false;
+}
+
+void SymbolTable::error(std::string str)
+{
+	std::cerr << str << std::endl;
 }
 
 Identifier::Identifier(char* name, TYPE type)
@@ -217,11 +225,11 @@ ADDR Identifier::getOffset()
 	if (this->type == PARA)
 		return UNITSIZE * (2 + this->offset);
 	else
-		return UNITSIZE * this->offset;
+		return UNITSIZE * (-6 + this->offset);
 }
 
-Constance::Constance(char* name, int value) 
-: Identifier(name, CONST)
+Constance::Constance(char* name, int value, TYPE type) 
+: Identifier(name, type)
 {
 	this->value = value;
 	this->offset -= 1;
@@ -368,7 +376,7 @@ Temp::Temp(Identifier* ident, bool has_subscript, Temp* subscribe)
 	if (ident->type == INT || ident->type == CHAR ||
 		ident->type == INTARRAY || ident->type == CHARARRAY)
 		this->temp_type = VARTP;
-	else if (ident->type == CONST)
+	else if (ident->type == CONSTINT || ident->type == CONSTCHAR)
 		this->temp_type = CONSTTP;
 	else if (ident->type == PARA)
 	{

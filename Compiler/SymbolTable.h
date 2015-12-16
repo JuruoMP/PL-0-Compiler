@@ -12,7 +12,8 @@
 
 enum TYPE
 {
-	CONST,
+	CONSTINT,
+	CONSTCHAR,
 	INT,
 	CHAR,
 	INTARRAY,
@@ -73,7 +74,7 @@ class Constance : public Identifier
 {
 public:
 	int value;
-	Constance(char* name, int value);
+	Constance(char* name, int value, TYPE type);
 	Constance(const Constance& cons);
 	std::string print() { return NULL; }
 };
@@ -171,6 +172,7 @@ public:
 	//check if a and b are at same level
 	bool sameLevel(Node &a, Node &b);
 	Identifier* ret2head(Identifier* ret);
+	void error(std::string str);
 };//symbol_table;
 //int SymbolTable::symboltable_index = 1;
 

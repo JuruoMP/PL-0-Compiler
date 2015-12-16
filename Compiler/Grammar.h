@@ -67,7 +67,7 @@ public:
 	void semiProgram();
 	void constIllu();
 	void constDec();
-	int constVal();
+	int constVal(TYPE *type);
 	//void charVal();
 	//void stringVal();
 	//void intVal();
@@ -105,6 +105,7 @@ public:
 	//void letter();
 	//void number();
 	void error(WORD word, GRAMMAR_ERROR no);
+	void readpass(std::vector<SymbolTK> stopword);
 };
 
 #endif

@@ -11,7 +11,7 @@ StringTable* string_table;
 extern Temp* zero;
 extern Temp* one;
 
-//#define ASMDEBUG
+#define ASMDEBUG
 //#define LESSPUSHPOP
 
 int Label::label_cnt = 0;
@@ -213,12 +213,11 @@ WriteCode::WriteCode(char* content)
 	code_table->insertCode(this);
 }
 
-WriteCode::WriteCode(Temp* temp, bool use_char)
+WriteCode::WriteCode(Temp* temp)
 : Code(WRITEKD, "Write")
 {
 	this->is_string = false;
-	this->value.ident.temp = temp;
-	this->value.ident.use_char = use_char;
+	this->value.temp = temp;
 	code_table->insertCode(this);
 }
 
@@ -229,7 +228,7 @@ std::string WriteCode::print()
 	if (this->is_string)
 		str += "String" + int2string(this->value.str_id);
 	else
-		str += this->value.ident.temp->print();
+		str += this->value.temp->print();
 	return str;
 }
 
@@ -541,11 +540,10 @@ void CodeTable::Node::compile()
 					this->asms.push_back(asmcode);
 					break;
 				case DIVTK:
-					//sub edx, edx
+					//cdq
 					//idiv ebx	<-edx.eax/ebx, eaxÉÌ edxÓàÊý
 					args.clear();
-					args.push_back("edx"); args.push_back("edx");
-					asmcode = new Asm(ASMSUB, args);
+					asmcode = new Asm(ASMCDQ, args);
 					this->asms.push_back(asmcode);
 					args.clear();
 					args.push_back("ebx");
@@ -734,7 +732,13 @@ void CodeTable::Node::compile()
 			asmcode = new Asm(ASMMOV, args);
 			this->asms.push_back(asmcode);
 			args.clear();
-			args.push_back("ebx"); args.push_back("_value");
+			args.push_back("ebx");
+			if (code->temp->ident->type == CHAR ||
+				code->temp->ident->type == CHARARRAY ||
+				code->temp->ident->type == CONSTCHAR)
+				args.push_back("_charac");
+			else
+				args.push_back("_value");
 			asmcode = new Asm(ASMLEA, args);
 			this->asms.push_back(asmcode);
 			push("eax");
@@ -778,17 +782,30 @@ void CodeTable::Node::compile()
 				//getTempValue()
 				//mov eax edx
 				//lea ebx, _value
-				getTempValue(code->value.ident.temp);
+				getTempValue(code->value.temp);
 				args.clear();
 				args.push_back("eax"); args.push_back("edx");
 				asmcode = new Asm(ASMMOV, args);
 				this->asms.push_back(asmcode);
 				args.clear();
 				args.push_back("ebx");
-				if(code->value.ident.use_char)
-					args.push_back("_charac");
-				else
+				if (code->value.temp->temp_type == VALUETP)
+				{
 					args.push_back("_value");
+				}
+				else if (code->value.temp->temp_type != TEMPTP)
+				{
+					if (code->value.temp->ident->type == CHAR ||
+						code->value.temp->ident->type == CHARARRAY ||
+						code->value.temp->ident->type == CONSTCHAR)
+						args.push_back("_charac");
+					else
+						args.push_back("_value");
+				}
+				else
+				{
+					args.push_back("_value");
+				}
 				asmcode = new Asm(ASMLEA, args);
 				this->asms.push_back(asmcode);
 			}
@@ -983,9 +1000,9 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 	if (temp->has_subscript)//only IDENTTP
 	{
 		getTempValue(temp->subscribe);
-		//imul edx, 4
+		//imul edx, edx, 4
 		args.clear();
-		args.push_back("edx"); args.push_back("4");
+		args.push_back("edx"); args.push_back("edx"); args.push_back("4");
 		asmcode = new Asm(ASMMUL, args);
 		this->asms.push_back(asmcode);
 		//add esi, edx

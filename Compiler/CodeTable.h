@@ -125,13 +125,10 @@ public:
 	union VALUE
 	{
 		int str_id;
-		struct{
-			Temp* temp;
-			bool use_char;
-		}ident;
+		Temp* temp;
 	}value;
 	WriteCode(char* content);
-	WriteCode(Temp* temp, bool use_char);
+	WriteCode(Temp* temp);
 	std::string print();
 };
 

@@ -193,20 +193,21 @@ void Grammar::constDec()
 		error(word, EXPECTIDENT);
 	}
 	int value;
+	TYPE type;
 	if (word.token == EQUTK)
 	{
 		getSym();
-		value = constVal();
+		value = constVal(&type);
 	}
 	else
 	{
 		valid = false;
 		error(word, EXPECTEQU);
 	}
-	Constance cons(name, value);
+	Constance cons(name, value, type);
 }
 
-int Grammar::constVal()
+int Grammar::constVal(TYPE *type)
 {
 #ifdef GrammarDebug
 	std::cout << "In ConstVal" << std::endl;
@@ -214,6 +215,7 @@ int Grammar::constVal()
 	int value = 1;
 	if (word.token == ADDTK || word.token == SUBTK || word.token == ITK)
 	{
+		*type = CONSTINT;
 		if (word.token == ADDTK)
 		{
 			getSym();
@@ -235,6 +237,7 @@ int Grammar::constVal()
 	}
 	else if (word.token == SQUOTETK)
 	{
+		*type = CONSTCHAR;
 		value *= word.value.num;
 		getSym();
 	}
@@ -886,7 +889,8 @@ void Grammar::factor(Temp **result)
 		{
 			error(word, IDENTNOTDEFINED);
 		}
-		else if (ident->type == CONST || ident->type == INT || ident->type == CHAR)
+		else if (ident->type == CONSTINT || ident->type == CONSTCHAR
+			|| ident->type == INT || ident->type == CHAR)
 		{
 			*result = new Temp(ident, false, NULL);
 			getSym();
@@ -1187,6 +1191,10 @@ void Grammar::forSentence()
 	}
 	Temp *end_value = NULL;
 	expression(&end_value);//B
+	if (is_to)
+		ConditionCode condition_code(LARGETK, temp_ident, end_value, label2);
+	else
+		ConditionCode condition_code(SMALLTK, temp_ident, end_value, label2);
 	if (word.token == DOTK)
 	{
 		getSym();
@@ -1198,13 +1206,11 @@ void Grammar::forSentence()
 	sentence();
 	if (is_to)
 	{
-		ConditionCode condition_code(LARGEEQUTK, temp_ident, end_value, label2);
 		AssignCode assign_code(ADDTK, temp_ident, temp_ident, one);
 		GotoCode goto_code(label1);
 	}
 	else
 	{
-		ConditionCode condition_code(SMALLEQUTK, temp_ident, end_value, label2);
 		AssignCode assign_code(SUBTK, temp_ident, temp_ident, one);
 		GotoCode goto_code(label1);
 	}
@@ -1357,9 +1363,9 @@ void Grammar::writeSentence()
 			Temp *temp = NULL;
 			expression(&temp);
 			if (temp->temp_type == VALUETP)
-				WriteCode write_code2(temp, true);
+				WriteCode write_code2(temp);
 			else
-				WriteCode write_code2(temp, false);
+				WriteCode write_code2(temp);
 		}
 	}
 	else
@@ -1367,9 +1373,9 @@ void Grammar::writeSentence()
 		Temp *temp = NULL;
 		expression(&temp);
 		if (temp->temp_type == VALUETP)
-			WriteCode write_code2(temp, true);
+			WriteCode write_code2(temp);
 		else
-			WriteCode write_code2(temp, false);
+			WriteCode write_code2(temp);
 	}
 	if (word.token == RPARENTTK)
 	{
@@ -1382,7 +1388,7 @@ void Grammar::writeSentence()
 }
 
 char grammar_error[][MAXLEN] = {
-	"Grammar error", "Expect dot tokem", "Expect type", "Expect basic type", 
+	"Grammar error", "Expect dot token", "Expect type token", "Expect basic type token", 
 	"Expect Procedure token", "Expect Identifier token", "Expect Square bracket token", 
 	"Expect a number", "Expect semicolon token", "Expect const token", "Expect equal token", 
 	"Expect set token", "Expect var token", "Expect colon token", "Expect left parent", "Expect right parent", 
@@ -1396,4 +1402,24 @@ void Grammar::error(WORD word, GRAMMAR_ERROR no)
 	errcnt++;
 	std::cerr << "ERROR " << errcnt << " : " << grammar_error[no] << 
 		"@" << word.position.mlineno << std::endl;
+	std::vector<SymbolTK> stopword;
+	stopword.push_back(SEMICOLONTK);
+	this->readpass(stopword);
+}
+
+void Grammar::readpass(std::vector<SymbolTK> stopword)
+{
+	bool stop_flag = false;
+	while (stop_flag == false)
+	{
+		this->getSym();
+		for (int i = 0; i < stopword.size(); ++i)
+		{
+			if (word.token == stopword.at(i))
+			{
+				stop_flag = true;
+				break;
+			}
+		}
+	}
 }

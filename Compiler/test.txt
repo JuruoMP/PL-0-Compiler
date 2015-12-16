@@ -1,106 +1,21 @@
-const a1 = 010, b1 = -5, c1 = +1, d = 'z';
-
-var a2 : integer;
-    b2, c2 : char;
-	e : char;
-	arr : array[10] of integer;
-	inputc : char;
-	inputi : integer;
-	result : integer;
-	iprime : integer;
-	ans1, ans2 : integer;
-	i, j : integer;
-	n : integer;
-	
-procedure proc1;
-	var t : array[010] of char;
-		i : integer;
-		tmp : integer;
-		
-	procedure proc2(var a, b:integer; var c:char);
-		procedure proc3;
-			var tmp : char;
-			begin
-				tmp := 10;
-				write("i = ", i);
-				write(tmp);
-			end;
-		begin
-			a := a + 1;
-			a2 := a2 + (-b1);
-			write("char integer const var for if array of ", 01 + 10);
-			write(c1);
-			proc3;
-		end;
-	
-	begin
-		t[0] := -(-1);
-		t[1] := +10 - 18 * 3 / 6;
-		t[2] := 002-000-0000;
-		for i := 6 / 2 to 2 + 4 do
-			t[i] := t[i - 1] + t[i - 2];
-		if i < (2 * 3)
-		then write("Compile error");
-		tmp := t[2];
-		proc2(t[2], t[1], e);
-		if t[2] <> tmp
-		then write("Sub check passed");
-	end;
-	
-procedure proc2(var a, b:integer; var c:char);
-	begin
-		;
-	end;
-	
-procedure proc3(a, b:integer; c:char);
-	begin
-	end;
-	
-function fact1(n:integer):integer;
-	begin
-		if n < 0
-		then n := 0;
-		if n = 0
-		then fact1 := 1
-		else fact1 := fact1(n - 1) * n;
-		proc2(a2, inputi, inputc);
-	end;
-
-function fact2(n:integer):integer;
-	var temp : integer;
-	begin
-		proc3(a2, inputi, inputc);
-		if n <= 1
-		then n := 1;
-		temp := 1;
-		do
-		begin
-			temp := temp * n;
-			n := n - 1;
-		end
-		while n >= 1;
-		fact2 := temp
-	end;
-	
-function prime:integer;
+var a,b,c,d:integer;
+arr : array[20] of integer;
+i:integer;
 begin
-	prime := 7;
-end;
-	
-begin
-	e := 63;
-	read(inputc, inputi);
-	result := e * 4 / (e * 2) + fact1(inputi);
-	if result > 10
-	then write("result > 10");
-	iprime := prime;
-	ans1 := fact1(prime);
-	ans2 := fact2(iprime + 0);
-	if ans1 <> ans2
-	then write("Compile error");
-	proc1;
-	for i := 2 to inputi do
-		for j := i downto 0 + 0 do
-			arr[i + j] := i - j;
-end
-.
+	a:=1+1;
+	b:=2+a;
+	c:=b-2;
+	d:=b/c;
+	write(" ",a);
+	write(" ",b);
+	write(" ",c);
+	write(" ",d);
+	a:= ((a+b)*c+(d+a)/b)/d;
+	write(" ", a);
+	arr[0]:=1;
+	arr[1]:=1;
+	for i:=2 to 19 do
+		arr[i]:=arr[i-1]+arr[i-2];
+	for i:= 0 to 19 do 
+		write(" ",arr[i]);
+end.
