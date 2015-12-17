@@ -22,6 +22,9 @@ Asm::Asm(char* label_name)
 
 Asm::Asm(ASMTYPE type, std::vector<std::string> args)
 {
+#ifdef _DEBUG
+	this->is_str = false;
+#endif
 	this->is_label = false;
 	this->m_type = type;
 	for (int i = 0; i < args.size(); ++i)

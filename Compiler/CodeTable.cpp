@@ -11,7 +11,7 @@ StringTable* string_table;
 extern Temp* zero;
 extern Temp* one;
 
-#define ASMDEBUG
+//#define ASMDEBUG
 //#define LESSPUSHPOP
 
 int Label::label_cnt = 0;
@@ -464,13 +464,16 @@ void CodeTable::Node::compile()
 			//push consts, vars, temps
 			int nodeid = this->index;
 			SymbolTable::Node* node = symbol_table->nodes[nodeid];
-			for (int i = 0; i < node->last_const; ++i)
+			for (int i = 0; i < node->idents.size(); ++i)
 			{
-				Identifier* ident = node->idents.at(i);
-				Constance* cons = dynamic_cast<Constance*>(ident);
-				char value[MAXLEN];
-				sprintf_s(value, MAXLEN - 1, "%d", cons->value);
-				push(value);
+				if (node->idents.at(i)->type == CONSTINT || node->idents.at(i)->type == CONSTCHAR)
+				{
+					Identifier* ident = node->idents.at(i);
+					Constance* cons = dynamic_cast<Constance*>(ident);
+					char value[MAXLEN];
+					sprintf_s(value, MAXLEN - 1, "%d", cons->value);
+					push(value);
+				}
 			}
 			//esp -= (node->last_temp - node->last_const) * UNITSIZE;
 			args.clear();
@@ -590,6 +593,12 @@ void CodeTable::Node::compile()
 			//$esi = $ebp + display_offset
 			//mov esi, ebp
 			//add esi, display_offset
+#ifdef ASMDEBUG
+			this->asms.push_back(new Asm(";calculate display base addr"));
+#endif
+#ifdef ASMDEBUG
+			this->asms.push_back(new Asm(";this->display base -> esi"));
+#endif
 			args.clear();
 			args.push_back("esi"); args.push_back("ebp");
 			asmcode = new Asm(ASMMOV, args);
@@ -605,6 +614,8 @@ void CodeTable::Node::compile()
 			//push [display_base($esi) + i * UNITSIZE]
 			/*
 			|consts		|
+			|ret value	|
+			|registers	|
 			|___________|
 			|prev ebp	|
 			|ret addr	|
@@ -613,6 +624,9 @@ void CodeTable::Node::compile()
 			|display1	|/_____display_offset
 			|...		|\
 			*/
+#ifdef ASMDEBUG
+			this->asms.push_back(new Asm(";start pushing display"));
+#endif
 			if (caller_display_cnt < callee_display_cnt)
 			{
 				//case of calling sub function
@@ -624,13 +638,15 @@ void CodeTable::Node::compile()
 					asmcode = new Asm(ASMPUSH, args);
 					this->asms.push_back(asmcode);
 				}
-				//the last display is (ebp - 4) of caller
-				//lea edi, [ebp - 4]
+				//the last display is ebp of caller
+				//lea edi, [ebp]
 				//push edi
-				this->asms.push_back(new Asm(ASMMARK, args));
+#ifdef ASMDEBUG
+				this->asms.push_back(new Asm("display_cnt"));
+#endif
 				args.clear();
 				char value[MAXLEN];
-				sprintf_s(value, MAXLEN - 1, "[ebp - %d]", UNITSIZE);
+				sprintf_s(value, MAXLEN - 1, "[ebp]");
 				args.push_back("edi"); args.push_back(value);
 				asmcode = new Asm(ASMLEA, args);
 				this->asms.push_back(asmcode);
@@ -648,6 +664,12 @@ void CodeTable::Node::compile()
 					this->asms.push_back(asmcode);
 				}
 			}
+#ifdef ASMDEBUG
+			this->asms.push_back(new Asm(";end pushing display"));
+#endif
+#ifdef ASMDEBUG
+			this->asms.push_back(new Asm(";start pushing parameters"));
+#endif
 			//push reversed parameters to stack
 			for (int i = code->args.size() - 1; i >= 0; --i)
 			{
@@ -676,7 +698,20 @@ void CodeTable::Node::compile()
 					getTempValue(arg);
 					push("edx");
 				}
-				else if (arg->temp_type == VARTP)
+				else if (arg->temp_type == VARTP || arg->temp_type == FORMPARA)
+				{
+					if (para->real)
+					{
+						getTempAddr(arg);
+						push("esi");
+					}
+					else
+					{
+						getTempValue(arg);
+						push("edx");
+					}
+				}
+				else if (arg->temp_type == REALPARA)
 				{
 					if (para->real)
 					{
@@ -695,6 +730,9 @@ void CodeTable::Node::compile()
 					//assert(0 == 1);
 				}
 			}
+#ifdef ASMDEBUG
+			this->asms.push_back(new Asm(";end pushing parameterst"));
+#endif
 			//callº¯Êý
 			args.clear();
 			args.push_back(code->str);
@@ -797,7 +835,8 @@ void CodeTable::Node::compile()
 				{
 					if (code->value.temp->ident->type == CHAR ||
 						code->value.temp->ident->type == CHARARRAY ||
-						code->value.temp->ident->type == CONSTCHAR)
+						code->value.temp->ident->type == CONSTCHAR || 
+						code->value.temp->ident->type == PARACHAR)
 						args.push_back("_charac");
 					else
 						args.push_back("_value");
@@ -834,11 +873,11 @@ void CodeTable::Node::compile()
 	}
 	if(symbol_table->nodes[this->index]->is_proc == false)
 	{
-		//mov eax, [ebp + UNITSIZE]
+		//mov eax, [ebp + 6 * UNITSIZE]
 		args.clear();
 		args.push_back("eax");
 		char value[MAXLEN];
-		sprintf_s(value, MAXLEN - 1, "[ebp - %d]", UNITSIZE);
+		sprintf_s(value, MAXLEN - 1, "[ebp - %d]", 6 * UNITSIZE);
 		args.push_back(value);
 		asmcode = new Asm(ASMMOV, args);
 		this->asms.push_back(asmcode);
@@ -996,6 +1035,7 @@ void CodeTable::Node::getTempAddr(Temp *temp)
 		sprintf_s(value, MAXLEN - 1, "%d", ident_base_offset);
 		args.push_back(value);
 		asmcode = new Asm(ASMADD, args);
+		this->asms.push_back(asmcode);
 	}
 	if (temp->has_subscript)//only IDENTTP
 	{

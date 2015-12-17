@@ -18,7 +18,8 @@ enum TYPE
 	CHAR,
 	INTARRAY,
 	CHARARRAY,
-	PARA,
+	PARAINT,
+	PARACHAR,
 	PROC,
 	FUNCINT,
 	FUNCCHAR,
@@ -101,7 +102,7 @@ class Parameter : public Identifier
 {
 public:
 	bool real;//true if pass by value, false if pass by address
-	Parameter(char* name, bool real);
+	Parameter(char* name, bool real, TYPE type);
 	Parameter(const Parameter& para);
 	std::string print() { return NULL; }
 };

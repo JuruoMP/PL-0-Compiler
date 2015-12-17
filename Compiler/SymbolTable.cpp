@@ -99,7 +99,7 @@ bool SymbolTable::insertIdent(Identifier* ident)
 		nodes[index]->last_var = nodes[index]->offset_cnt;
 		nodes[index]->last_temp = nodes[index]->last_var;
 	}
-	else if (ident->type == PARA)
+	else if (ident->type == PARAINT || ident->type == PARACHAR)
 	{
 		Parameter* para = dynamic_cast<Parameter*>(ident);
 		Identifier* newpara = new Parameter(*para);
@@ -214,7 +214,7 @@ Identifier::Identifier(char* name, TYPE type)
 	strcpy_s(this->name, MAXLEN - 1, name);
 	this->type = type;
 	this->this_node = symbol_table->index;
-	if (this->type == PARA)
+	if (this->type == PARAINT || this->type == PARACHAR)
 		this->offset = symbol_table->nodes[symbol_table->index]->last_para++;
 	else
 		this->offset = -symbol_table->nodes[symbol_table->index]->offset_cnt;
@@ -222,10 +222,12 @@ Identifier::Identifier(char* name, TYPE type)
 
 ADDR Identifier::getOffset()
 {
-	if (this->type == PARA)
+	if (this->type == PARAINT || this->type == PARACHAR)
 		return UNITSIZE * (2 + this->offset);
-	else
+	else if (symbol_table->nodes[this->this_node]->is_proc)//procedure
 		return UNITSIZE * (-6 + this->offset);
+	else//function
+		return UNITSIZE * (-5 + this->offset);
 }
 
 Constance::Constance(char* name, int value, TYPE type) 
@@ -277,8 +279,8 @@ Array::Array(const Array& arr)
 	this->len = arr.len;
 }
 
-Parameter::Parameter(char* name, bool real)
-: Identifier(name, PARA)
+Parameter::Parameter(char* name, bool real, TYPE type)
+: Identifier(name, type)
 {
 	this->real = real;
 	symbol_table->insertIdent(this);
@@ -378,7 +380,7 @@ Temp::Temp(Identifier* ident, bool has_subscript, Temp* subscribe)
 		this->temp_type = VARTP;
 	else if (ident->type == CONSTINT || ident->type == CONSTCHAR)
 		this->temp_type = CONSTTP;
-	else if (ident->type == PARA)
+	else if (ident->type == PARAINT || ident->type == PARACHAR)
 	{
 		Parameter* para = dynamic_cast<Parameter*>(ident);
 		if (para->real)
@@ -417,7 +419,8 @@ std::string Temp::print()
 	std::string str;
 	if (this == NULL)
 		str = "NULL";
-	else if (this->temp_type == CONSTTP || this->temp_type == VARTP)
+	else if (this->temp_type == CONSTTP || this->temp_type == VARTP || 
+		this->temp_type == REALPARA || this->temp_type == FORMPARA)
 	{
 		str = this->ident->name;
 		if (this->has_subscript)

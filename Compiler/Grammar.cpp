@@ -663,12 +663,12 @@ void Grammar::paraSegement()
 	TYPE type;
 	if (word.token == INTTK)
 	{
-		type = INT;
+		type = PARAINT;
 		getSym();
 	}
 	else if (word.token == CHARTK)
 	{
-		type = CHAR;
+		type = PARACHAR;
 		getSym();
 	}
 	else
@@ -677,7 +677,7 @@ void Grammar::paraSegement()
 	}
 	for (int i = 0; i < cnt; ++i)
 	{
-		Parameter para(name[i], real);
+		Parameter para(name[i], real, type);
 	}
 }
 
@@ -724,7 +724,7 @@ void Grammar::sentence()
 		else if (ident->type == INT || ident->type == CHAR || 
 			ident->type == INTARRAY || ident->type == CHARARRAY ||
 			ident->type == RETINT || ident->type == RETCHAR ||
-			ident->type == PARA)
+			ident->type == PARAINT || ident->type == PARACHAR)
 		{
 			setSentence();
 		}
@@ -919,11 +919,11 @@ void Grammar::factor(Temp **result)
 			*result = new Temp(ident, true, offset);
 		}
 		else if (ident->type == RETINT || ident->type == RETCHAR ||
-			ident->type == FUNCINT || ident->type == RETCHAR)
+			ident->type == FUNCINT || ident->type == FUNCCHAR)
 		{
 			funcSentence(result);
 		}
-		else if (ident->type == PARA)
+		else if (ident->type == PARAINT || ident->type == PARACHAR)
 		{
 			*result = new Temp(ident, false, NULL);
 			getSym();
