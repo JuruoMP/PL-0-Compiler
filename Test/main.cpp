@@ -3,10 +3,12 @@
 char _string[] = "%s";
 char _value[] = "%d";
 char _charac[] = "%c";
-char in_string0[] = "  ";
-char in_string1[] = "  ";
-char in_string2[] = "  ";
-char in_string3[] = "  ";
+char in_string0[] = "PASS3 ";
+char in_string1[] = "FAILE3 ";
+char in_string2[] = "PASS2 ";
+char in_string3[] = "FAILE2 ";
+char in_string4[] = "PASS1 ";
+char in_string5[] = "FAILE1 ";
 int main()
 {
 	_asm{
@@ -23,41 +25,10 @@ int main()
 			PUSH	edx
 			PUSH	esi
 			PUSH	edi
-			SUB	esp, 12
-			; Call		fp_p1_2(no ret)	argc = 1
-			MOV	esi, ebp
-			ADD	esi, 8
-			LEA	edi, [ebp]
-			PUSH	edi
-			PUSH	4
-			CALL	fp_p1_2
-			ADD	esp, 8
-			; Assign		ADDTK		Temp8		b		10
+			SUB	esp, 4
+			; Assign		SETTK		a1		1
 			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -32
-			POP	edx
-			MOV	edx, [esi]
-			POP	esi
-			MOV	eax, edx
-			PUSH	esi
-			MOV	edx, 10
-			POP	esi
-			MOV	ebx, edx
-			ADD	eax, ebx
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -36
-			POP	edx
-			MOV[esi], eax
-			; Assign		SETTK		a		Temp8
-			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -36
-			POP	edx
-			MOV	edx, [esi]
+			MOV	edx, 1
 			POP	esi
 			MOV	eax, edx
 			PUSH	edx
@@ -65,28 +36,54 @@ int main()
 			ADD	esi, -28
 			POP	edx
 			MOV[esi], eax
-			; Write		String3
-			LEA	eax, in_string3
+			; Call		fp_p1_5(no ret)	argc = 1
+			MOV	esi, ebp
+			ADD	esi, 8
+			LEA	edi, [ebp]
+			PUSH	edi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			PUSH	esi
+			CALL	fp_p1_5
+			ADD	esp, 8
+			; bel:NEQUTK		Condition		NEQUTK		a1		4		Label4
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			MOV	edx, 4
+			POP	esi
+			MOV	ebx, edx
+			CMP	eax, ebx
+			JNE	Label4
+			; Write		String4
+			LEA	eax, in_string4
 			LEA	ebx, _string
 			PUSH	eax
 			PUSH	ebx
 			CALL	printf
 			ADD	esp, 8
-			; Write		a
-			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -28
-			POP	edx
-			MOV	edx, [esi]
-			POP	esi
-			MOV	eax, edx
-			LEA	ebx, _value
+			; Goto:		Label5
+			JMP	Label5
+			; Label:		Label4
+		Label4 :
+		; Write		String5
+			LEA	eax, in_string5
+			LEA	ebx, _string
 			PUSH	eax
 			PUSH	ebx
 			CALL	printf
 			ADD	esp, 8
-			POP	edi
+			; Label:		Label5
+		Label5 :
+		POP	edi
 			POP	esi
 			POP	edx
 			POP	ecx
@@ -99,22 +96,36 @@ int main()
 
 
 			; NODE: 2
-			; FP:(2)		fp_p1_2
-		fp_p1_2 :
+			; FP:(2)		fp_f1_2
+		fp_f1_2 :
 		PUSH	ebp
 			MOV	ebp, esp
-			PUSH	eax
 			PUSH	ebx
 			PUSH	ecx
 			PUSH	edx
 			PUSH	esi
 			PUSH	edi
-			PUSH	2
-			PUSH	97
-			PUSH	100
-			PUSH	99
-			SUB	esp, 8
-			; Write		a
+			SUB	esp, 16
+			; Call		fp_f2_3		dst = Temp8		argc = 1
+			MOV	esi, ebp
+			ADD	esi, 16
+			PUSH[esi - 4]
+			LEA	edi, [ebp]
+			PUSH	edi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, 8
+			MOV	esi, [esi]
+			POP	edx
+			PUSH	esi
+			CALL	fp_f2_3
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -32
+			POP	edx
+			MOV[esi], eax
+			ADD	esp, 12
+			; Assign		SETTK		a1		Temp8
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
@@ -123,12 +134,32 @@ int main()
 			MOV	edx, [esi]
 			POP	esi
 			MOV	eax, edx
-			LEA	ebx, _charac
-			PUSH	eax
-			PUSH	ebx
-			CALL	printf
-			ADD	esp, 8
-			; Assign		ADDTK		Temp4		d		a
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			MOV[esi], eax
+			; Assign		ADDTK		Temp10		e1		1
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, 8
+			MOV	esi, [esi]
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			MOV	edx, 1
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -36
+			POP	edx
+			MOV[esi], eax
+			; Assign		SETTK		e1		Temp10
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
@@ -137,39 +168,13 @@ int main()
 			MOV	edx, [esi]
 			POP	esi
 			MOV	eax, edx
-			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
-			ADD	esi, -32
-			POP	edx
-			MOV	edx, [esi]
-			POP	esi
-			MOV	ebx, edx
-			ADD	eax, ebx
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -44
+			ADD	esi, 8
+			MOV	esi, [esi]
 			POP	edx
 			MOV[esi], eax
-			; Assign		SETTK		b		Temp4
-			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -44
-			POP	edx
-			MOV	edx, [esi]
-			POP	esi
-			MOV	eax, edx
-			PUSH	edx
-			MOV	esi, ebp
-			; add display offset to esi :
-		ADD	esi, 12
-			; display is to esi :
-		MOV	esi, [esi]
-			ADD	esi, -32
-			POP	edx
-			MOV[esi], eax
-			; Call		fp_p2_3(no ret)	argc = 1
+			; Call		fp_p2_4(no ret)	argc = 1
 			MOV	esi, ebp
 			ADD	esi, 16
 			PUSH[esi - 4]
@@ -178,25 +183,117 @@ int main()
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
-			; add display offset to esi :
-		ADD	esi, 12
-			; display is to esi :
-		MOV	esi, [esi]
-			ADD	esi, -32
+			ADD	esi, 8
+			MOV	esi, [esi]
 			POP	edx
 			MOV	edx, [esi]
 			POP	esi
 			PUSH	edx
-			CALL	fp_p2_3
+			CALL	fp_p2_4
 			ADD	esp, 12
-			; Write		String2
-			LEA	eax, in_string2
-			LEA	ebx, _string
+			; Assign		SETTK		f1		5
+			PUSH	esi
+			MOV	edx, 5
+			POP	esi
+			MOV	eax, edx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -24
+			POP	edx
+			MOV[esi], eax
+			MOV	eax, [ebp - 24]
+			POP	edi
+			POP	esi
+			POP	edx
+			POP	ecx
+			POP	ebx
+			MOV	esp, ebp
+			POP	ebp
+			RET
+
+
+
+			; NODE: 3
+			; FP:(3)		fp_f2_3
+		fp_f2_3 :
+		PUSH	ebp
+			MOV	ebp, esp
+			PUSH	ebx
+			PUSH	ecx
+			PUSH	edx
+			PUSH	esi
+			PUSH	edi
+			SUB	esp, 8
+			; Assign		ADDTK		Temp3		e3		1
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, 8
+			MOV	esi, [esi]
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			MOV	edx, 1
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			MOV[esi], eax
+			; Assign		SETTK		e3		Temp3
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, 8
+			MOV	esi, [esi]
+			POP	edx
+			MOV[esi], eax
+			; Assign		SETTK		f2		5
+			PUSH	esi
+			MOV	edx, 5
+			POP	esi
+			MOV	eax, edx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -24
+			POP	edx
+			MOV[esi], eax
+			MOV	eax, [ebp - 24]
+			POP	edi
+			POP	esi
+			POP	edx
+			POP	ecx
+			POP	ebx
+			MOV	esp, ebp
+			POP	ebp
+			RET
+
+
+
+			; NODE: 4
+			; FP:(4)		fp_p2_4
+		fp_p2_4 :
+		PUSH	ebp
+			MOV	ebp, esp
 			PUSH	eax
 			PUSH	ebx
-			CALL	printf
-			ADD	esp, 8
-			; Assign		ADDTK		Temp5		q		two
+			PUSH	ecx
+			PUSH	edx
+			PUSH	esi
+			PUSH	edi
+			SUB	esp, 4
+			; Assign		ADDTK		Temp6		e4		1
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
@@ -206,34 +303,69 @@ int main()
 			POP	esi
 			MOV	eax, edx
 			PUSH	esi
+			MOV	edx, 1
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			MOV[esi], eax
+			; Assign		SETTK		e4		Temp6
+			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
 			ADD	esi, -28
 			POP	edx
 			MOV	edx, [esi]
 			POP	esi
-			MOV	ebx, edx
-			ADD	eax, ebx
+			MOV	eax, edx
 			PUSH	edx
 			MOV	esi, ebp
-			ADD	esi, -48
+			ADD	esi, 8
 			POP	edx
 			MOV[esi], eax
-			; Write		Temp5
+			; bel:NEQUTK		Condition		NEQUTK		a1		5		Label0
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
-			ADD	esi, -48
+			; add display offset to esi :
+		ADD	esi, 12
+			; display is to esi :
+		MOV	esi, [esi]
+			ADD	esi, -28
 			POP	edx
 			MOV	edx, [esi]
 			POP	esi
 			MOV	eax, edx
-			LEA	ebx, _value
+			PUSH	esi
+			MOV	edx, 5
+			POP	esi
+			MOV	ebx, edx
+			CMP	eax, ebx
+			JNE	Label0
+			; Write		String0
+			LEA	eax, in_string0
+			LEA	ebx, _string
 			PUSH	eax
 			PUSH	ebx
 			CALL	printf
 			ADD	esp, 8
-			POP	edi
+			; Goto:		Label1
+			JMP	Label1
+			; Label:		Label0
+		Label0 :
+		; Write		String1
+			LEA	eax, in_string1
+			LEA	ebx, _string
+			PUSH	eax
+			PUSH	ebx
+			CALL	printf
+			ADD	esp, 8
+			; Label:		Label1
+		Label1 :
+		POP	edi
 			POP	esi
 			POP	edx
 			POP	ecx
@@ -245,9 +377,9 @@ int main()
 
 
 
-			; NODE: 3
-			; FP:(3)		fp_p2_3
-		fp_p2_3 :
+			; NODE: 5
+			; FP:(5)		fp_p1_5
+		fp_p1_5 :
 		PUSH	ebp
 			MOV	ebp, esp
 			PUSH	eax
@@ -257,25 +389,18 @@ int main()
 			PUSH	esi
 			PUSH	edi
 			SUB	esp, 12
-			; Assign		ADDTK		Temp2		x		a
+			; Assign		ADDTK		Temp13		e1		1
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
 			ADD	esi, 8
+			MOV	esi, [esi]
 			POP	edx
 			MOV	edx, [esi]
 			POP	esi
 			MOV	eax, edx
 			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			; add display offset to esi :
-		ADD	esi, 12
-			; display is to esi :
-		MOV	esi, [esi]
-			ADD	esi, -32
-			POP	edx
-			MOV	edx, [esi]
+			MOV	edx, 1
 			POP	esi
 			MOV	ebx, edx
 			ADD	eax, ebx
@@ -284,7 +409,7 @@ int main()
 			ADD	esi, -32
 			POP	edx
 			MOV[esi], eax
-			; Assign		SETTK		y		Temp2
+			; Assign		SETTK		e1		Temp13
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
@@ -295,93 +420,77 @@ int main()
 			MOV	eax, edx
 			PUSH	edx
 			MOV	esi, ebp
-			ADD	esi, -28
+			ADD	esi, 8
+			MOV	esi, [esi]
 			POP	edx
 			MOV[esi], eax
-			; Write		String0
-			LEA	eax, in_string0
-			LEA	ebx, _string
-			PUSH	eax
-			PUSH	ebx
-			CALL	printf
-			ADD	esp, 8
-			; Write		y
-			PUSH	esi
-			PUSH	edx
+			; Call		fp_f1_2		dst = Temp14		argc = 1
 			MOV	esi, ebp
-			ADD	esi, -28
-			POP	edx
-			MOV	edx, [esi]
-			POP	esi
-			MOV	eax, edx
-			LEA	ebx, _value
-			PUSH	eax
-			PUSH	ebx
-			CALL	printf
-			ADD	esp, 8
-			; Assign		SUBTK		Temp3		x		c
-			PUSH	esi
+			ADD	esi, 16
+			PUSH[esi - 4]
 			PUSH	edx
 			MOV	esi, ebp
 			ADD	esi, 8
+			MOV	esi, [esi]
+			POP	edx
+			PUSH	esi
+			CALL	fp_f1_2
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -36
+			POP	edx
+			MOV[esi], eax
+			ADD	esp, 8
+			; Assign		SETTK		e2		Temp14
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -36
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			MOV[esi], eax
+			; bel:NEQUTK		Condition		NEQUTK		e2		5		Label2
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
 			POP	edx
 			MOV	edx, [esi]
 			POP	esi
 			MOV	eax, edx
 			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			; add display offset to esi :
-		ADD	esi, 12
-			; display is to esi :
-		MOV	esi, [esi]
-			ADD	esi, -40
-			POP	edx
-			MOV	edx, [esi]
+			MOV	edx, 5
 			POP	esi
 			MOV	ebx, edx
-			SUB	eax, ebx
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -36
-			POP	edx
-			MOV[esi], eax
-			; Assign		SETTK		x		Temp3
-			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, -36
-			POP	edx
-			MOV	edx, [esi]
-			POP	esi
-			MOV	eax, edx
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, 8
-			POP	edx
-			MOV[esi], eax
-			; Write		String1
-			LEA	eax, in_string1
+			CMP	eax, ebx
+			JNE	Label2
+			; Write		String2
+			LEA	eax, in_string2
 			LEA	ebx, _string
 			PUSH	eax
 			PUSH	ebx
 			CALL	printf
 			ADD	esp, 8
-			; Write		x
-			PUSH	esi
-			PUSH	edx
-			MOV	esi, ebp
-			ADD	esi, 8
-			POP	edx
-			MOV	edx, [esi]
-			POP	esi
-			MOV	eax, edx
-			LEA	ebx, _charac
+			; Goto:		Label3
+			JMP	Label3
+			; Label:		Label2
+		Label2 :
+		; Write		String3
+			LEA	eax, in_string3
+			LEA	ebx, _string
 			PUSH	eax
 			PUSH	ebx
 			CALL	printf
 			ADD	esp, 8
-			POP	edi
+			; Label:		Label3
+		Label3 :
+		POP	edi
 			POP	esi
 			POP	edx
 			POP	ecx

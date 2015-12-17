@@ -82,18 +82,17 @@ bool Grammar::getSym()
 TYPE Grammar::readType()
 {
 	sym_position = position;
-	while (sym_position < word_list.size())
+	bool has_para = false;
+	if (word_list.at(sym_position).token == LPARENTTK)
+		has_para = true;
+	if (has_para)
 	{
-		if (word_list.at(sym_position).token == COLONTK)
-		{
-			sym_position--;
-			break;
-		}
+		while (word_list.at(sym_position).token != RPARENTTK)
+			sym_position++;
 		sym_position++;
-		if (word_list.at(sym_position).token == RPARENTTK)
-			break;
 	}
-	if (word_list.at(sym_position + 2).token == INTTK)
+	sym_position ++;
+	if (word_list.at(sym_position).token == INTTK)
 		return FUNCINT;
 	else
 		return FUNCCHAR;
@@ -807,10 +806,10 @@ void Grammar::expression(Temp **result)
 	Temp * new_temp;
 	if (value == -1)
 	{
-		if (temp_left->temp_type == TEMPTP)
+		if (temp_left->temp_type == TEMPINTTP || temp_left->temp_type == TEMPCHARTP)
 			new_temp = temp_left;
 		else
-			new_temp = new Temp();
+			new_temp = new Temp(TEMPINTTP);
 		AssignCode code(SUBTK, new_temp, zero, temp_left);
 	}
 	else
@@ -826,12 +825,12 @@ void Grammar::expression(Temp **result)
 		getSym();
 		Temp* temp_right = NULL;
 		term(&temp_right);
-		if (temp_left->temp_type == TEMPTP)
+		if (temp_left->temp_type == TEMPINTTP || temp_left->temp_type == TEMPCHARTP)
 			new_temp = temp_left;
-		else if (temp_right->temp_type == TEMPTP)
+		else if (temp_right->temp_type == TEMPINTTP || temp_right->temp_type == TEMPCHARTP)
 			new_temp = temp_right;
 		else
-			new_temp = new Temp();
+			new_temp = new Temp(TEMPINTTP);
 		if (is_add)
 			AssignCode code(ADDTK, new_temp, temp_left, temp_right);
 		else
@@ -861,12 +860,12 @@ void Grammar::term(Temp **result)
 		Temp* temp_right = NULL;
 		factor(&temp_right);
 		Temp* new_temp;
-		if (temp_left->temp_type == TEMPTP)
+		if (temp_left->temp_type == TEMPINTTP || temp_left->temp_type == TEMPCHARTP)
 			new_temp = temp_left;
-		else if (temp_right->temp_type == TEMPTP)
+		else if (temp_right->temp_type == TEMPINTTP || temp_right->temp_type == TEMPCHARTP)
 			new_temp = temp_right;
 		else
-			new_temp = new Temp();
+			new_temp = new Temp(TEMPINTTP);
 		if (is_mul)
 			AssignCode code(MULTK, new_temp, temp_left, temp_right);
 		else
@@ -979,7 +978,10 @@ void Grammar::funcSentence(Temp **temp)
 			/*func->paraTable.paras.size() != 0*/
 			realParaTable(args);
 		}
-		*temp = new Temp();
+		if (func->type == FUNCINT)
+			*temp = new Temp(TEMPINTTP);
+		else
+			*temp = new Temp(TEMPCHARTP);
 		CallCode code(func, *temp, args);
 	}
 	else

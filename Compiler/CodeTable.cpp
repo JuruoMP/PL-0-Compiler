@@ -160,7 +160,8 @@ CallCode::CallCode(Callable* cal, Temp* target, std::vector<Temp*> args)
 			//assert(0 == 1);
 		}
 		else if (require->real && 
-			(passin->temp_type == VALUETP || passin->temp_type == TEMPTP || passin->temp_type == CONSTTP))
+			(passin->temp_type == VALUETP || passin->temp_type == CONSTTP ||
+			passin->temp_type == TEMPINTTP || passin->temp_type == TEMPCHARTP))
 		{
 			code_table->error("'var' type parameter is not writable.");
 			//assert(0 == 1);
@@ -685,11 +686,11 @@ void CodeTable::Node::compile()
 					sprintf_s(value, MAXLEN - 1, "%d", arg->value);
 					push(value);
 				}
-				else if (arg->temp_type == TEMPTP || arg->temp_type == CONSTTP)
+				else if (arg->temp_type == TEMPINTTP || arg->temp_type == TEMPCHARTP || arg->temp_type == CONSTTP)
 				{
 					if (para->real)
 					{
-						if (arg->temp_type == TEMPTP)
+						if (arg->temp_type == TEMPINTTP || arg->temp_type == TEMPCHARTP)
 							code_table->error("Temp value can not be passed by address.");
 						else
 							code_table->error("Const type can not be passed by address.");
@@ -831,7 +832,7 @@ void CodeTable::Node::compile()
 				{
 					args.push_back("_value");
 				}
-				else if (code->value.temp->temp_type != TEMPTP)
+				else if (code->value.temp->temp_type != TEMPINTTP && code->value.temp->temp_type != TEMPCHARTP)
 				{
 					if (code->value.temp->ident->type == CHAR ||
 						code->value.temp->ident->type == CHARARRAY ||
@@ -843,7 +844,10 @@ void CodeTable::Node::compile()
 				}
 				else
 				{
-					args.push_back("_value");
+					if (code->value.temp->temp_type == TEMPCHARTP)
+						args.push_back("_charac");
+					else
+						args.push_back("_value");
 				}
 				asmcode = new Asm(ASMLEA, args);
 				this->asms.push_back(asmcode);

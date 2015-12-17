@@ -46,7 +46,8 @@ public:
 enum TEMPTYPE
 {
 	VALUETP,
-	TEMPTP,
+	TEMPCHARTP,
+	TEMPINTTP,
 	VARTP,
 	CONSTTP,
 	REALPARA,
@@ -63,7 +64,7 @@ public:
 	Identifier* ident;//IDENTTP
 	bool has_subscript;//IDENTTP
 	Temp* subscribe;//IDENTTP
-	Temp();
+	Temp(TEMPTYPE temp_type);
 	Temp(int value);
 	Temp(Identifier* ident, bool has_subscript, Temp* subscribe);
 	Temp::Temp(const Temp &temp);

@@ -343,13 +343,13 @@ Function::Function(const Function& func)
 }
 
 int Temp::temp_cnt = 0;
-Temp::Temp() 
+Temp::Temp(TEMPTYPE temp_type) 
 {
 	this->this_node = symbol_table->index;
 	this->offset = -symbol_table->nodes[symbol_table->index]->offset_cnt - 1;
 	this->id = temp_cnt;
 	this->type = TEMP;
-	this->temp_type = TEMPTP;
+	this->temp_type = temp_type;
 	this->has_subscript = false;
 	temp_cnt++;
 	symbol_table->insertIdent(this);
@@ -430,7 +430,7 @@ std::string Temp::print()
 			str += "]";
 		}
 	}
-	else if (this->temp_type == TEMPTP)
+	else if (this->temp_type == TEMPINTTP || this->temp_type == TEMPCHARTP)
 		str = "Temp" + int2string(this->id);
 	else
 		str = int2string(this->value);
