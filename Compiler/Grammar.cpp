@@ -231,7 +231,7 @@ int Grammar::constVal(TYPE *type)
 		}
 		else
 		{
-			error(word, GRAMMARERR);
+			error(word, EXPECTCONSTVALUE);
 		}
 	}
 	else if (word.token == SQUOTETK)
@@ -242,7 +242,7 @@ int Grammar::constVal(TYPE *type)
 	}
 	else
 	{
-		error(word, GRAMMARERR);
+		error(word, EXPECTCONSTVALUE);
 	}
 	return value;
 }
@@ -324,8 +324,8 @@ void Grammar::varDec()
 					 Variable var(name[i], type);
 					 break;
 		}
-		case INTARRAY:
-		case CHARARRAY:
+		case ARRAYINT:
+		case ARRAYCHAR:
 		{
 						  Array arr(name[i], type, len);
 						  break;
@@ -359,12 +359,12 @@ enum TYPE Grammar::type(int& length)
 						getSym();
 						if (word.token == INTTK)
 						{
-							type = INTARRAY;
+							type = ARRAYINT;
 							getSym();
 						}
 						else if (word.token == CHARTK)
 						{
-							type = CHARARRAY;
+							type = ARRAYCHAR;
 							getSym();
 						}
 						else
@@ -721,7 +721,7 @@ void Grammar::sentence()
 			error(word, IDENTNOTDEFINED);
 		}
 		else if (ident->type == INT || ident->type == CHAR || 
-			ident->type == INTARRAY || ident->type == CHARARRAY ||
+			ident->type == ARRAYINT || ident->type == ARRAYCHAR ||
 			ident->type == RETINT || ident->type == RETCHAR ||
 			ident->type == PARAINT || ident->type == PARACHAR)
 		{
@@ -733,7 +733,7 @@ void Grammar::sentence()
 		}
 		else
 		{
-			error(word, GRAMMARERR);
+			error(word, NOTASENTENCE);
 		}
 	}
 	/*
@@ -783,7 +783,7 @@ void Grammar::setSentence()
 	}
 	else
 	{
-		error(word, GRAMMARERR);
+		error(word, EXPECTSET);
 	}
 	expression(&right);
 	AssignCode code(SETTK, left, right, right);
@@ -894,7 +894,7 @@ void Grammar::factor(Temp **result)
 			*result = new Temp(ident, false, NULL);
 			getSym();
 		}
-		else if (ident->type == INTARRAY || ident->type == CHARARRAY)
+		else if (ident->type == ARRAYINT || ident->type == ARRAYCHAR)
 		{
 			getSym();
 			if (word.token == LSQRBRACTK)
@@ -917,10 +917,15 @@ void Grammar::factor(Temp **result)
 			}
 			*result = new Temp(ident, true, offset);
 		}
-		else if (ident->type == RETINT || ident->type == RETCHAR ||
-			ident->type == FUNCINT || ident->type == FUNCCHAR)
+		else if (ident->type == FUNCINT || ident->type == FUNCCHAR || 
+			ident->type == RETINT || ident->type == RETCHAR)
 		{
 			funcSentence(result);
+		}
+		else if (ident->type == RETINT || ident->type == RETCHAR)
+		{
+			*result = new Temp(ident, false, NULL);
+			getSym();
 		}
 		else if (ident->type == PARAINT || ident->type == PARACHAR)
 		{
@@ -929,7 +934,7 @@ void Grammar::factor(Temp **result)
 		}
 		else
 		{
-			error(word, GRAMMARERR);
+			error(word, EXPECTIDENT);
 		}
 	}
 	else if (word.token == ITK)
@@ -1147,14 +1152,11 @@ void Grammar::forSentence()
 #endif
 	Label *label1 = new Label();
 	Label *label2 = new Label();
+	Label *label3 = new Label();
 	if (word.token == FORTK)
-	{
 		getSym();
-	}
 	else
-	{
 		error(word, EXPECTFOR);
-	}
 	Identifier* ident = NULL;
 	if (word.token == IDENTTK)
 	{
@@ -1162,22 +1164,14 @@ void Grammar::forSentence()
 		getSym();
 	}
 	else
-	{
 		error(word, EXPECTIDENT);
-	}
 	Temp* temp_ident = new Temp(ident, false, NULL);
 	if (word.token == SETTK)
-	{
 		getSym();
-	}
 	else
-	{
 		error(word, EXPECTSET);
-	}
 	Temp *init_value = NULL;
 	expression(&init_value);
-	AssignCode(SETTK, temp_ident, init_value, init_value);
-	LabelCode label_code1(label1);
 	bool is_to = true;
 	if (word.token == TOTK || word.token == DOWNTOTK)
 	{
@@ -1188,35 +1182,31 @@ void Grammar::forSentence()
 		getSym();
 	}
 	else
-	{
-		error(word, GRAMMARERR);
-	}
+		error(word, EXPECTTODOWNTO);
 	Temp *end_value = NULL;
 	expression(&end_value);//B
 	if (is_to)
-		ConditionCode condition_code(LARGETK, temp_ident, end_value, label2);
+		ConditionCode condition_code(LARGETK, init_value, end_value, label3);
 	else
-		ConditionCode condition_code(SMALLTK, temp_ident, end_value, label2);
+		ConditionCode condition_code(SMALLTK, temp_ident, end_value, label3);
+	AssignCode(SETTK, temp_ident, init_value, init_value);
+	GotoCode gotocode(label2);
+	LabelCode labelcode1(label1);
+	if (is_to)
+		AssignCode assign_code(ADDTK, temp_ident, temp_ident, one);
+	else
+		AssignCode assign_code(SUBTK, temp_ident, temp_ident, one);
+	LabelCode labelcode2(label2);
 	if (word.token == DOTK)
-	{
 		getSym();
-	}
 	else
-	{
 		error(word, EXPECTDO);
-	}
 	sentence();
 	if (is_to)
-	{
-		AssignCode assign_code(ADDTK, temp_ident, temp_ident, one);
-		GotoCode goto_code(label1);
-	}
+		ConditionCode condition_code(SMALLTK, temp_ident, end_value, label1);
 	else
-	{
-		AssignCode assign_code(SUBTK, temp_ident, temp_ident, one);
-		GotoCode goto_code(label1);
-	}
-	LabelCode label_code2(label2);
+		ConditionCode condition_code(LARGETK, temp_ident, end_value, label1);
+	LabelCode label_code3(label3);
 }
 
 void Grammar::procSentence()
@@ -1391,12 +1381,13 @@ void Grammar::writeSentence()
 
 char grammar_error[][MAXLEN] = {
 	"Grammar error", "Expect dot token", "Expect type token", "Expect basic type token", 
-	"Expect Procedure token", "Expect Identifier token", "Expect Square bracket token", 
+	"Expect Procedure token", "Expect Identifier token", "Expect right square bracket token", "Expect set token",
 	"Expect a number", "Expect semicolon token", "Expect const token", "Expect equal token", 
-	"Expect set token", "Expect var token", "Expect colon token", "Expect left parent", "Expect right parent", 
+	"Expect var token", "Expect colon token", "Expect left parent", "Expect right parent", 
 	"Expect a integer", "Expect compare operation token", "Expect left square bracket", "Expect if token", "Expect then token", 
-	"Expect do token", "Expect for token", "Expect begin token", "Expect end token", "Expect write token", "Expect read token", 
-	"Expect empty", "Redifination", "Not a procedure", "Not a function", "Identifier not definied"
+	"Expect do token", "Expect to/downto", "Expect for token", "Expect begin token", "Expect end token", "Expect write token", "Expect read token", 
+	"Expect empty", "Redifination", "Not a procedure", "Not a function", "Identifier not definied", "Not a sentence", 
+	"Expect const value", 
 };
 
 void Grammar::error(WORD word, GRAMMAR_ERROR no)
@@ -1406,7 +1397,7 @@ void Grammar::error(WORD word, GRAMMAR_ERROR no)
 		"@" << word.position.mlineno << std::endl;
 	std::vector<SymbolTK> stopword;
 	stopword.push_back(SEMICOLONTK);
-	this->readpass(stopword);
+	//this->readpass(stopword);
 }
 
 void Grammar::readpass(std::vector<SymbolTK> stopword)

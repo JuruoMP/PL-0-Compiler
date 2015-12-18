@@ -90,7 +90,7 @@ bool SymbolTable::insertIdent(Identifier* ident)
 		nodes[index]->last_var = nodes[index]->offset_cnt;
 		nodes[index]->last_temp = nodes[index]->last_var;
 	}
-	else if (ident->type == INTARRAY || ident->type == CHARARRAY)
+	else if (ident->type == ARRAYINT || ident->type == ARRAYCHAR)
 	{
 		Array* arr = dynamic_cast<Array*>(ident);
 		Identifier* newarr = new Array(*arr);
@@ -376,7 +376,7 @@ Temp::Temp(Identifier* ident, bool has_subscript, Temp* subscribe)
 		one = new Temp(1);
 	this->type = TEMP;
 	if (ident->type == INT || ident->type == CHAR ||
-		ident->type == INTARRAY || ident->type == CHARARRAY)
+		ident->type == ARRAYINT || ident->type == ARRAYCHAR)
 		this->temp_type = VARTP;
 	else if (ident->type == CONSTINT || ident->type == CONSTCHAR)
 		this->temp_type = CONSTTP;

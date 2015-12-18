@@ -53,9 +53,10 @@ void End()
 
 int main()
 {
+	char filename[1024] = "test.txt";
 	freopen("code.asm", "w", stdout);
 	Init();
-	Symbol symbol("test.txt");
+	Symbol symbol(filename);
 	symbol_table = symbol_table->getInstance();
 	symbol.mgetsym();
 	Grammar grammar;

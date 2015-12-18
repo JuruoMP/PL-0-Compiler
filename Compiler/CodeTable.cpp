@@ -773,7 +773,7 @@ void CodeTable::Node::compile()
 			args.clear();
 			args.push_back("ebx");
 			if (code->temp->ident->type == CHAR ||
-				code->temp->ident->type == CHARARRAY ||
+				code->temp->ident->type == ARRAYCHAR ||
 				code->temp->ident->type == CONSTCHAR)
 				args.push_back("_charac");
 			else
@@ -835,7 +835,7 @@ void CodeTable::Node::compile()
 				else if (code->value.temp->temp_type != TEMPINTTP && code->value.temp->temp_type != TEMPCHARTP)
 				{
 					if (code->value.temp->ident->type == CHAR ||
-						code->value.temp->ident->type == CHARARRAY ||
+						code->value.temp->ident->type == ARRAYCHAR ||
 						code->value.temp->ident->type == CONSTCHAR || 
 						code->value.temp->ident->type == PARACHAR)
 						args.push_back("_charac");
@@ -1143,7 +1143,3 @@ int StringTable::add(char* str)
 
 CodeTable* CodeTable::codetable = NULL;
 StringTable* StringTable::stringtable = NULL;
-
-char code_error[][MAXLEN] = {
-	""
-};
