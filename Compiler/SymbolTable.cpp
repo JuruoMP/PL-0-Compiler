@@ -414,6 +414,42 @@ Temp::Temp(const Temp &temp)
 	this->offset = temp.offset;
 }
 
+bool Temp::cmp(Temp* other)
+{
+	if (this->id == other->id)
+		return true;
+	if (this->temp_type == VALUETP && other->temp_type == VALUETP)
+	{
+		if (this->value == other->value)
+			return true;
+		else
+			return false;
+	}
+	if (this->temp_type == VARTP && other->temp_type == VARTP)
+	{
+		if (this->ident == other->ident && this->subscribe == other->subscribe)
+			return true;
+		else
+			return false;
+	}
+	if ((this->temp_type == CONSTTP && other->temp_type == CONSTTP) || 
+		(this->temp_type == REALPARA && other->temp_type == REALPARA) || 
+		(this->temp_type == FORMPARA && other->temp_type == FORMPARA))
+	{
+		if (this->ident == other->ident)
+			return true;
+		else
+			return false;
+	}
+	else
+	{
+		if (this->dagid != -1 && this->dagid == other->dagid)
+			return true;
+		else
+			return false;
+	}
+}
+
 std::string Temp::print()
 {
 	std::string str;

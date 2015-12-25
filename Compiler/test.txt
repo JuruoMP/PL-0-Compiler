@@ -1,11 +1,49 @@
-var i:integer;
+const m = 2;
+
+var x,y,a,b,f,g,cc:integer;
+    i:integer;
+
+function mymod(x,y:integer):integer;
+	begin
+		mymod:=x-x/y*y;
+	end;
+
+procedure swap;
+var temp:integer;
+	begin
+		temp:=x;
+		x:=y;
+		y:=temp;
+	end;
 
 begin
-	i := 1023;
-	do
+	for i:=2 downto 1 do
 	begin
-		i := i / 2;
-		write(" ", i);
-	end
-	while i <> 0;
+		if i = 2 then
+			begin
+				x:=45;
+				y:=27;
+			end
+		else
+			begin
+				x:=5;
+				y:=0;
+			end;
+		a:=x;
+		b:=y;
+		if y <> 0 then
+			begin
+				do
+					begin
+						cc:=b;
+						b:=mymod(a,b);
+						a:=cc;
+					end
+				while b<>0;
+			end;
+		f:=a;
+		g:=x*y/f;
+		write("GCD is:",f);
+		write("LCM is:",g);
+	end;
 end.

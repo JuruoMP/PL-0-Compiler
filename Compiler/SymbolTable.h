@@ -6,6 +6,7 @@
 #include <stack>
 #include "Symbol.h"
 #include "Memory.h"
+#include "common.h"
 
 #define MAXCNT 1024
 #define UNITSIZE 4
@@ -59,6 +60,7 @@ class Temp : public Identifier
 	static int temp_cnt;
 public:
 	int id;//TEMPTP
+	int dagid;
 	TEMPTYPE temp_type;
 	int value;//VALUETP
 	Identifier* ident;//IDENTTP
@@ -69,6 +71,7 @@ public:
 	Temp(Identifier* ident, bool has_subscript, Temp* subscribe);
 	Temp::Temp(const Temp &temp);
 	Temp::Temp(const Identifier &ident);
+	bool cmp(Temp* other);
 	std::string print();
 };
 

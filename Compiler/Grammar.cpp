@@ -79,6 +79,11 @@ bool Grammar::getSym()
 	}
 }
 
+WORD Grammar::nextsym()
+{
+	return word_list.at(position);
+}
+
 TYPE Grammar::readType()
 {
 	sym_position = position;
@@ -94,8 +99,10 @@ TYPE Grammar::readType()
 	sym_position ++;
 	if (word_list.at(sym_position).token == INTTK)
 		return FUNCINT;
-	else
+	else if (word_list.at(sym_position).token == CHARTK)
 		return FUNCCHAR;
+	else
+		error(word, EXPECTTYPE);
 }
 
 void Grammar::program()
@@ -351,36 +358,40 @@ enum TYPE Grammar::type(int& length)
 			{
 				length = word.value.num;
 				getSym();
-				if (word.token == RSQRBRACTK)
-				{
-					getSym();
-					if (word.token == OFTK)
-					{
-						getSym();
-						if (word.token == INTTK)
-						{
-							type = ARRAYINT;
-							getSym();
-						}
-						else if (word.token == CHARTK)
-						{
-							type = ARRAYCHAR;
-							getSym();
-						}
-						else
-						{
-							error(word, EXPECTBASICTYPE);
-						}
-					}
-				}
-				else
-				{
-					error(word, EXPECTRSQRBRAC);
-				}
 			}
 			else
 			{
 				error(word, EXPECTNUM);
+			}
+			if (word.token == RSQRBRACTK)
+			{
+				getSym();
+			}
+			else
+			{
+				error(word, EXPECTRSQRBRAC);
+			}
+			if (word.token == OFTK)
+			{
+				getSym();
+			}
+			else
+			{
+				error(word, EXPECTOF);
+			}
+			if (word.token == INTTK)
+			{
+				type = ARRAYINT;
+				getSym();
+			}
+			else if (word.token == CHARTK)
+			{
+				type = ARRAYCHAR;
+				getSym();
+			}
+			else
+			{
+				error(word, EXPECTBASICTYPE);
 			}
 		}
 	}
@@ -450,7 +461,6 @@ void Grammar::funcIllu()
 	}
 	while (word.token == FUNCTK)
 	{
-		//memory.pushInfo();
 		funcHead();
 		semiProgram();
 		if (word.token == SEMICOLONTK)
@@ -957,7 +967,7 @@ void Grammar::factor(Temp **result)
 	}
 	else
 	{
-		error(word, EXPECTIDENT);
+		error(word, EXPECTFACTOR);
 	}
 }
 
@@ -1140,7 +1150,7 @@ void Grammar::whileSentence()
 	}
 	else
 	{
-		error(word, EXPECTTHEN);
+		error(word, EXPECTWHILE);
 	}
 	condition(label, true);
 }
@@ -1226,7 +1236,6 @@ void Grammar::procSentence()
 		std::vector<Temp*> args;
 		if (word.token == LPARENTTK)
 		{
-			/*proc->paraTable.paras.size() = 0*/
 			realParaTable(args);
 		}
 		CallCode code(proc, NULL, args);
@@ -1387,7 +1396,7 @@ char grammar_error[][MAXLEN] = {
 	"Expect a integer", "Expect compare operation token", "Expect left square bracket", "Expect if token", "Expect then token", 
 	"Expect do token", "Expect to/downto", "Expect for token", "Expect begin token", "Expect end token", "Expect write token", "Expect read token", 
 	"Expect empty", "Redifination", "Not a procedure", "Not a function", "Identifier not definied", "Not a sentence", 
-	"Expect const value", 
+	"Expect const value", "Expect of token", "Expect a factor", "Expect while token"
 };
 
 void Grammar::error(WORD word, GRAMMAR_ERROR no)

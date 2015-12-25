@@ -53,7 +53,10 @@ enum GRAMMAR_ERROR
 	NOTAFUNC,
 	IDENTNOTDEFINED,
 	NOTASENTENCE,
-	EXPECTCONSTVALUE
+	EXPECTCONSTVALUE,
+	EXPECTOF, 
+	EXPECTFACTOR, 
+	EXPECTWHILE
 
 };
 
@@ -65,6 +68,7 @@ public:
 	Grammar();
 	~Grammar() {};
 	bool getSym();
+	WORD nextsym();
 	TYPE readType();
 	void program();
 	void semiProgram();
