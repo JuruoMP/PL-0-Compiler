@@ -60,7 +60,6 @@ class Temp : public Identifier
 	static int temp_cnt;
 public:
 	int id;//TEMPTP
-	int dagid;
 	TEMPTYPE temp_type;
 	int value;//VALUETP
 	Identifier* ident;//IDENTTP

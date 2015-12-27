@@ -63,13 +63,18 @@ void SymbolTable::back()
 
 bool SymbolTable::insertIdent(Identifier* ident)
 {
-	std::vector<Identifier*>::iterator it = nodes[index]->idents.begin();
-	for (it ; it != nodes[index]->idents.end(); ++it)
+	int i;
+	for (i = 0; i < nodes[index]->idents.size(); ++i)
 	{
-		if (*it == ident)
+		if (ident->type != TEMP && !strcmp(nodes[index]->idents.at(i)->name, ident->name))
+		{
+			std::string errormsg = "Multideplication:";
+			errormsg += ident->name;
+			this->error(errormsg);
 			break;
+		}
 	}
-	if (it != nodes[index]->idents.end())
+	if (i != nodes[index]->idents.size())
 		return false;
 	if (ident->type == CONSTINT || ident->type == CONSTCHAR)
 	{
@@ -412,42 +417,6 @@ Temp::Temp(const Temp &temp)
 	if (this->has_subscript)
 		this->subscribe = new Temp(*temp.subscribe);
 	this->offset = temp.offset;
-}
-
-bool Temp::cmp(Temp* other)
-{
-	if (this->id == other->id)
-		return true;
-	if (this->temp_type == VALUETP && other->temp_type == VALUETP)
-	{
-		if (this->value == other->value)
-			return true;
-		else
-			return false;
-	}
-	if (this->temp_type == VARTP && other->temp_type == VARTP)
-	{
-		if (this->ident == other->ident && this->subscribe == other->subscribe)
-			return true;
-		else
-			return false;
-	}
-	if ((this->temp_type == CONSTTP && other->temp_type == CONSTTP) || 
-		(this->temp_type == REALPARA && other->temp_type == REALPARA) || 
-		(this->temp_type == FORMPARA && other->temp_type == FORMPARA))
-	{
-		if (this->ident == other->ident)
-			return true;
-		else
-			return false;
-	}
-	else
-	{
-		if (this->dagid != -1 && this->dagid == other->dagid)
-			return true;
-		else
-			return false;
-	}
 }
 
 std::string Temp::print()

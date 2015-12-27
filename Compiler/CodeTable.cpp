@@ -811,7 +811,7 @@ void CodeTable::Node::compile()
 				asmcode = new Asm(ASMLEA, args);
 				this->asms.push_back(asmcode);
 				args.clear();
-				args.push_back("ebx"); args.push_back("_string");
+				args.push_back("ebx"); args.push_back("dword ptr [_string]");
 				asmcode = new Asm(ASMLEA, args);
 				this->asms.push_back(asmcode);
 			}
@@ -838,16 +838,16 @@ void CodeTable::Node::compile()
 						code->value.temp->ident->type == ARRAYCHAR ||
 						code->value.temp->ident->type == CONSTCHAR || 
 						code->value.temp->ident->type == PARACHAR)
-						args.push_back("_charac");
+						args.push_back("dword ptr [_charac]");
 					else
-						args.push_back("_value");
+						args.push_back("dword ptr [_value]");
 				}
 				else
 				{
 					if (code->value.temp->temp_type == TEMPCHARTP)
-						args.push_back("_charac");
+						args.push_back("dword ptr [_charac]");
 					else
-						args.push_back("_value");
+						args.push_back("dword ptr [_value]");
 				}
 				asmcode = new Asm(ASMLEA, args);
 				this->asms.push_back(asmcode);

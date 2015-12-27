@@ -741,6 +741,10 @@ void Grammar::sentence()
 		{
 			procSentence();
 		}
+		else if (ident->type == CONSTINT || ident->type == CONSTCHAR)
+		{
+			error(word, ASSIGNCONST);
+		}
 		else
 		{
 			error(word, NOTASENTENCE);
@@ -1086,8 +1090,6 @@ void Grammar::condition(Label *label, bool condition)
 		case NEQUTK:
 			cmptoken = EQUTK;
 			break;
-		default:
-			assert(0 == 1);
 		}
 	}
 	ConditionCode code(cmptoken, left, right, label);
@@ -1198,7 +1200,7 @@ void Grammar::forSentence()
 	if (is_to)
 		ConditionCode condition_code(LARGETK, init_value, end_value, label3);
 	else
-		ConditionCode condition_code(SMALLTK, temp_ident, end_value, label3);
+		ConditionCode condition_code(SMALLTK, init_value, end_value, label3);
 	AssignCode(SETTK, temp_ident, init_value, init_value);
 	GotoCode gotocode(label2);
 	LabelCode labelcode1(label1);
@@ -1396,7 +1398,7 @@ char grammar_error[][MAXLEN] = {
 	"Expect a integer", "Expect compare operation token", "Expect left square bracket", "Expect if token", "Expect then token", 
 	"Expect do token", "Expect to/downto", "Expect for token", "Expect begin token", "Expect end token", "Expect write token", "Expect read token", 
 	"Expect empty", "Redifination", "Not a procedure", "Not a function", "Identifier not definied", "Not a sentence", 
-	"Expect const value", "Expect of token", "Expect a factor", "Expect while token"
+	"Expect const value", "Expect of token", "Expect a factor", "Expect while token", "Const cannot assign"
 };
 
 void Grammar::error(WORD word, GRAMMAR_ERROR no)

@@ -53,9 +53,9 @@ void End()
 
 int main()
 {
-	char filename[1024];// = "test.txt";
+	char filename[1024] = "test.txt";
 	cout << "Input file name:" << endl;
-	cin >> filename;
+	//cin >> filename;
 	freopen("code.asm", "w", stdout);
 	Init();
 	Symbol symbol(filename);

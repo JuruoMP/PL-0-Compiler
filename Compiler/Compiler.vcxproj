@@ -146,6 +146,7 @@
     <ClCompile Include="Asm.cpp" />
     <ClCompile Include="CodeTable.cpp" />
     <ClCompile Include="common.cpp" />
+    <ClCompile Include="DAG.cpp" />
     <ClCompile Include="Grammar.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Memory.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="Asm.h" />
     <ClInclude Include="CodeTable.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="DAG.h" />
     <ClInclude Include="Grammar.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Symbol.h" />
