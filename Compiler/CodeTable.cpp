@@ -194,15 +194,16 @@ std::string CallCode::print()
 	return str;
 }
 
-NopCode::NopCode()
+NopCode::NopCode(char* message)
 : Code(NOPKD, "Nop")
 {
+	this->msg = message;
 	code_table->insertCode(this);
 };
 
 std::string NopCode::print()
 {
-	std::string str = ";NOP";
+	std::string str = ";NOP\t" + this->msg;
 	return str;
 }
 
@@ -759,13 +760,26 @@ void CodeTable::Node::compile()
 		{
 			ReadCode* code = dynamic_cast<ReadCode*>(basecode);
 			//getTempAddr()
+			if (code->temp->temp_type != VARTP)
+				code_table->error("Read to an unchangeable identifier");
+			getTempAddr(code->temp);
+			//clear [esi]
+			//sub eax, eax
+			//mov [esi], eax
+			args.clear();
+			args.push_back("eax"); args.push_back("eax");
+			asmcode = new Asm(ASMSUB, args);
+			this->asms.push_back(asmcode);
+			args.clear();
+			args.push_back("[esi]"); args.push_back("eax");
+			asmcode = new Asm(ASMMOV, args);
+			this->asms.push_back(asmcode);
 			//mov eax, esi
 			//lea ebx, _value
 			//push eax
 			//push ebx
 			//call scanf
 			//add esp, 2 * UNITSIZE
-			getTempAddr(code->temp);
 			args.clear();
 			args.push_back("eax"); args.push_back("esi");
 			asmcode = new Asm(ASMMOV, args);

@@ -106,7 +106,8 @@ public:
 class NopCode : public Code
 {
 public:
-	NopCode();
+	std::string msg;
+	NopCode(char* message);
 	std::string print();
 };
 

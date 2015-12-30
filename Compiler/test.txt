@@ -1,17 +1,5 @@
-var
-    i, j: integer;
-
+var a1:integer;
 begin
-    for i:=1 to 100 do
-	begin
-		begin
-			write("i=", i);
-			write("  ");
-		end;
-		begin
-			j := i * (50 - i);
-			write("j=", j);
-			write(" ")
-		end
-	end
+	a1:=10;
+	write(a1);
 end.

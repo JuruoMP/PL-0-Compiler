@@ -50,9 +50,6 @@
     <Text Include="Grammar.txt">
       <Filter>资源文件</Filter>
     </Text>
-    <Text Include="文法.txt">
-      <Filter>资源文件</Filter>
-    </Text>
     <Text Include="test.txt">
       <Filter>资源文件</Filter>
     </Text>
@@ -66,6 +63,9 @@
       <Filter>资源文件</Filter>
     </Text>
     <Text Include="test1.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="文法.txt">
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>
