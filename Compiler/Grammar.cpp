@@ -808,7 +808,6 @@ void Grammar::expression(Temp **result)
 #ifdef GrammarDebug
 	std::cout << "In Expression" << std::endl;
 #endif
-	NopCode("Expression");
 	int value = 1;
 	if (word.token == ADDTK || word.token == SUBTK)
 	{

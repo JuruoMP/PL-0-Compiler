@@ -1,23 +1,38 @@
 #include "DAG.h"
-/*
-void DAG::insert(AssignCode code)
+
+void DAG::insert(AssignCode* code)
 {
 	this->assign_codes.push_back(code);
 }
 
 void DAG::optimize()
 {
-	for (int i = 0; i < assign_codes.size; ++i)
+	for (int i = 0; i < assign_codes.size(); ++i)
 	{
-		if (assign_codes.at(i).op == SETTK)
+		if (assign_codes.at(i)->op == SETTK)
 		{
 			int srcid;
-			Temp* dst = assign_codes.at(i).target;
-			Temp* src = assign_codes.at(i).num1;
+			Temp* dst = assign_codes.at(i)->target;
+			Temp* src = assign_codes.at(i)->num1;
 			std::map<Temp*, int>::iterator it;
 			it = temp2nodeid.find(src);
-			assert(it != temp2nodeid.end());
-			srcid = it->second;
+			if (src->temp_type == VALUETP)
+			{
+				if (it == temp2nodeid.end())
+				{
+					srcid = this->nodes.size();
+					TreeNode node(srcid, src);
+					this->nodes.push_back(node);
+					temp2nodeid[src] = srcid;
+				}
+				else
+					srcid = it->second;
+			}
+			else
+			{
+				assert(it != temp2nodeid.end());
+				srcid = it->second;
+			}
 			it = temp2nodeid.find(dst);
 			if (it != temp2nodeid.end())
 				temp2nodeid.erase(dst);
@@ -27,9 +42,9 @@ void DAG::optimize()
 		{
 			//this->result.push_back(assign_codes.at(i));
 			int dstid, src1id, src2id;
-			Temp* dst = assign_codes.at(i).target;
-			Temp* src1 = assign_codes.at(i).num1;
-			Temp* src2 = assign_codes.at(i).num2;
+			Temp* dst = assign_codes.at(i)->target;
+			Temp* src1 = assign_codes.at(i)->num1;
+			Temp* src2 = assign_codes.at(i)->num2;
 			std::map<Temp*, int>::iterator it;
 			//Find operate numbers
 			it = temp2nodeid.find(src1);
@@ -37,7 +52,7 @@ void DAG::optimize()
 			{
 				assert(src1->temp_type != TEMPCHARTP && src1->temp_type != TEMPINTTP);
 				src1id = this->nodes.size();
-				TreeNode node(src1id, -1, -1, src1);
+				TreeNode node(src1id, src1);
 				this->nodes.push_back(node);
 				temp2nodeid[src1] = src1id;
 			}
@@ -48,7 +63,7 @@ void DAG::optimize()
 			{
 				assert(src2->temp_type != TEMPCHARTP && src2->temp_type != TEMPINTTP);
 				src2id = this->nodes.size();
-				TreeNode node(src2id, -1, -1, src2);
+				TreeNode node(src2id, src2);
 				this->nodes.push_back(node);
 				temp2nodeid[src2] = src2id;
 			}
@@ -57,9 +72,9 @@ void DAG::optimize()
 			//Find if result already calculated
 			bool found = false;
 			int resultid = -1;
-			for (int j = 0; j < nodes.size; ++j)
+			for (int j = 0; j < nodes.size(); ++j)
 			{
-				if (nodes.at(j).op == assign_codes.at(i).op &&
+				if (nodes.at(j).op == assign_codes.at(i)->op &&
 					nodes.at(j).child1 == src1id &&
 					nodes.at(j).child2 == src2id)
 				{
@@ -82,19 +97,21 @@ void DAG::optimize()
 				if (it != temp2nodeid.end())
 					temp2nodeid.erase(temp2nodeid.find(dst));
 				dstid = this->nodes.size();
-				TreeNode node(dstid, src1id, src2id, assign_codes.at(i).op);
+				TreeNode node(dstid, src1id, src2id, assign_codes.at(i)->op);
 				this->nodes.push_back(node);
 				temp2nodeid[dst] = dstid;
+				AssignCode* code = new AssignCode(assign_codes.at(i)->op, dst, src1, src2, false);
+				this->result.push_back(code);
 			}
 		}
 	}
 }
 
-TreeNode::TreeNode(int id, int child1, int child2, Temp* temp)
+TreeNode::TreeNode(int id, Temp* temp)
 {
 	this->nodeid = id;
-	this->child1 = child1;
-	this->child2 = child2;
+	this->child1 = -1;
+	this->child2 = -1;
 	this->is_operator = false;
 	this->temp = temp;
 }
@@ -107,4 +124,3 @@ TreeNode::TreeNode(int id, int child1, int child2, SymbolTK token)
 	this->is_operator = true;
 	this->op = token;
 }
-*/

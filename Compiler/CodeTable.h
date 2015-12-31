@@ -88,7 +88,7 @@ public:
 	Temp *target;
 	Temp *num1, *num2;
 	SymbolTK op;
-	AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Temp* src2);
+	AssignCode(SymbolTK op, const Temp* dst, const Temp* src1, const Temp* src2, bool insert2code = true);
 	std::string print();
 };
 
