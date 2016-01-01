@@ -6,6 +6,7 @@
 #include "Symbol.h"
 #include "SymbolTable.h"
 #include "CodeTable.h"
+#include "DAG.h"
 
 extern WORD word;
 extern std::vector<WORD> word_list;

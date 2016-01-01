@@ -15,6 +15,7 @@ public:
 	int nodeid;
 	int child1, child2;
 	bool is_operator;
+	Temp* represent;
 	union
 	{
 		Temp* temp;
@@ -42,6 +43,8 @@ struct TempCmp
 			return strcmp(a->ident->name, b->ident->name) < 0 ? true : false;
 		else if (a->temp_type == FORMPARA)
 			return strcmp(a->ident->name, b->ident->name) < 0 ? true : false;
+		else
+			assert(0 == 1);
 	}
 
 };
@@ -55,6 +58,8 @@ public:
 	std::map<Temp*, int, TempCmp> temp2nodeid;
 	void insert(AssignCode* code);
 	void optimize();
+	void setRepresent(int id, Temp* temp);
+	Temp* findRepresent(Temp* temp);
 };
 
 #endif

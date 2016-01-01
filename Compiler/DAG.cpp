@@ -22,6 +22,7 @@ void DAG::optimize()
 				{
 					srcid = this->nodes.size();
 					TreeNode node(srcid, src);
+					node.represent = src;
 					this->nodes.push_back(node);
 					temp2nodeid[src] = srcid;
 				}
@@ -37,6 +38,12 @@ void DAG::optimize()
 			if (it != temp2nodeid.end())
 				temp2nodeid.erase(dst);
 			temp2nodeid[dst] = srcid;
+			if (dst->temp_type == VARTP || dst->temp_type == REALPARA || dst->temp_type == FORMPARA)
+			{
+				AssignCode* code = new AssignCode(SETTK, dst, findRepresent(src), findRepresent(src), false);
+				this->result.push_back(code);
+				this->setRepresent(srcid, dst);
+			}
 		}
 		else
 		{
@@ -53,6 +60,7 @@ void DAG::optimize()
 				assert(src1->temp_type != TEMPCHARTP && src1->temp_type != TEMPINTTP);
 				src1id = this->nodes.size();
 				TreeNode node(src1id, src1);
+				node.represent = src1;
 				this->nodes.push_back(node);
 				temp2nodeid[src1] = src1id;
 			}
@@ -64,6 +72,7 @@ void DAG::optimize()
 				assert(src2->temp_type != TEMPCHARTP && src2->temp_type != TEMPINTTP);
 				src2id = this->nodes.size();
 				TreeNode node(src2id, src2);
+				node.represent = src2;
 				this->nodes.push_back(node);
 				temp2nodeid[src2] = src2id;
 			}
@@ -90,6 +99,12 @@ void DAG::optimize()
 				if (it != temp2nodeid.end())
 					temp2nodeid.erase(temp2nodeid.find(dst));
 				temp2nodeid[dst] = resultid;
+				if (dst->temp_type == VARTP || dst->temp_type == REALPARA || dst->temp_type == FORMPARA)
+				{
+					this->setRepresent(resultid, dst);
+					AssignCode* code = new AssignCode(assign_codes.at(i)->op, dst, findRepresent(src1), findRepresent(src2), false);
+					this->result.push_back(code);
+				}
 			}
 			else
 			{
@@ -98,13 +113,32 @@ void DAG::optimize()
 					temp2nodeid.erase(temp2nodeid.find(dst));
 				dstid = this->nodes.size();
 				TreeNode node(dstid, src1id, src2id, assign_codes.at(i)->op);
+				node.represent = dst;
 				this->nodes.push_back(node);
 				temp2nodeid[dst] = dstid;
-				AssignCode* code = new AssignCode(assign_codes.at(i)->op, dst, src1, src2, false);
+				AssignCode* code = new AssignCode(assign_codes.at(i)->op, dst, findRepresent(src1), findRepresent(src2), false);
 				this->result.push_back(code);
 			}
 		}
 	}
+}
+
+void DAG::setRepresent(int id, Temp* temp)
+{
+	for (int i = 0; i < this->nodes.size(); ++i)
+	{
+		if (nodes.at(i).nodeid == id)
+		{
+			nodes.at(i).represent = temp;
+			break;
+		}
+	}
+}
+
+Temp* DAG::findRepresent(Temp* temp)
+{
+	int id = this->temp2nodeid[temp];
+	return nodes.at(id).represent;
 }
 
 TreeNode::TreeNode(int id, Temp* temp)

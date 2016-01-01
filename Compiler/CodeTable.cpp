@@ -378,7 +378,100 @@ void CodeTable::Node::compile()
 		this->asms.push_back(new Asm(";" + this->codes.at(i)->print()));
 #endif
 		Code* basecode = this->codes.at(i);
-		if (basecode->kind == CONDITIONKD)
+		if (basecode->kind == NOPKD)
+		{
+			NopCode* code = dynamic_cast<NopCode*>(basecode);
+			if (code->msg == "SetBegin")
+			{
+				i++;
+				basecode = this->codes.at(i);
+				DAG* dag = new DAG();
+				while (basecode->kind == ASSIGNKD)
+				{
+					AssignCode* code = dynamic_cast<AssignCode*>(basecode);
+					dag->insert(code);
+					i++;
+					if (i >= this->codes.size())
+						break;
+					basecode = this->codes.at(i);
+				}
+				dag->optimize();
+				for (int j = 0; j < dag->result.size(); ++j)
+				{
+					AssignCode* code = dag->result.at(j);
+					/*
+					1.Generate code to load value of code->num1 to edx
+					2.MOV eax edx
+					*/
+					getTempValue(code->num1);
+					args.clear();
+					args.push_back("eax"); args.push_back("edx");
+					asmcode = new Asm(ASMMOV, args);
+					this->asms.push_back(asmcode);
+					if (code->op != SETTK)
+					{
+						/*
+						1.Generate code to load value of code->num2 to edx
+						2.MOV ebx edx
+						*/
+						getTempValue(code->num2);
+						args.clear();
+						args.push_back("ebx"); args.push_back("edx");
+						asmcode = new Asm(ASMMOV, args);
+						this->asms.push_back(asmcode);
+						/*
+						calculate value of assignment and save it to eax
+						*/
+						switch (code->op)
+						{
+						case ADDTK:
+							//add eax, ebx
+							args.clear();
+							args.push_back("eax"); args.push_back("ebx");
+							asmcode = new Asm(ASMADD, args);
+							this->asms.push_back(asmcode);
+							break;
+						case SUBTK:
+							//sub eax, ebx
+							args.clear();
+							args.push_back("eax"); args.push_back("ebx");
+							asmcode = new Asm(ASMSUB, args);
+							this->asms.push_back(asmcode);
+							break;
+						case MULTK:
+							//imul ebx	<-edx.eax *= ebx
+							args.clear();
+							args.push_back("eax");
+							args.push_back("ebx");
+							asmcode = new Asm(ASMMUL, args);
+							this->asms.push_back(asmcode);
+							break;
+						case DIVTK:
+							//cdq
+							//idiv ebx	<-edx.eax/ebx, eaxÉÌ edxÓàÊý
+							args.clear();
+							asmcode = new Asm(ASMCDQ, args);
+							this->asms.push_back(asmcode);
+							args.clear();
+							args.push_back("ebx");
+							asmcode = new Asm(ASMDIV, args);
+							this->asms.push_back(asmcode);
+							break;
+						}
+					}
+					/*
+					1.Generate code to load address of code->target to esi
+					2.MOV [esi], eax
+					*/
+					getTempAddr(code->target);
+					args.clear();
+					args.push_back("[esi]"); args.push_back("eax");
+					asmcode = new Asm(ASMMOV, args);
+					this->asms.push_back(asmcode);
+				}
+			}
+		}
+		else if (basecode->kind == CONDITIONKD)
 		{
 			ConditionCode* code = dynamic_cast<ConditionCode*>(basecode);
 			/*
@@ -975,7 +1068,7 @@ void CodeTable::Node::compile()
 		}
 		else
 		{
-			assert(basecode->kind == NOPKD);
+			assert(0 == 1);
 		}
 	}
 	if(symbol_table->nodes[this->index]->is_proc == false)

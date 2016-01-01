@@ -1,6 +1,8 @@
 var a, b, c, d, e, r:integer;
 begin
-	a := 10;
-	b := 10;
-	r := (a + b) + (a + b) + (a + b);
+	a := 3;
+	b := 100;
+	c := a + b + b + b;
+	r := (a + b) + (a + b) + (a + b) + c;
+	write(r);
 end.

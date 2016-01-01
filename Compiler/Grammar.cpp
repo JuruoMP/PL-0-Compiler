@@ -763,6 +763,7 @@ void Grammar::setSentence()
 #ifdef GrammarDebug
 	std::cout << "In SetSentence" << std::endl;
 #endif
+	NopCode("SetBegin");
 	bool is_array = false;
 	Identifier* ident = symbol_table->findIdent(word.value.content);
 	Temp *subscript = NULL, *left = NULL, *right = NULL;
@@ -801,6 +802,7 @@ void Grammar::setSentence()
 	}
 	expression(&right);
 	AssignCode code(SETTK, left, right, right);
+	NopCode("SetEnd");
 }
 
 void Grammar::expression(Temp **result)
@@ -840,9 +842,17 @@ void Grammar::expression(Temp **result)
 		Temp* temp_right = NULL;
 		term(&temp_right);
 		if (temp_left->temp_type == TEMPINTTP || temp_left->temp_type == TEMPCHARTP)
+#ifndef DAGOptimize
 			new_temp = temp_left;
+#else
+			new_temp = new Temp(TEMPINTTP);
+#endif
 		else if (temp_right->temp_type == TEMPINTTP || temp_right->temp_type == TEMPCHARTP)
+#ifndef DAGOptimize
 			new_temp = temp_right;
+#else
+			new_temp = new Temp(TEMPINTTP);
+#endif
 		else
 			new_temp = new Temp(TEMPINTTP);
 		if (is_add)
@@ -875,9 +885,17 @@ void Grammar::term(Temp **result)
 		factor(&temp_right);
 		Temp* new_temp;
 		if (temp_left->temp_type == TEMPINTTP || temp_left->temp_type == TEMPCHARTP)
+#ifndef DAGOptimize
 			new_temp = temp_left;
+#else
+			new_temp = new Temp(TEMPINTTP);
+#endif
 		else if (temp_right->temp_type == TEMPINTTP || temp_right->temp_type == TEMPCHARTP)
+#ifndef DAGOptimize
 			new_temp = temp_right;
+#else
+			new_temp = new Temp(TEMPINTTP);
+#endif
 		else
 			new_temp = new Temp(TEMPINTTP);
 		if (is_mul)

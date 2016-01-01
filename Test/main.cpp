@@ -19,10 +19,10 @@ int main()
 			PUSH	edx
 			PUSH	esi
 			PUSH	edi
-			SUB	esp, 4
-			; Assign		SETTK		a1		10
+			SUB	esp, 60
+			;; NOP	SetBegin
 			PUSH	esi
-			MOV	edx, 10
+			MOV	edx, 3
 			POP	esi
 			MOV	eax, edx
 			PUSH	edx
@@ -30,7 +30,17 @@ int main()
 			ADD	esi, -28
 			POP	edx
 			MOV[esi], eax
-			; Write		a1
+			;; NOP	SetBegin
+			PUSH	esi
+			MOV	edx, 100
+			POP	esi
+			MOV	eax, edx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -32
+			POP	edx
+			MOV[esi], eax
+			;; NOP	SetBegin
 			PUSH	esi
 			PUSH	edx
 			MOV	esi, ebp
@@ -39,7 +49,189 @@ int main()
 			MOV	edx, [esi]
 			POP	esi
 			MOV	eax, edx
-			LEA	ebx, _value
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -32
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -52
+			POP	edx
+			MOV[esi], eax
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -52
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -32
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -56
+			POP	edx
+			MOV[esi], eax
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -56
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -32
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -60
+			POP	edx
+			MOV[esi], eax
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -60
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -36
+			POP	edx
+			MOV[esi], eax
+			;; NOP	SetBegin
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -28
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -32
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -64
+			POP	edx
+			MOV[esi], eax
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -64
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -64
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -72
+			POP	edx
+			MOV[esi], eax
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -72
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -64
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -80
+			POP	edx
+			MOV[esi], eax
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -80
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -36
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	ebx, edx
+			ADD	eax, ebx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -84
+			POP	edx
+			MOV[esi], eax
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -84
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -48
+			POP	edx
+			MOV[esi], eax
+			; Write		r
+			PUSH	esi
+			PUSH	edx
+			MOV	esi, ebp
+			ADD	esi, -48
+			POP	edx
+			MOV	edx, [esi]
+			POP	esi
+			MOV	eax, edx
+			LEA	ebx, dword ptr[_value]
 			PUSH	eax
 			PUSH	ebx
 			CALL	printf
