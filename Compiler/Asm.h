@@ -81,6 +81,7 @@ public:
 	std::vector<std::string> m_args;
 	Asm(char* label_name);
 	Asm(ASMTYPE type, std::vector<std::string> args);
+	bool reg_same(std::string reg);
 #ifdef _DEBUG
 	bool is_str;
 	std::string str;

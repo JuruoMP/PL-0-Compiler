@@ -380,6 +380,8 @@ void CodeTable::Node::compile()
 		Code* basecode = this->codes.at(i);
 		if (basecode->kind == NOPKD)
 		{
+#ifdef DAGOptimize
+			int st_pos = i;
 			NopCode* code = dynamic_cast<NopCode*>(basecode);
 			if (code->msg == "SetBegin")
 			{
@@ -394,6 +396,12 @@ void CodeTable::Node::compile()
 					if (i >= this->codes.size())
 						break;
 					basecode = this->codes.at(i);
+				}
+				if (basecode->kind != NOPKD ||
+					dynamic_cast<NopCode*>(basecode)->msg != "SetEnd")
+				{
+					i = st_pos;
+					continue;
 				}
 				dag->optimize();
 				for (int j = 0; j < dag->result.size(); ++j)
@@ -470,6 +478,7 @@ void CodeTable::Node::compile()
 					this->asms.push_back(asmcode);
 				}
 			}
+#endif
 		}
 		else if (basecode->kind == CONDITIONKD)
 		{
@@ -591,92 +600,6 @@ void CodeTable::Node::compile()
 		}
 		else if (basecode->kind == ASSIGNKD)
 		{
-#ifdef DAGOptimize
-			DAG* dag = new DAG();
-			while (basecode->kind == ASSIGNKD)
-			{
-				AssignCode* code = dynamic_cast<AssignCode*>(basecode);
-				dag->insert(code);
-				i++;
-				if (i >= this->codes.size())
-					break;
-				basecode = this->codes.at(i);
-			}
-			dag->optimize();
-			for (int j = 0; j < dag->result.size(); ++j)
-			{
-				AssignCode* code = dag->result.at(j);
-				/*
-				1.Generate code to load value of code->num1 to edx
-				2.MOV eax edx
-				*/
-				getTempValue(code->num1);
-				args.clear();
-				args.push_back("eax"); args.push_back("edx");
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-				if (code->op != SETTK)
-				{
-					/*
-					1.Generate code to load value of code->num2 to edx
-					2.MOV ebx edx
-					*/
-					getTempValue(code->num2);
-					args.clear();
-					args.push_back("ebx"); args.push_back("edx");
-					asmcode = new Asm(ASMMOV, args);
-					this->asms.push_back(asmcode);
-					/*
-					calculate value of assignment and save it to eax
-					*/
-					switch (code->op)
-					{
-					case ADDTK:
-						//add eax, ebx
-						args.clear();
-						args.push_back("eax"); args.push_back("ebx");
-						asmcode = new Asm(ASMADD, args);
-						this->asms.push_back(asmcode);
-						break;
-					case SUBTK:
-						//sub eax, ebx
-						args.clear();
-						args.push_back("eax"); args.push_back("ebx");
-						asmcode = new Asm(ASMSUB, args);
-						this->asms.push_back(asmcode);
-						break;
-					case MULTK:
-						//imul ebx	<-edx.eax *= ebx
-						args.clear();
-						args.push_back("eax");
-						args.push_back("ebx");
-						asmcode = new Asm(ASMMUL, args);
-						this->asms.push_back(asmcode);
-						break;
-					case DIVTK:
-						//cdq
-						//idiv ebx	<-edx.eax/ebx, eaxÉÌ edxÓàÊý
-						args.clear();
-						asmcode = new Asm(ASMCDQ, args);
-						this->asms.push_back(asmcode);
-						args.clear();
-						args.push_back("ebx");
-						asmcode = new Asm(ASMDIV, args);
-						this->asms.push_back(asmcode);
-						break;
-					}
-				}
-				/*
-				1.Generate code to load address of code->target to esi
-				2.MOV [esi], eax
-				*/
-				getTempAddr(code->target);
-				args.clear();
-				args.push_back("[esi]"); args.push_back("eax");
-				asmcode = new Asm(ASMMOV, args);
-				this->asms.push_back(asmcode);
-			}
-#else
 			AssignCode* code = dynamic_cast<AssignCode*>(basecode);
 			/*
 			1.Generate code to load value of code->num1 to edx
@@ -747,7 +670,6 @@ void CodeTable::Node::compile()
 			args.push_back("[esi]"); args.push_back("eax");
 			asmcode = new Asm(ASMMOV, args);
 			this->asms.push_back(asmcode);
-#endif
 		}
 		else if (basecode->kind == CALLKD)
 		{
@@ -1319,8 +1241,57 @@ void CodeTable::Node::pop(std::string str)
 
 void CodeTable::Node::printasm()
 {
+#ifdef AsmOptimize
+	this->asmOptimize();
+#endif
 	for (int i = 0; i < this->asms.size(); ++i)
 		this->asms.at(i)->print();
+}
+
+void CodeTable::Node::quadOptimize()
+{
+	//remove useless labels
+}
+
+void CodeTable::Node::asmOptimize()
+{
+	//push pop
+	bool found;
+	do
+	{
+		found = false;
+		for (std::vector<Asm*>::iterator iti = this->asms.begin(); iti != this->asms.end();)
+		{
+			if ((*iti)->m_type == ASMPUSH)
+			{
+				std::string reg = (*iti)->m_args.at(0);
+				std::vector<Asm*>::iterator itj;
+				for (itj = iti + 1; itj != this->asms.end(); )
+				{
+					if ((*itj)->m_type == ASMJMP || (*itj)->m_type == ASMCALL || (*itj)->m_type == ASMRET ||
+						(*itj)->m_type == ASMJE || (*itj)->m_type == ASMJNE || (*itj)->m_type == ASMJL ||
+						(*itj)->m_type == ASMJNL || (*itj)->m_type == ASMJG || (*itj)->m_type == ASMJNG)
+					{
+						iti = itj;
+						break;
+					}
+					if ((*itj)->m_type != ASMPOP && (*itj)->reg_same(reg))
+						break;
+					else if ((*itj)->m_type == ASMPOP && (*itj)->reg_same(reg))
+					{
+						this->asms.erase(itj);
+						this->asms.erase(iti);
+						found = true;
+						goto BreakPoint;
+					}
+					itj++;
+				}
+			}
+			iti++;
+		}
+	BreakPoint:
+		;
+	} while (found);
 }
 
 StringTable* StringTable::getInstance()

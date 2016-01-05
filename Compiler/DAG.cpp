@@ -16,7 +16,9 @@ void DAG::optimize()
 			Temp* src = assign_codes.at(i)->num1;
 			std::map<Temp*, int>::iterator it;
 			it = temp2nodeid.find(src);
-			if (src->temp_type == VALUETP)
+			if (src->temp_type == VALUETP || 
+				src->temp_type == VARTP || src->temp_type == CONSTTP ||
+				src->temp_type == REALPARA || src->temp_type == FORMPARA)
 			{
 				if (it == temp2nodeid.end())
 				{
@@ -57,7 +59,6 @@ void DAG::optimize()
 			it = temp2nodeid.find(src1);
 			if (it == temp2nodeid.end())
 			{
-				assert(src1->temp_type != TEMPCHARTP && src1->temp_type != TEMPINTTP);
 				src1id = this->nodes.size();
 				TreeNode node(src1id, src1);
 				node.represent = src1;
@@ -69,7 +70,6 @@ void DAG::optimize()
 			it = temp2nodeid.find(src2);
 			if (it == temp2nodeid.end())
 			{
-				assert(src2->temp_type != TEMPCHARTP && src2->temp_type != TEMPINTTP);
 				src2id = this->nodes.size();
 				TreeNode node(src2id, src2);
 				node.represent = src2;

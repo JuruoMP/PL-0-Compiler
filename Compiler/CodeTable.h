@@ -158,6 +158,8 @@ public:
 		void push(std::string str);
 		void pop(std::string str);
 		void printasm();
+		void quadOptimize();
+		void asmOptimize();
 	};
 	Node* nodes[MAXCNT];
 	//create a new node

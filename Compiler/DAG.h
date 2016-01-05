@@ -5,8 +5,6 @@
 #include <vector>
 #include <map>
 
-#define DAGOptimize
-
 extern CodeTable* codetable;
 
 class TreeNode
@@ -27,7 +25,7 @@ public:
 
 struct TempCmp
 {
-	bool operator () (const Temp* a, const Temp* b) const
+	bool cmp(const Temp* a, const Temp* b) const
 	{
 		if (a->temp_type != b->temp_type)
 			return a->temp_type < b->temp_type;
@@ -38,13 +36,26 @@ struct TempCmp
 		else if (a->temp_type == CONSTTP)
 			return dynamic_cast<Constance*>(a->ident)->value < dynamic_cast<Constance*>(b->ident)->value;
 		else if (a->temp_type == VARTP)
-			return strcmp(a->ident->name, b->ident->name) < 0 ? true : false;
+		{
+			if (strcmp(a->ident->name, b->ident->name))
+				return strcmp(a->ident->name, b->ident->name) < 0 ? true : false;
+			if (!a->has_subscript && !b->has_subscript)
+				return false;
+			else
+				return cmp(a->subscribe, b->subscribe);
+		}
+
 		else if (a->temp_type == REALPARA)
 			return strcmp(a->ident->name, b->ident->name) < 0 ? true : false;
 		else if (a->temp_type == FORMPARA)
 			return strcmp(a->ident->name, b->ident->name) < 0 ? true : false;
 		else
 			assert(0 == 1);
+	}
+
+	bool operator () (const Temp* a, const Temp* b) const
+	{
+		return cmp(a, b);
 	}
 
 };

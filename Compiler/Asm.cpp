@@ -58,6 +58,16 @@ void Asm::print()
 	}
 }
 
+bool Asm::reg_same(std::string reg)
+{
+	for (int i = 0; i < this->m_args.size(); ++i)
+	{
+		if (this->m_args.at(i) == reg)
+			return true;
+	}
+	return false;
+}
+
 #ifdef _DEBUG
 Asm::Asm(std::string str)
 {
