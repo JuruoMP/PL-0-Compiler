@@ -24,7 +24,8 @@ void Init()
 	printf("#include <stdio.h>\n");
 	printf("char _string[] = \"%%s\";\n");
 	printf("char _value[] = \"%%d\";\n");
-	printf("char _charac[] = \"%%c\";\n");
+	printf("char _characr[] = \" %%c\";\n");
+	printf("char _characw[] = \"%%c\";\n");
 	symbol_table = symbol_table->getInstance();
 	Procedure* main_proc = new Procedure("main", 0);
 	symbol_table->addNode("main", 0, true);

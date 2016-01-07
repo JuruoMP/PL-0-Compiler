@@ -62,6 +62,7 @@ public:
 	Label *label;
 	GotoCode(const Label *label);
 	std::string print();
+	std::string printbody();
 };
 
 class FPCode : public Code
@@ -80,6 +81,7 @@ public:
 	Label* label;
 	LabelCode(const Label *label);
 	std::string print();
+	std::string printbody();
 };
 
 class AssignCode : public Code

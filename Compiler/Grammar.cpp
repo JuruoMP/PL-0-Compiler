@@ -1427,6 +1427,8 @@ void Grammar::error(WORD word, GRAMMAR_ERROR no)
 	std::vector<SymbolTK> stopword;
 	stopword.push_back(SEMICOLONTK);
 	//this->readpass(stopword);
+	system("pause");
+	exit(-1);
 }
 
 void Grammar::readpass(std::vector<SymbolTK> stopword)

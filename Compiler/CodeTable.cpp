@@ -73,6 +73,13 @@ std::string GotoCode::print()
 	return str;
 }
 
+std::string GotoCode::printbody()
+{
+	std::string str;
+	str += this->label->print();
+	return str;
+}
+
 FPCode::FPCode(int nodeid, char* name)
 : Code(FPKD, "FP:")
 {
@@ -102,6 +109,13 @@ std::string LabelCode::print()
 {
 	std::string str;
 	str += this->head; str += "\t\t";
+	str += this->label->print();
+	return str;
+}
+
+std::string LabelCode::printbody()
+{
+	std::string str;
 	str += this->label->print();
 	return str;
 }
@@ -370,6 +384,9 @@ CodeTable::Node::Node()
 
 void CodeTable::Node::compile()
 {
+#ifdef QuadOptimize
+	this->quadOptimize();
+#endif
 	Asm* asmcode;
 	std::vector<std::string> args;
 	for (int i = 0; i < this->codes.size(); ++i)
@@ -466,6 +483,17 @@ void CodeTable::Node::compile()
 							this->asms.push_back(asmcode);
 							break;
 						}
+					}
+					if ((code->target->temp_type == VARTP && (code->target->ident->type == CHAR || code->target->ident->type == RETCHAR)) ||
+						(code->target->temp_type == TEMPCHARTP) ||
+						((code->target->temp_type == REALPARA || code->target->temp_type == FORMPARA) && code->target->ident->type == PARACHAR))
+					{
+						//and eax, 0xff
+						args.clear();
+						args.push_back("eax");
+						args.push_back("0xff");
+						asmcode = new Asm(ASMAND, args);
+						this->asms.push_back(asmcode);
 					}
 					/*
 					1.Generate code to load address of code->target to esi
@@ -660,6 +688,17 @@ void CodeTable::Node::compile()
 					this->asms.push_back(asmcode);
 					break;
 				}
+			}
+			if ((code->target->temp_type == VARTP && (code->target->ident->type == CHAR || code->target->ident->type == RETCHAR)) ||
+				(code->target->temp_type == TEMPCHARTP) ||
+				((code->target->temp_type == REALPARA || code->target->temp_type == FORMPARA) && code->target->ident->type == PARACHAR))
+			{
+				//and eax, 0xff
+				args.clear();
+				args.push_back("eax");
+				args.push_back("0xff");
+				asmcode = new Asm(ASMAND, args);
+				this->asms.push_back(asmcode);
 			}
 			/*
 			1.Generate code to load address of code->target to esi
@@ -867,38 +906,22 @@ void CodeTable::Node::compile()
 			if (code->temp->temp_type != VARTP)
 				code_table->error("Read to an unchangeable identifier");
 			getTempAddr(code->temp);
-			//clear [esi]
-			//sub eax, eax
-			//mov [esi], eax
-			args.clear();
-			args.push_back("eax"); args.push_back("eax");
-			asmcode = new Asm(ASMSUB, args);
-			this->asms.push_back(asmcode);
-			args.clear();
-			args.push_back("[esi]"); args.push_back("eax");
-			asmcode = new Asm(ASMMOV, args);
-			this->asms.push_back(asmcode);
-			//mov eax, esi
 			//lea ebx, _value
-			//push eax
+			//push esi
 			//push ebx
 			//call scanf
 			//add esp, 2 * UNITSIZE
-			args.clear();
-			args.push_back("eax"); args.push_back("esi");
-			asmcode = new Asm(ASMMOV, args);
-			this->asms.push_back(asmcode);
 			args.clear();
 			args.push_back("ebx");
 			if (code->temp->ident->type == CHAR ||
 				code->temp->ident->type == ARRAYCHAR ||
 				code->temp->ident->type == CONSTCHAR)
-				args.push_back("_charac");
+				args.push_back("_characr");
 			else
 				args.push_back("_value");
 			asmcode = new Asm(ASMLEA, args);
 			this->asms.push_back(asmcode);
-			push("eax");
+			push("esi");
 			push("ebx");
 			args.clear();
 			args.push_back("scanf");
@@ -911,7 +934,26 @@ void CodeTable::Node::compile()
 			args.push_back(value);
 			asmcode = new Asm(ASMADD, args);
 			this->asms.push_back(asmcode);
-
+			if (code->temp->ident->type == CHAR ||
+				code->temp->ident->type == ARRAYCHAR ||
+				code->temp->ident->type == CONSTCHAR)
+			{
+				//mov eax, [esi]
+				//and eax, 0xff
+				//mov [esi], eax
+				args.clear();
+				args.push_back("eax"); args.push_back("[esi]");
+				asmcode = new Asm(ASMMOV, args);
+				this->asms.push_back(asmcode);
+				args.clear();
+				args.push_back("eax"); args.push_back("0xff");
+				asmcode = new Asm(ASMAND, args);
+				this->asms.push_back(asmcode);
+				args.clear();
+				args.push_back("[esi]"); args.push_back("eax");
+				asmcode = new Asm(ASMMOV, args);
+				this->asms.push_back(asmcode);
+			}
 		}
 		else if (basecode->kind == WRITEKD)
 		{
@@ -956,14 +998,14 @@ void CodeTable::Node::compile()
 						code->value.temp->ident->type == ARRAYCHAR ||
 						code->value.temp->ident->type == CONSTCHAR || 
 						code->value.temp->ident->type == PARACHAR)
-						args.push_back("dword ptr [_charac]");
+						args.push_back("dword ptr [_characw]");
 					else
 						args.push_back("dword ptr [_value]");
 				}
 				else
 				{
 					if (code->value.temp->temp_type == TEMPCHARTP)
-						args.push_back("dword ptr [_charac]");
+						args.push_back("dword ptr [_characw]");
 					else
 						args.push_back("dword ptr [_value]");
 				}
@@ -1221,6 +1263,8 @@ void CodeTable::End()
 void CodeTable::error(char* err_info)
 {
 	std::cerr << err_info << std::endl;
+	system("pause");
+	exit(-1);
 }
 
 void CodeTable::Node::push(std::string str)
@@ -1250,7 +1294,26 @@ void CodeTable::Node::printasm()
 
 void CodeTable::Node::quadOptimize()
 {
-	//remove useless labels
+	std::map<std::string, Label*> label_map;
+	for (int i = 0; i < this->codes.size() - 1; ++i)
+	{
+		if (codes.at(i)->kind == LABELKD && codes.at(i + 1)->kind == LABELKD && 
+			label_map.find(dynamic_cast<LabelCode*>(codes.at(i))->printbody()) == label_map.end())
+		{
+			label_map[dynamic_cast<LabelCode*>(codes.at(i + 1))->printbody()] = dynamic_cast<LabelCode*>(codes.at(i))->label;
+			codes.erase(codes.begin() + i + 1);
+			i--;
+		}
+	}
+	for (int i = 0; i < this->codes.size(); ++i)
+	{
+		if (codes.at(i)->kind == GOTOKD)
+		{
+			GotoCode* code = dynamic_cast<GotoCode*>(codes.at(i));
+			if (label_map.find(code->printbody()) != label_map.end())
+				code->label = label_map[code->printbody()];
+		}
+	}
 }
 
 void CodeTable::Node::asmOptimize()

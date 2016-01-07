@@ -7,6 +7,22 @@ void DAG::insert(AssignCode* code)
 
 void DAG::optimize()
 {
+	bool optimizable = true;
+	for (int i = 0; i < this->assign_codes.size(); ++i)
+	{
+		AssignCode* code = assign_codes.at(i);
+		if (code->num1->temp_type == REALPARA || code->num2->temp_type == REALPARA ||
+			code->target->temp_type == REALPARA)
+		{
+			optimizable = false;
+		}
+	}
+	if (!optimizable)
+	{
+		for (int i = 0; i < this->assign_codes.size(); ++i)
+			this->result.push_back(this->assign_codes.at(i));
+		return;
+	}
 	for (int i = 0; i < assign_codes.size(); ++i)
 	{
 		if (assign_codes.at(i)->op == SETTK)

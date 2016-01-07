@@ -2,7 +2,8 @@
 #include <stdio.h>
 char _string[] = "%s";
 char _value[] = "%d";
-char _charac[] = "%c";
+char _characr[] = " %c";
+char _characw[] = "%c";
 char in_string0[] = "PASS3 ";
 char in_string1[] = "FAILE3 ";
 char in_string2[] = "PASS2 ";

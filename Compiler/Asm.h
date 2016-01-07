@@ -44,6 +44,7 @@ enum ASMTYPE
 	ASMDEC,
 	ASMNEC,
 	ASMCDQ,
+	ASMAND,
 	
 	ASMCMP,
 	ASMJE,//jump equal
