@@ -87,6 +87,14 @@ void Symbol::mgetsym()
 			c = this->mgetchar();
 		if (c == NULL)
 			break;
+#ifdef CHINESE
+		if (c < 0)
+		{
+			c = this->mgetchar();
+			c = this->mgetchar();
+			continue;
+		}
+#endif
 		if (isalpha(c))
 		{
 			POSITION word_pos(pos);

@@ -2,6 +2,7 @@
 #include "CodeTable.h"
 #include "Symbol.h"
 #include "DAG.h"
+#include "BasicBlock.h"
 
 CodeTable* code_table;
 extern char token_name[][16];
@@ -1294,6 +1295,7 @@ void CodeTable::Node::printasm()
 
 void CodeTable::Node::quadOptimize()
 {
+	//delete useless labels
 	std::map<std::string, Label*> label_map;
 	for (int i = 0; i < this->codes.size() - 1; ++i)
 	{
@@ -1314,6 +1316,117 @@ void CodeTable::Node::quadOptimize()
 				code->label = label_map[code->printbody()];
 		}
 	}
+	//delete useless operations
+	for (int i = 0; i < this->codes.size(); ++i)
+	{
+		if (this->codes.at(i)->kind == ASSIGNKD)
+		{
+			bool useless = false;
+			AssignCode* code = dynamic_cast<AssignCode*>(this->codes.at(i));
+			if (code->op == ADDTK)
+			{
+				if ((code->num1->type == CONSTINT || code->num1->type == CONSTCHAR)
+					&& (code->num1->value == 0) && code->target == code->num2)
+					useless = true;
+				else if ((code->num2->type == CONSTINT || code->num2->type == CONSTCHAR)
+					&& (code->num2->value == 0) && code->target == code->num1)
+					useless = true;
+			}
+			else if (code->op == SUBTK)
+			{
+				if ((code->num2->type == CONSTINT || code->num2->type == CONSTCHAR)
+					&& (code->num2->value == 0) && code->target == code->num1)
+					useless = true;
+			}
+			else if (code->op == MULTK)
+			{
+				if ((code->num1->type == CONSTINT || code->num1->type == CONSTCHAR)
+					&& (code->num1->value == 1) && code->target == code->num2)
+					useless = true;
+				else if ((code->num2->type == CONSTINT || code->num2->type == CONSTCHAR)
+					&& (code->num2->value == 1) && code->target == code->num1)
+					useless = true;
+			}
+			else if (code->op == DIVTK)
+			{
+				if ((code->num2->type == CONSTINT || code->num2->type == CONSTCHAR)
+					&& (code->num2->value == 1) && code->target == code->num1)
+					useless = true;
+			}
+		}
+	}
+#ifdef LiveAnalyse
+	//Live Analyse
+	//split into BasicBlocks
+	std::vector<int> starts;
+	starts.push_back(1);
+	for (int i = 1; i < this->codes.size(); ++i)
+	{
+		if (this->codes.at(i)->kind == CONDITIONKD || this->codes.at(i)->kind == GOTOKD || 
+			this->codes.at(i)->kind == CALLKD)
+		{
+			if (i + 1 < this->codes.size())
+				starts.push_back(i + 1);
+		}
+		else if (this->codes.at(i)->kind == LABELKD)
+			starts.push_back(i);
+	}
+	std::vector<BasicBlock*> blocks;
+	for (int i = 0; i < starts.size(); ++i)
+	{
+		int st = starts.at(i);
+		int ed = (i == starts.size() - 1) ? this->codes.size() : starts.at(i + 1);
+		BasicBlock* block = new BasicBlock(blocks.size(), this, st, ed);
+		block->init_analyse();
+		blocks.push_back(block);
+	}
+	//generate afterward BasicBlocks
+	for (int i = 0; i < blocks.size(); ++i)
+	{
+		if (i != blocks.size() - 1)
+			blocks.at(i)->after.push_back(i + 1);
+		if (blocks.at(i)->get_code(-1)->kind == CONDITIONKD)
+		{
+			ConditionCode* code = dynamic_cast<ConditionCode*>(blocks.at(i)->get_code(-1));
+			Label* label = code->label;
+			for (int j = 0; j < blocks.size(); ++j)
+			{
+				if (blocks.at(j)->get_code(0)->kind == LABELKD && 
+					dynamic_cast<LabelCode*>(blocks.at(j)->get_code(0))->label->print() == label->print())
+				{
+					blocks.at(i)->after.push_back(j);
+					break;
+				}
+			}
+		}
+	}
+	//calculate inset & outset
+	bool changed = true;
+	while (changed)
+	{
+		changed = false;
+		for (int i = blocks.size() - 1; i >= 0; --i)
+		{
+			//set* old_out = blocks.at(i)->outset;
+			set* new_out = new set();
+			for (int j = 0; j < blocks.at(i)->after.size(); ++j)
+			{
+				int afterid = blocks.at(i)->after.at(j);
+				set* tout = set::Union(new_out, blocks.at(afterid)->inset);
+				delete(new_out);
+				new_out = tout;
+			}
+			blocks.at(i)->outset = new_out;
+			set* out_def = set::Minus(blocks.at(i)->outset, blocks.at(i)->defset);
+			set* new_in = set::Union(blocks.at(i)->useset, out_def);
+			delete(out_def);
+			if (!set::Equ(new_in, blocks.at(i)->inset))
+				changed = true;
+			delete(blocks.at(i)->inset);
+			blocks.at(i)->inset = new_in;
+		}
+	}
+#endif
 }
 
 void CodeTable::Node::asmOptimize()

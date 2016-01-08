@@ -42,6 +42,9 @@
     <ClCompile Include="DAG.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BasicBlock.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Symbol.txt">
@@ -94,10 +97,54 @@
     <ClInclude Include="DAG.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicBlock.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="code.asm">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="..\TestCases\11.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\3.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\4.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\5.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\6.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\7.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\8.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\9.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\10.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\1.pas">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\TestCases\2.pas">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Compiler.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

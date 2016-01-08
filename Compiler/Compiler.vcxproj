@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Asm.cpp" />
+    <ClCompile Include="BasicBlock.cpp" />
     <ClCompile Include="CodeTable.cpp" />
     <ClCompile Include="common.cpp" />
     <ClCompile Include="DAG.cpp" />
@@ -165,16 +166,32 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Asm.h" />
+    <ClInclude Include="BasicBlock.h" />
     <ClInclude Include="CodeTable.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="DAG.h" />
     <ClInclude Include="Grammar.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Symbol.h" />
     <ClInclude Include="SymbolTable.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\TestCases\1.pas" />
+    <None Include="..\TestCases\10.pas" />
+    <None Include="..\TestCases\11.pas" />
+    <None Include="..\TestCases\2.pas" />
+    <None Include="..\TestCases\3.pas" />
+    <None Include="..\TestCases\4.pas" />
+    <None Include="..\TestCases\5.pas" />
+    <None Include="..\TestCases\6.pas" />
+    <None Include="..\TestCases\7.pas" />
+    <None Include="..\TestCases\8.pas" />
+    <None Include="..\TestCases\9.pas" />
     <None Include="code.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Compiler.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
